@@ -2,6 +2,11 @@ local _, ClassicCompanion = ...
 
 ClassicCompanion.stepFrames = {}
 
+-- Colors the given frame the given color.
+-- function ClassicCompanion.colorFrame(frame, r, g, b, a)
+    -- frame:SetColorTexture(r, g, b, a)
+-- end
+
 -- Initializes the frames containing steps, getting frames from a frame pool.
 function ClassicCompanion.initStepFrames()
     -- Reclaim all used frames.
@@ -11,7 +16,7 @@ function ClassicCompanion.initStepFrames()
     for i = 1, ClassicCompanionOptions.nbrSteps do
         ClassicCompanion.stepFrames[i] = ClassicCompanion.getFrame()
         if i ~= ClassicCompanionOptions.nbrSteps then
-            print(i)
+            ClassicCompanion.stepFrames[i].index = i
             ClassicCompanion.stepFrames[i].border = ClassicCompanion.stepFrames[i]:CreateTexture(nil, "BORDER")
             ClassicCompanion.stepFrames[i].border:SetColorTexture(0, 0, 0, 1)
             ClassicCompanion.stepFrames[i].border:SetPoint("TOPRIGHT", ClassicCompanion.stepFrames[i], "BOTTOMRIGHT")
