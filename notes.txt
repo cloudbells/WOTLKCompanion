@@ -1,0 +1,43 @@
+UI:
+- custom button texture, change color when hovered over and a different color when clicked
+- should be able to edit border size (min: 1, max: 4?)
+- should be able to set number of completed steps shown (min: 0, max: 2)
+- should be able to set number of next steps shown (min: 0, max: 6)
+- should be able to close the frame and reopen with command/minimap button
+- should have a separate config GUI
+- if player completes a quest but hasnt handed it in yet, mark it yellow(?)
+- if player delivers quest or has delivered the quest, mark it green (forever - check via API if its completed or not for each step and color it on guide load)
+- if player fails a quest, mark it red
+- if player picks up a quest, mark it blue
+- if quest is unavailable due to level or uncompleted prerequisite or any other reason (can this be checked via API?), mark it gray
+- should add pins to the map which show step number (black border, white background), arrow should point to 1 always
+
+arrow:
+- it should guide the player to coordinates of the current step
+
+functionality:
+- needs to be adaptable to potential future changes in the quest system
+- should auto accept quests that are part of the current guide
+- if player accepts or completes or delivers a quest that is before or after the current step, mark those as done anyway
+
+config:
+- should be able to lock the position and size of the addon
+- should be able to set font size (default: 12?)
+- should be able to set border size (default: 1)
+- all config options should be editable via commands
+
+guide dev UI (activatable via checkbox in config):
+- there should be a button at the bottom of the step list that adds a new step, which should include:
+    - checkbox for substep (is this step 3.1 or 4?)
+    - step number (non-editable)
+    - step description (required, text editable)
+    - step type - accept quest, do quest (display quest progress in guide in real time - 4/10 tigers killed), deliver quest, grind until XP, die (spirit ress), coordinate trigger, and more(?)
+    - quest ID (required if type is accept, do, or deliver, number editable - option to link to wowhead?) - check that its a real quest via in game API
+    - coordinates (optional editable) - button to set this editable to the player's current coordinates
+- right clicking a step allows player to delete, edit, or add new step after the clicked step
+        
+        
+        step conditional? if level x, skip?
+        
+each step is directly saved to saved variables and at each step the player is given the option (button?) to export the current guide via copy-paste
+    - needs directions to show player how its imported/exported
