@@ -71,14 +71,11 @@
                 </Layers>
                 <Scripts>
                     <OnEnter>
-                        ClassicCompanionFrameTitleFrameBackground:SetColorTexture(0.3, 0.3, 0.3, 0.75)
+                        ClassicCompanionFrameTitleFrameBackground:SetColorTexture(0.2, 0.2, 0.2, 0.5)
                     </OnEnter>
                     <OnLeave>
                         ClassicCompanionFrameTitleFrameBackground:SetColorTexture(0, 0, 0, 0)
                     </OnLeave>
-                    <OnClick>
-                        print("clicked")
-                    </OnClick>
                 </Scripts>
             </Button>
             <Frame name="$parentBodyFrame">
@@ -131,21 +128,12 @@
             </Layer>
         </Layers>
         <Scripts>
-            <OnLoad>
-                ClassicCompanion_OnLoad(self)
-            </OnLoad>
             <OnDragStart>
                 self:StartMoving()
             </OnDragStart>
             <OnDragStop>
                 self:StopMovingOrSizing()
             </OnDragStop>
-            <OnSizeChanged>
-                ClassicCompanion_OnSizeChanged(self)
-            </OnSizeChanged>
-            <OnEvent>
-                ClassicCompanion_OnEvent(self, event, ...) <!-- Sends the frame (self), the event name, and the event arguments (...) to the event handler. -->
-            </OnEvent>
         </Scripts>
     </Frame>
 </Ui>

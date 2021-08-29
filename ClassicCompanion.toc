@@ -1,21 +1,14 @@
 ## Interface: 20501
 ## Title: Classic Companion
-# Notes: 
+## Notes: A guide addon.
 ## Author: cloudbells
 ## Version: v1.0
 ## SavedVariablesPerCharacter: ClassicCompanionOptions
 # X-WoWI-ID:
 
-# Load libraries.
-
-# Load UI.
-UI\Config.lua
-UI\Config.xml
-UI\StepList.lua
-
 # Load utils.
-Utils.lua
+Util.lua
 
 # Load core files.
-ClassicCompanion.lua
 ClassicCompanion.xml
+ClassicCompanion.lua

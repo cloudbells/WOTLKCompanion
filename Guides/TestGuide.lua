@@ -1,9 +1,20 @@
 local _, ClassicCompanion = ...
 
-ClassicCompanion.testGuide = {
+ClassicCompanion.TestGuide = {
     {
-        ["text"] = "Test text, the brown cow or some shit",
-        ["quest"] = 12097,
-        
+        ["quest"] = 10407,
+        ["text"] = "Test text, the brown cow or something",
+        ["substep"] = false,
+        ["type"] = "accept", -- accept, do, deliver, grind, die, coordinate, more?
+        ["x"] = 23,
+        ["y"] = 42
+    },
+    {
+        ["quest"] = 10407,
+        ["type"] = "do", -- accept, do, deliver, grind, die, coordinate, more?
+        ["text"] = "Test text, the brown cow or something",
+        ["substep"] = false,
+        ["x"] = 23,
+        ["y"] = 42
     }
 }
