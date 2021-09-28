@@ -1,6 +1,7 @@
 local _, ClassicCompanion = ...
 
 ClassicCompanion.TestGuide = {
+    ["title"] = "Test Guide2",
     {
         ["quest"] = 10407,
         ["text"] = "Test text, the brown cow or something",

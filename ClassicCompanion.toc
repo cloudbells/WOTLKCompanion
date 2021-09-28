@@ -12,3 +12,6 @@ Util.lua
 # Load core files.
 ClassicCompanion.xml
 ClassicCompanion.lua
+
+# Load guides – temporary.
+Guides/TestGuide.lua
