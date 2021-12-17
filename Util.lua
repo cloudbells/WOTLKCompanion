@@ -3,27 +3,47 @@ local _, ClassicCompanion = ...
 -- Variables.
 local framePool = {}
 
--- Prints the given table.
-function ClassicCompanion:Dump(t, i, f)
-    i = i or "    "
-    f = not f
-    if f then
-        print("{")
-    end
-    for k, v in pairs(t) do
-        local kt = type(k)
-        local vt = type(v)
-        local ks = i .. (kt == "function" and "[function" or kt == "boolean" and (not k and "[false" or "[true") or kt == "string" and "[\"" .. k .. "\"" or "[" .. k) .. "] = "
-        if vt == "table" then
-            print(ks)
-            self:Dump(v, i .. "    ", true)
-            print(i .. "},")
-        else
-            print(ks .. (vt == "function" and "function" or vt == "boolean" and (not v and "false" or "true") or vt == "string" and "\"" .. v .. "\"" or v) .. ",")
+-- Prints the given table for debug purposes.
+function ClassicCompanion:PrintTable(t, i, f)
+    if type(t) == "table" then
+        i = i or "    "
+        f = not f
+        if f then
+            print("{")
         end
-    end
-    if f then
-        print("}")
+        for k, v in pairs(t) do
+            local kt = type(k)
+            local ks = i
+            if kt == "function" then
+                -- ks = ks .. "[function"
+            elseif kt == "boolean" then
+                ks = ks .. (not k and "[false" or "[true")
+            elseif kt == "string" then
+                ks = ks .. "[\"" .. k .. "\""
+            else
+                ks = ks .. "[" .. k
+            end
+            ks = ks .. "] = "
+            local vt = type(v)
+            if vt == "table" then
+                print(ks .. "{")
+                self:PrintTable(v, i .. "    ", true)
+                print(i .. "},")
+            elseif vt == "userdata" then
+                print(ks .. "userdata,")
+            elseif vt == "function" then
+                -- print(ks .. "function,")
+            elseif vt == "boolean" then
+                print(ks .. (not v and "false," or "true,"))
+            elseif vt == "string" then
+                print(ks .. "\"" .. v .. "\",")
+            else
+                print(ks .. v .. ",")
+            end
+        end
+        if f then
+            print("}")
+        end
     end
 end
 
@@ -40,14 +60,15 @@ function ClassicCompanion:GetFrame()
     return framePool[#framePool]
 end
 
--- Copies the given table and returns the copy. If no table is given, this returns the original table.
-function ClassicCompanion:Copy(o)
-    if type(o) == "table" then
-        local copy = {}
-        for k, v in pairs(o) do
-            copy[k] = type(v) == "table" and self:Copy(v) or v
+-- Deep copies the given table and returns the copy. If no table is given, this returns the original value.
+function ClassicCompanion:Copy(t)
+    if type(t) == "table" then
+        local c = {}
+        for k, v in pairs(t) do
+            c[k] = type(v) == "table" and self:Copy(v) or v
         end
-        return copy
+        setmetatable(c, self:Copy(getmetatable(t)))
+        return c
     end
-    return o
+    return t
 end

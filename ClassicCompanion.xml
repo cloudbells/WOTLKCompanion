@@ -25,7 +25,7 @@
                 <Anchors>
                     <Anchor point="BOTTOMRIGHT" />
                 </Anchors>
-                <NormalTexture name="$parentHighlight" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" alphaMode="ADD" />
+                <NormalTexture name="$parentNormal" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" alphaMode="ADD" />
                 <HighlightTexture name="$parentHighlight" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" alphaMode="ADD" />
                 <PushedTexture name="$parentPushed" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" alphaMode="ADD" />
                 <Scripts>
@@ -37,7 +37,16 @@
                     </OnMouseUp>
                 </Scripts>
             </Button>
-            <Button name="$parentTitleFrame">
+            <Button name="$parentOptionsButton" desaturated="true">
+                <Size x="20" y="20" />
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-2" y="-2" />
+                </Anchors>
+                <NormalTexture name="$parentNormal" file="Interface/Buttons/UI-OptionsButton" alphaMode="ADD" />
+                <HighlightTexture name="$parentHighlight" file="Interface/Buttons/UI-OptionsButton" alphaMode="ADD" />
+                <PushedTexture name="$parentPushed" file="Interface/Buttons/UI-OptionsButton" alphaMode="ADD" />
+            </Button>
+            <Frame name="$parentTitleFrame">
                 <Size x="1" y="24" />
                 <Anchors>
                     <Anchor point="TOP" />
@@ -69,15 +78,7 @@
                         </Texture>
                     </Layer>
                 </Layers>
-                <Scripts>
-                    <OnEnter>
-                        ClassicCompanionFrameTitleFrameBackground:SetColorTexture(0.2, 0.2, 0.2, 0.5)
-                    </OnEnter>
-                    <OnLeave>
-                        ClassicCompanionFrameTitleFrameBackground:SetColorTexture(0, 0, 0, 0)
-                    </OnLeave>
-                </Scripts>
-            </Button>
+            </Frame>
             <Frame name="$parentBodyFrame">
                 <Anchors>
                     <Anchor point="TOP" relativeTo="ClassicCompanionFrameTitleFrame" relativePoint="BOTTOM" x="" y="" />

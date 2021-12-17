@@ -4,6 +4,15 @@ local ADDON_NAME, ClassicCompanion = ...
 local stepFrames = {}
 local events
 
+-- Sets the currently displayed guide to the given guide.
+function ClassicCompanion:SetGuide(guide)
+    ClassicCompanionOptions.currentGuide = guide
+    ClassicCompanionFrameTitleFrameText:SetText(ClassicCompanionOptions.currentGuide.title)
+    stepFrames[1]:UpdateStep(guide[1])
+    stepFrames[2]:UpdateStep(guide[2])
+    stepFrames[3]:UpdateStep(guide[3])
+end
+
 -- Resizes each step frame to fit the parent frame. Code shamelessly stolen from Gemt.
 local function ResizeStepFrames()
     local height = ClassicCompanionFrameBodyFrame:GetHeight()
@@ -24,12 +33,18 @@ local function InitStepFrames()
     end
     for i = 1, ClassicCompanionOptions.nbrSteps do
         stepFrames[i] = ClassicCompanion:GetFrame()
-        if i ~= ClassicCompanionOptions.nbrSteps then
+        if i <= ClassicCompanionOptions.nbrSteps then
             stepFrames[i].index = i
+            local text = stepFrames[i]:CreateFontString(nil, "BACKGROUND", "ClassicCompanionTextTemplate")
+            text:SetPoint("TOPLEFT")
+            stepFrames[i].text = text
             stepFrames[i].border = stepFrames[i]:CreateTexture(nil, "BORDER")
             stepFrames[i].border:SetColorTexture(0, 0, 0, 1)
             stepFrames[i].border:SetPoint("TOPRIGHT", stepFrames[i], "BOTTOMRIGHT")
             stepFrames[i].border:SetPoint("TOPLEFT", stepFrames[i], "BOTTOMLEFT")
+            stepFrames[i].UpdateStep = function(self, step)
+                self.text:SetText(step.text)
+            end
         end
     end
     ResizeStepFrames() -- Needs to be called once on addon load.
@@ -38,10 +53,8 @@ end
 -- Loads all saved variables.
 local function LoadVariables()
     ClassicCompanionOptions = ClassicCompanionOptions or {}
-    -- Number of steps shown (default: 5)
-    ClassicCompanionOptions.nbrSteps = 5 -- TODO: load variable
-    ClassicCompanionOptions.currentGuide = ClassicCompanion.TestGuide -- TODO: load variable
-    print(ClassicCompanionOptions.currentGuide.title)
+    -- Number of steps shown (default: 4)
+    ClassicCompanionOptions.nbrSteps = 3 -- TODO: load variable
 end
 
 -- Called on ADDON_LOADED.
@@ -50,14 +63,9 @@ function ClassicCompanion:OnAddonLoaded(addonName)
         ClassicCompanionFrame:UnregisterEvent("ADDON_LOADED")
         LoadVariables()
         InitStepFrames()
-        ClassicCompanionFrameTitleFrameText:SetText(ClassicCompanionOptions.currentGuide.title)
+        ClassicCompanion:SetGuide(ClassicCompanion.TestGuide)
         print("|cFFFFFF00Classic Companion|r loaded!")
     end
-end
-
--- Called when player clicks the title.
-local function OnTitleClick()
-    print("clicked")
 end
 
 -- Called when events occur - self is the frame, event is the event, and ... are the event arguments
@@ -67,9 +75,11 @@ end
 
 -- Registers for events.
 local function Initialize()
+    ClassicCompanionFrameOptionsButton:SetScript("OnClick", function()
+        ClassicCompanion:SetGuide(ClassicCompanion.TestGuide2)
+    end)
     ClassicCompanionFrame:SetScript("OnEvent", OnEvent)
     ClassicCompanionFrame:SetScript("OnSizeChanged", ResizeStepFrames)
-    ClassicCompanionFrameTitleFrame:SetScript("OnClick", OnTitleClick)
     ClassicCompanionFrame:RegisterForDrag("LeftButton")
     events = {
         ADDON_LOADED = ClassicCompanion.OnAddonLoaded,

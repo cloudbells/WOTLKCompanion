@@ -15,3 +15,4 @@ ClassicCompanion.lua
 
 # Load guides – temporary.
 Guides/TestGuide.lua
+Guides/TestGuide2.lua
