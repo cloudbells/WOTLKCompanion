@@ -39,7 +39,7 @@
                 </Scripts>
             </Button>
             <Button name="$parentOptionsButton">
-                <Size x="20" y="20" />s
+                <Size x="20" y="20" />
                 <Anchors>
                     <Anchor point="TOPRIGHT" x="-2" y="-2" />
                 </Anchors>
