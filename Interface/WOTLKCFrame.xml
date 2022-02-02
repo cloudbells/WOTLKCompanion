@@ -1,0 +1,99 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="HIGH" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate">
+        <Size x="300" y="200" />
+        <ResizeBounds>
+            <minResize x="300" y="200" />
+            <maxResize x="500" y="400" />
+        </ResizeBounds>
+        <Anchors>
+            <Anchor point="CENTER" />
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture>
+                    <Color r="0" g="0" b="0" a="1" />
+                    <Anchors>
+                        <Anchor point="TOPLEFT" />
+                        <Anchor point="BOTTOMRIGHT" />
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Button name="$parentResizeButton" frameLevel="3">
+                <Size x="16" y="16" />
+                <Anchors>
+                    <Anchor point="BOTTOMRIGHT" />
+                </Anchors>
+                <NormalTexture name="$parentNormal" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" />
+                <HighlightTexture name="$parentHighlight" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" />
+                <PushedTexture name="$parentPushed" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" />
+                <Scripts>
+                    <OnMouseDown>
+                        self:GetParent():StartSizing("BOTTOMRIGHT")
+                    </OnMouseDown>
+                    <OnMouseUp>
+                        self:GetParent():StopMovingOrSizing()
+                    </OnMouseUp>
+                </Scripts>
+            </Button>
+            <Button name="$parentOptionsButton">
+                <Size x="20" y="20" />
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-2" y="-2" />
+                </Anchors>
+                <NormalTexture name="$parentNormal" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" />
+                <HighlightTexture name="$parentHighlight" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon"  />
+                <PushedTexture name="$parentPushed" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" />
+                <Scripts>
+                    <OnClick function="WOTLKC_OptionsButton_OnClick" />
+                </Scripts>
+            </Button>
+            <Frame name="$parentTitleFrame">
+                <Size x="1" y="24" />
+                <Anchors>
+                    <Anchor point="TOPLEFT" />
+                    <Anchor point="TOPRIGHT" />
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <FontString name="$parentText" inherits="WOTLKCFontTemplate">
+                            <Size x="200" /> <!-- temp -->
+                            <Anchors>
+                                <Anchor point="LEFT" x="4" />
+                            </Anchors>
+                        </FontString>
+                        <Texture parentKey="background">
+                            <Anchor point="TOPLEFT" />
+                            <Anchor point="BOTTOMRIGHT" />
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Scripts>
+                    <OnMouseDown>
+                        self:GetParent():StartMoving()
+                    </OnMouseDown>
+                    <OnMouseUp>
+                        self:GetParent():StopMovingOrSizing()
+                    </OnMouseUp>
+                </Scripts>
+            </Frame>
+            <Frame name="$parentBodyFrame">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentTitleFrame" relativePoint="BOTTOMLEFT" />
+                    <Anchor point="BOTTOMRIGHT" />
+                </Anchors>
+            </Frame>
+        </Frames>
+        <Scripts>
+            <OnLoad inherit="append">
+                WOTLKCFrame_OnLoad()
+            </OnLoad>
+            <OnEvent>
+                WOTLKCFrame_OnEvent(self, event, ...)
+            </OnEvent>
+            <OnSizeChanged function="WOTLKC_OnSizeChanged" />
+        </Scripts>
+    </Frame>
+</Ui>

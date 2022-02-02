@@ -1,29 +1,65 @@
-local _, ClassicCompanion = ...
+local _, WOTLKC = ...
 
-ClassicCompanion.TestGuide2 = {
-    ["title"] = "Test",
-    {
-        ["quest"] = 10407,
-        ["text"] = "This is the first step",
-        ["substep"] = false,
-        ["type"] = "accept", -- accept, do, deliver, grind, die, coordinate, more?
-        ["x"] = 23,
-        ["y"] = 42
+WOTLKC.TestGuide2 = {
+    ["title"] = "Teldrassil 1-10",
+    [1] = {
+        ["questID"] = 456,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Pick up The Balance of Nature",
+        ["type"] = WOTLKC.Types.Accept,
+        ["map"] = 1438,
+        ["x"] = 48.2,
+        ["y"] = 42.8,
+        ["substep"] = false
     },
-    {
-        ["quest"] = 10407,
-        ["type"] = "do", -- accept, do, deliver, grind, die, coordinate, more?
-        ["text"] = "This is the SECOND step",
-        ["substep"] = false,
-        ["x"] = 23,
-        ["y"] = 42
+    [2] = {
+        ["questID"] = 456,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Do The Balance of Nature",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1438,
+        ["x"] = 56.4,
+        ["y"] = 45,
+        ["substep"] = false
     },
-    {
-        ["quest"] = 10407,
-        ["type"] = "do", -- accept, do, deliver, grind, die, coordinate, more?
-        ["text"] = "This is the 3rd step",
-        ["substep"] = false,
-        ["x"] = 23,
-        ["y"] = 42
+    [3] = {
+        ["questID"] = 456,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Hand in The Balance of Nature",
+        ["type"] = WOTLKC.Types.Deliver,
+        ["map"] = 1438,
+        ["x"] = 48.2,
+        ["y"] = 42.8,
+        ["substep"] = false
+    },
+    [3] = {
+        ["questID"] = 457,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Pick up The Balance of Nature II",
+        ["type"] = WOTLKC.Types.Accept,
+        ["map"] = 1438,
+        ["x"] = 48.2,
+        ["y"] = 42.8,
+        ["substep"] = false
+    },
+    [4] = {
+        ["questID"] = 457,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Do The Balance of Nature II",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1438,
+        ["x"] = 61.4,
+        ["y"] = 34.8,
+        ["substep"] = false
+    },
+    [5] = {
+        ["questID"] = 457,
+        ["questName"] = "The Balance of Nature",
+        ["text"] = "Hand in Balance of Nature II",
+        ["type"] = WOTLKC.Types.Deliver,
+        ["map"] = 1438,
+        ["x"] = 48.2,
+        ["y"] = 42.8,
+        ["substep"] = false
     },
 }

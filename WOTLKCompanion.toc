@@ -1,0 +1,22 @@
+## Interface: 20503
+## Title: <Progress> WOTLK Companion
+## Notes: In-house addon for WOTLK race
+## Author: cloudbells
+## Version: v1.0
+## SavedVariablesPerCharacter: WOTLKCOptions
+
+# Load utils.
+Util.lua
+
+# Load core files.
+Init.lua
+
+# Load UI files.
+Interface/Templates.xml
+Interface/Dropdown.lua
+Interface/WOTLKCFrame.lua
+Interface/WOTLKCFrame.xml
+
+# Load guides.
+Guides/TestGuide.lua
+Guides/TestGuide2.lua

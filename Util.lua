@@ -1,10 +1,7 @@
-local _, ClassicCompanion = ...
-
--- Variables.
-local framePool = {}
+local _, WOTLKC = ...
 
 -- Prints the given table for debug purposes.
-function ClassicCompanion:PrintTable(t, i, f)
+function WOTLKC:PrintTable(t, i, f)
     if type(t) == "table" then
         i = i or "    "
         f = not f
@@ -47,21 +44,16 @@ function ClassicCompanion:PrintTable(t, i, f)
     end
 end
 
--- Returns a frame from the frame pool, and creates one if there is none free.
-function ClassicCompanion:GetFrame()
-    for _, frame in pairs(framePool) do
-        if not frame.used then
-            frame.used = true
-            return frame
-        end
+-- Returns an enum with the given values.
+function WOTLKC:Enum(t)
+    for i = 1, #t do
+        t[t[i]] = i
     end
-    framePool[#framePool + 1] = CreateFrame("Frame", nil, ClassicCompanionFrameBodyFrame, "ClassicCompanionStepFrameTemplate")
-    framePool[#framePool].used = true
-    return framePool[#framePool]
+    return t
 end
 
 -- Deep copies the given table and returns the copy. If no table is given, this returns the original value.
-function ClassicCompanion:Copy(t)
+function WOTLKC:Copy(t)
     if type(t) == "table" then
         local c = {}
         for k, v in pairs(t) do
