@@ -264,6 +264,10 @@
             <OnLoad>
                 self.UpdateStep = function(self, step)
                     self.text:SetText(step.text)
+                    
+                end
+                self.Clear = function(self)
+                    self.text:SetText("")
                 end
             </OnLoad>
         </Scripts>

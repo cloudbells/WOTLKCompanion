@@ -1,6 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-    <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="HIGH" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate">
+    <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="DIALOG" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate">
         <Size x="300" y="200" />
         <ResizeBounds>
             <minResize x="300" y="200" />
@@ -24,7 +24,7 @@
             <Button name="$parentResizeButton" frameLevel="3">
                 <Size x="16" y="16" />
                 <Anchors>
-                    <Anchor point="BOTTOMRIGHT" />
+                    <Anchor point="BOTTOMRIGHT" x="-19" />
                 </Anchors>
                 <NormalTexture name="$parentNormal" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" />
                 <HighlightTexture name="$parentHighlight" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Up" />
@@ -84,6 +84,91 @@
                     <Anchor point="TOPLEFT" relativeTo="$parentTitleFrame" relativePoint="BOTTOMLEFT" />
                     <Anchor point="BOTTOMRIGHT" />
                 </Anchors>
+                <Frames>
+                    <Slider name="WOTLKCSlider" obeyStepOnDrag="true" orientation="VERTICAL" minValue="1" maxValue="1" defaultValue="1" valueStep="1">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" x="-18" y="-16" />
+                            <Anchor point="BOTTOMRIGHT" y="15" />
+                        </Anchors>
+                        <Layers>
+                            <Layer level="BORDER">
+                                <Texture name="$parentLeftBorder"> <!-- Left border texture -->
+                                    <Size x="1" y="1" />
+                                    <Color r="1" g="1" b="1" a="1" />
+                                    <Anchors>
+                                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" x="0" y="-16" />
+                                        <Anchor point="TOPRIGHT" relativePoint="TOPLEFT" x="0" y="16" />
+                                    </Anchors>
+                                </Texture>
+                                <Texture name="$parentTopBorder"> <!-- Left border texture -->
+                                    <Size x="1" y="1" />
+                                    <Color r="1" g="1" b="1" a="1" />
+                                    <Anchors>
+                                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="16" />
+                                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="0" y="16" />
+                                    </Anchors>
+                                </Texture>
+                            </Layer>
+                        </Layers>
+                        <ThumbTexture file="Interface/Buttons/UI-ScrollBar-Knob">
+                            <Size x="18" y="24" />
+                            <TexCoords left="0.20" right="0.80" top="0.125" bottom="0.875" />
+                        </ThumbTexture>
+                        <Frames>
+                            <Button name="$parentUpButton" parentKey="upButton" registerForClicks="LeftButtonUp" inherits="UIPanelScrollUpButtonTemplate" frameLevel="4">
+                                <Anchors>
+                                    <Anchor point="BOTTOM" relativePoint="TOP" y="-1" />
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BORDER">
+                                        <Texture name="$parentBottomBorder"> <!-- Bottom border texture -->
+                                            <Size x="1" y="1" />
+                                            <Color r="1" g="1" b="1" a="1" />
+                                            <Anchors>
+                                                <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" />
+                                                <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" />
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <Scripts>
+                                    <OnClick>
+                                        WOTLKC_OnScroll(self, 1)
+                                    </OnClick>
+                                </Scripts>
+                            </Button>
+                            <Button name="$parentDownButton" parentKey="downButton" inherits="WOTLKCHighlightFrameTemplate" registerForClicks="LeftButtonUp" frameLevel="4">
+                                <Size x="17" y="16" />
+                                <Anchors>
+                                    <Anchor point="TOP" relativePoint="BOTTOM" y="1" />
+                                </Anchors>
+                                <Layers>
+                                    <Layer level="BORDER">
+                                        <Texture name="$parentTopBorder"> <!-- Top border texture -->
+                                            <Size x="1" y="1" />
+                                            <Color r="1" g="1" b="1" a="1" />
+                                            <Anchors>
+                                                <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="0" y="1" />
+                                                <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="0" y="1" />
+                                            </Anchors>
+                                        </Texture>
+                                    </Layer>
+                                </Layers>
+                                <NormalTexture name="$parentNormal" file="Interface/Addons/WOTLKCompanion/Media/DownButton" />
+                                <HighlightTexture name="$parentHighlight" file="Interface/Addons/WOTLKCompanion/Media/DownButton"  />
+                                <PushedTexture name="$parentPushed" file="Interface/Addons/WOTLKCompanion/Media/DownButton" />
+                                <Scripts>
+                                    <OnClick>
+                                        WOTLKC_OnScroll(self, -1)
+                                    </OnClick>
+                                </Scripts>
+                            </Button>
+                        </Frames>
+                        <Scripts>
+                            <OnValueChanged function="WOTLKC_Slider_OnValueChanged" />
+                        </Scripts>
+                    </Slider>
+                </Frames>
             </Frame>
         </Frames>
         <Scripts>
@@ -94,6 +179,7 @@
                 WOTLKCFrame_OnEvent(self, event, ...)
             </OnEvent>
             <OnSizeChanged function="WOTLKC_OnSizeChanged" />
+            <OnMouseWheel function="WOTLKC_OnScroll" />
         </Scripts>
     </Frame>
 </Ui>

@@ -17,8 +17,7 @@ function WOTLKC:OnAddonLoaded(addonName)
         LoadVariables()
         WOTLKC:InitFrames()
         WOTLKC:SetGuide(WOTLKC.TestGuide) -- temp
-        print(WOTLKC.Types.Accept)
-        print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside <Progress>.")
+        print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside Progress.")
     end
 end
 

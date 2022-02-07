@@ -51,5 +51,75 @@ WOTLKC.TestGuide = {
         ["x"] = 48.8,
         ["y"] = 40.2,
         ["substep"] = false
-    }
+    },
+    [6] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "6",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [7] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "7",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [8] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "8",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [9] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "9",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [10] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "10",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [11] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "11",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
+    [12] = {
+        ["questID"] = 33,
+        ["questName"] = "Wolves Across the Border",
+        ["text"] = "12",
+        ["type"] = WOTLKC.Types.Do,
+        ["map"] = 1429,
+        ["x"] = 48.2,
+        ["y"] = 37.4,
+        ["substep"] = false
+    },
 }
