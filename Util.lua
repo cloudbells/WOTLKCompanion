@@ -46,8 +46,12 @@ end
 
 -- Returns an enum with the given values.
 function WOTLKC:Enum(t)
-    for i = 1, #t do
-        t[t[i]] = i
+    if type(t) == "table" and #t > 0 then
+        for i = 1, #t do    
+            if type(t[i]) == "string" then
+                t[t[i]] = i
+            end
+        end
     end
     return t
 end

@@ -1,256 +1,24 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-    <Font name="WOTLKCFontTemplate" font="Fonts/FRIZQT__.ttf" outline="NORMAL" justifyH="LEFT" virtual="true">
-        <FontHeight>
-            <AbsValue val="12" />
-        </FontHeight>
-    </Font>
-    <!-- Abstract frames. -->
-    <Frame name="WOTLKCBorderedFrameTemplate" virtual="true">
-        <Layers>
-            <Layer level="BORDER">
-                <Texture parentKey="top"> <!-- Top border texture -->
-                    <Size x="1" y="1" />
-                    <Color r="1" g="1" b="1" a="1" />
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-1" />
-                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="1" />
-                    </Anchors>
-                </Texture>
-                <Texture parentKey="right"> <!-- Right border texture -->
-                    <Size x="1" y="1" />
-                    <Color r="1" g="1" b="1" a="1" />
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="-1" />
-                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="1" />
-                    </Anchors>
-                </Texture>
-                <Texture parentKey="bottom"> <!-- Bottom border texture -->
-                    <Size x="1" y="1" />
-                    <Color r="1" g="1" b="1" a="1" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="-1" />
-                        <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="1" />
-                    </Anchors>
-                </Texture>
-                <Texture parentKey="left"> <!-- Left border texture -->
-                    <Size x="1" y="1" />
-                    <Color r="1" g="1" b="1" a="1" />
-                    <Anchors>
-                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" y="-1" />
-                        <Anchor point="TOPRIGHT" relativePoint="TOPLEFT" y="1" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnLoad inherit="prepend">
-                self.SetBorderColor = function(self, r, g, b, a)
-                    self.top:SetColorTexture(r, g, b, a)
-                    self.right:SetColorTexture(r, g, b, a)
-                    self.bottom:SetColorTexture(r, g, b, a)
-                    self.left:SetColorTexture(r, g, b, a)
-                end
-                self.ResetBorderColor = function(self)
-                    self:SetBorderColor(1, 1, 1)
-                end
-            </OnLoad>
-        </Scripts>
-    </Frame>
-    <Frame name="WOTLKCHighlightFrameTemplate" virtual="true">
-        <Layers>
-            <Layer level="HIGHLIGHT">
-                <Texture parentKey="highlight" hidden="true">
-                    <Color r="1" g="1" b="1" a="0.4" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnLoad inherit="prepend">
-                self.SetHighlightColor = function(self, r, g, b, a)
-                    self.highlight:SetColorTexture(r, g, b, a)
-                end
-                self.ResetHighlightColor = function(self)
-                    self.highlight:SetColorTexture(1, 1, 1, 1)
-                end
-            </OnLoad>
-            <OnEnter inherit="prepend">
-                self.highlight:Show()
-            </OnEnter>
-            <OnLeave inherit="prepend">
-                self.highlight:Hide()
-            </OnLeave>
-        </Scripts>
-    </Frame>
-    <!-- Concrete frames. -->
-    <Button name="WOTLKCDropdownParentTemplate" registerForClicks="LeftButtonUp" inherits="WOTLKCBorderedFrameTemplate, WOTLKCHighlightFrameTemplate" virtual="true">
-        <Size y="20" />
-        <ButtonText>
-            <Anchors>
-                <Anchor point="LEFT" x="2" />
-            </Anchors>
-        </ButtonText>
-        <NormalFont style="WOTLKCFontTemplate" />
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture>
-                    <Color r="0" g="0" b="0" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnLoad inherit="append">
-                self.selectedValue = ""
-                self.callbacks = {}
-                self.values = {}
-                self.RegisterCallback = function(self, callback)
-                    self.callbacks[#self.callbacks + 1] = callback
-                end
-                self.SetValues = function(self, values, colorCodes)
-                    self.values = values
-                    self.colorCodes = colorCodes
-                end
-                self.GetValues = function(self)
-                    return self.values, self.colorCodes
-                end
-                self.AddValue = function(self, value, colorCode)
-                    self.values[#self.values] = value
-                    colorCodes[#colorCodex + 1] = colorCode
-                end
-                self.RemoveValue = function(self, value)
-                    for i = 1, #self.values do
-                        if self.values[i] == value then
-                            table.remove(self.values[i])
-                            if self.colorCodes[i] then
-                                table.remove(self.colorCodes[i])
-                            end
-                            break
-                        end
-                    end
-                end
-                self.SetSelectedValue = function(self, value, colorCode)
-                    if value then
-                        self.selectedValue = value
-                        self:SetText(colorCode and "|c" .. colorCode .. value .. "|r" or value)
-                        if self.callbacks and #self.callbacks > 0 then
-                            for i = 1, #self.callbacks do
-                                self.callbacks[i](self.selectedValue)
-                            end
-                        end
-                    end
-                end
-                self.GetSelectedValue = function(self)
-                    return self.selectedValue
-                end
-                self.SetInitialValue = function(self, initialValue, initialColor)
-                    self.initialValue = initialValue
-                    self.selectedValue = initialValue
-                    self:SetText(initialColor and "|c" .. initialColor .. initialValue .. "|r" or initialValue)
-                end
-                self.GetInitialValue = function(self)
-                    return self.initialValue
-                end
-            </OnLoad>
-        </Scripts>
-    </Button>
-    <Frame name="WOTLKCDropdownTemplate" inherits="WOTLKCBorderedFrameTemplate" hidden="true" virtual="true">
-        <Scripts>
-            <OnLoad inherit="append">
-                self.AttachTo = function(self, parent)
-                    self:SetSize(1, #parent.values * 20) <!-- Each button has height 20 -->
-                    self:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, -4)
-                    self:SetPoint("TOPRIGHT", parent, "BOTTOMRIGHT", 0, -4)
-                    self:SetParent(parent)
-                    self.timeSinceLast = 0
-                end
-                self.IsAttachedTo = function(self, frame)
-                    return frame == self:GetParent()
-                end
-                self.IsShowing = function(self)
-                    return self.isShowing
-                end
-            </OnLoad>
-            <OnShow inherit="append">
-                self.timeSinceLast = 0
-                self.isShowing = true
-            </OnShow>
-            <OnHide inherit="append">
-                self.isShowing = false
-            </OnHide>
-            <OnUpdate inherit="append">
-                self.timeSinceLast = self.timeSinceLast + elapsed
-                if self:IsMouseOver() then
-                    self.timeSinceLast = 0
-                elseif self.timeSinceLast >= 2 then
-                    self.timeSinceLast = 0
-                    self:Hide()
-                end
-            </OnUpdate>
-        </Scripts>
-    </Frame>
-    <Button name="WOTLKCDropdownButtonTemplate" inherits="WOTLKCHighlightFrameTemplate" virtual="true">
-        <Size y="20" />
-        <ButtonText>
-            <Anchors>
-                <Anchor point="LEFT" x="2" />
-            </Anchors>
-        </ButtonText>
-        <NormalFont style="WOTLKCFontTemplate" />
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture>
-                    <Color r="0" g="0" b="0" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnLoad inherit="append">
-                self.value = ""
-                self.SetValue = function(self, value, colorCode)
-                    if value then
-                        self:SetText(colorCode and "|c" .. colorCode .. value .. "|r" or value)
-                        self.value = value
-                        self.colorCode = colorCode <!-- Can be nil, and is nil by default. -->
-                    end
-                end
-                self.GetValue = function()
-                    return self.value
-                end
-            </OnLoad>
-            <OnClick inherit="append">
-                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
-                local dropdown = self:GetParent()
-                dropdown:Hide()
-                dropdown:GetParent():SetSelectedValue(self.value, self.colorCode)
-            </OnClick>
-        </Scripts>
-    </Button>
     <Button name="WOTLKCStepFrameTemplate" inherits="WOTLKCHighlightFrameTemplate" virtual="true">
         <Layers>
             <Layer level="BACKGROUND">
                 <Texture parentKey="background" />
             </Layer>
             <Layer level="OVERLAY">
-                <FontString parentKey="text" font="WOTLKCFontTemplate">
+                <FontString parentKey="stepNbr" font="WOTLKCFontTemplate">
                     <Anchors>
                         <Anchor point="TOPLEFT" x="4" y="-4" />
                     </Anchors>
                 </FontString>
+                <FontString parentKey="text" font="WOTLKCFontTemplate">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="24" y="-4" />
+                    </Anchors>
+                </FontString>
             </Layer>
             <Layer level="BORDER">
-                <Texture parentKey="top"> <!-- Top border texture -->
+                <Texture parentKey="topBorder">
                     <Size x="1" y="1" />
                     <Color r="1" g="1" b="1" a="1" />
                     <Anchors>
@@ -262,12 +30,13 @@
         </Layers>
         <Scripts>
             <OnLoad>
-                self.UpdateStep = function(self, step)
+                self.UpdateStep = function(self, number, step)
                     self.text:SetText(step.text)
-                    
+                    self.stepNbr:SetText(number)
                 end
                 self.Clear = function(self)
                     self.text:SetText("")
+                    self.stepNbr:SetText("")
                 end
             </OnLoad>
         </Scripts>

@@ -3,6 +3,11 @@ local ADDON_NAME, WOTLKC = ...
 -- Variables.
 local events
 
+-- Register a new guide for the addon.
+function WOTLK:RegisterGuide(guideName, guide)
+    WOTLKC.Guides[#WOTLKC.Guides + 1] = guide
+end
+
 -- Loads all saved variables.
 local function LoadVariables()
     WOTLKCOptions = WOTLKCOptions or {}
@@ -16,7 +21,10 @@ function WOTLKC:OnAddonLoaded(addonName)
         WOTLKCFrame:UnregisterEvent("ADDON_LOADED")
         LoadVariables()
         WOTLKC:InitFrames()
-        WOTLKC:SetGuide(WOTLKC.TestGuide) -- temp
+        if WOTLKCOptions.currentGuide then
+            -- WOTLKC:SetGuide(WOTLKCOptions.currentGuide)
+        end
+        WOTLKC:SetGuide("Elwynn Forest 1-10") -- temp
         print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside Progress.")
     end
 end
@@ -29,6 +37,7 @@ end
 -- Registers for events.
 local function Initialize()
     WOTLKC.Types = WOTLKC:Enum{"Accept", "Do", "Deliver", "Grind", "Die", "Coordinate"} -- more?
+    WOTLKC.Guides = {}
     events = {
         ADDON_LOADED = WOTLKC.OnAddonLoaded,
     }

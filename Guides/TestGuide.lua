@@ -1,7 +1,7 @@
 local _, WOTLKC = ...
 
-WOTLKC.TestGuide = {
-    ["title"] = "Elwynn Forest 1-10",
+-- The name must be unique!
+WOTLKC:RegisterGuide("Elwynn Forest 1-10", {
     [1] = {
         ["questID"] = 5261,
         ["questName"] = "Eagan Peltskinner",
@@ -122,4 +122,4 @@ WOTLKC.TestGuide = {
         ["y"] = 37.4,
         ["substep"] = false
     },
-}
+})

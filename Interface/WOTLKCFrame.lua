@@ -1,7 +1,7 @@
 local _, WOTLKC = ...
 
 -- todo:
--- build separate slider template like the dropdown template, make a nicer down button
+-- set up a good guide registering system
 
 -- Variables.
 local stepFrames = {}
@@ -54,27 +54,18 @@ end
 
 -- Updates the step frames according to the slider's current value.
 local function UpdateStepFrames()
-    if isLoaded then
-        if WOTLKCOptions.currentGuide then
-            local currentValue = WOTLKCSlider:GetValue()
-            for i = 1, #stepFrames do
-                if WOTLKCOptions.currentGuide[i] then
-                    stepFrames[i]:UpdateStep(WOTLKCOptions.currentGuide[currentValue + i - 1])
-                else
-                    stepFrames[i]:Clear()
-                end
+    if isLoaded and WOTLKCOptions.currentGuide then
+        local currentValue = WOTLKCSlider:GetValue()
+        local guide = WOTLKC.Guides[WOTLKCOptions.currentGuide]
+        for i = 1, #stepFrames do
+            local index = currentValue + i - 1
+            if guide[index] then
+                stepFrames[i]:UpdateStep(index, guide[index])
+            else
+                stepFrames[i]:Clear()
             end
         end
     end
-end
-
--- Sets the currently displayed guide to the given guide.
-function WOTLKC:SetGuide(guide)
-    WOTLKCOptions.currentGuide = guide
-    WOTLKCFrameTitleFrameText:SetText(WOTLKCOptions.currentGuide.title)
-    WOTLKCSlider:SetValue(1)
-    UpdateStepFrames()
-    UpdateSlider()
 end
 
 -- Returns (or creates if there is none available) a step frame from the pool.
@@ -108,42 +99,52 @@ local function InitStepFrames()
     end
 end
 
--- Called when the slider value changes (either due to scroll, clicking the up/down buttons or manually dragging the knob).
-function WOTLKC_Slider_OnValueChanged(self, value)
-    if not isScrollDisabled then
-        UpdateStepFrames()
-        -- Disable/enable buttons.
-        local _, maxValue = self:GetMinMaxValues()
-        if value <= 1 then
-            self.upButton:Disable()
-            self.downButton:Enable()
-        elseif value >= maxValue then
-            self.downButton:Disable()
-            self.upButton:Enable()
-        else
-            self.upButton:Enable()
-            self.downButton:Enable()
-        end
-    end
-end
-
 -- Called when user scrolls in the body frame.
 function WOTLKC_OnScroll(_, delta)
     -- Dividing by delta is done only to achieve the correct sign (negative/positive). Delta is always 1.
     WOTLKCSlider:SetValue(WOTLKCSlider:GetValue() - WOTLKCSlider:GetValueStep() / delta)
 end
 
--- Called when the options button was pressed by the player.
-function WOTLKC_OptionsButton_OnClick()
-    if WOTLKCOptions.currentGuide == WOTLKC.TestGuide then
-        WOTLKC:SetGuide(WOTLKC.TestGuide2)
+-- Called when the slider value changes (either due to scroll, clicking the up/down buttons or manually dragging the knob).
+function WOTLKC_Slider_OnValueChanged(self, value)
+    if isLoaded then
+        UpdateStepFrames()
+    end
+    -- Disable/enable buttons.
+    local _, maxValue = self:GetMinMaxValues()
+    if value <= 1 then
+        self.upButton:Disable()
+        self.downButton:Enable()
+    elseif value >= maxValue then
+        self.downButton:Disable()
+        self.upButton:Enable()
     else
-        WOTLKC:SetGuide(WOTLKC.TestGuide)
+        self.upButton:Enable()
+        self.downButton:Enable()
     end
 end
 
+-- Called when the options button was pressed by the player.
+function WOTLKC_OptionsButton_OnClick()
+    -- if WOTLKC.Guides[WOTLKCOptions.currentGuide + 1] then
+        -- WOTLKC:SetGuide(WOTLKCOptions.currentGuide)
+    -- else
+        -- WOTLKC:SetGuide(WOTLKC.Guides[1])
+    -- end
+end
+
+-- Called when the size of the frame changes.
 function WOTLKC_OnSizeChanged(self)
     ResizeStepFrames()
+end
+
+-- Sets the currently displayed guide to the given guide.
+function WOTLKC:SetGuide(guideName)
+    WOTLKCOptions.currentGuide = guideName
+    WOTLKCFrameTitleFrameText:SetText(guideName)
+    WOTLKCSlider:SetValue(1)
+    UpdateStepFrames()
+    UpdateSlider()
 end
 
 -- Initializes all the frames.

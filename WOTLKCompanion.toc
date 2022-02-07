@@ -1,6 +1,6 @@
 ## Interface: 20503
 ## Title: <Progress> WOTLK Companion
-## Notes: In-house addon for WOTLK race
+## Notes: In-house addon for WOTLK race. Do NOT share this outside the guild.
 ## Author: cloudbells
 ## Version: v1.0
 ## SavedVariablesPerCharacter: WOTLKCOptions
@@ -11,12 +11,17 @@ Util.lua
 # Load core files.
 Init.lua
 
+# Load base UI files.
+Interface/Custom/BaseTemplates.xml
+Interface/Custom/Dropdown.xml
+
 # Load UI files.
 Interface/Templates.xml
-Interface/Dropdown.lua
 Interface/WOTLKCFrame.lua
 Interface/WOTLKCFrame.xml
 
-# Load guides.
+
+
+# Load guides. Add your custom guide path below to load it.
 Guides/TestGuide.lua
 Guides/TestGuide2.lua

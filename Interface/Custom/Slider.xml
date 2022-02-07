@@ -1,0 +1,14 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Slider name="WOTLKCSliderTemplate" obeyStepOnDrag="true" orientation="VERTICAL" minValue="1" maxValue="1" defaultValue="1" valueStep="1" inherits="WOTLKCBorderedFrameTemplate" virtual="true">
+        <Frames>
+            <Button parentKey="downButton" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBorderedFrameTemplate">
+                <Scripts>
+                    <OnClick>
+                        WOTLKC_OnScroll(self, -1)
+                    </OnClick>
+                </Scripts>
+            </Button>
+        </Frames>
+    </Slider>
+</Ui>

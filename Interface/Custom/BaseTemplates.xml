@@ -1,0 +1,101 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Font name="WOTLKCFontTemplate" font="Fonts/FRIZQT__.ttf" outline="NORMAL" justifyH="LEFT" virtual="true">
+        <FontHeight>
+            <AbsValue val="12" />
+        </FontHeight>
+    </Font>
+    <Frame name="WOTLKCBorderedFrameTemplate" virtual="true">
+        <Layers>
+            <Layer level="BORDER">
+                <Texture parentKey="top">
+                    <Size x="1" y="1" />
+                    <Color r="1" g="1" b="1" a="1" />
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-1" />
+                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="1" />
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="right">
+                    <Size x="1" y="1" />
+                    <Color r="1" g="1" b="1" a="1" />
+                    <Anchors>
+                        <Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" y="-1" />
+                        <Anchor point="TOPLEFT" relativePoint="TOPRIGHT" y="1" />
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="bottom">
+                    <Size x="1" y="1" />
+                    <Color r="1" g="1" b="1" a="1" />
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="-1" />
+                        <Anchor point="TOPRIGHT" relativePoint="BOTTOMRIGHT" x="1" />
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="left">
+                    <Size x="1" y="1" />
+                    <Color r="1" g="1" b="1" a="1" />
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" y="-1" />
+                        <Anchor point="TOPRIGHT" relativePoint="TOPLEFT" y="1" />
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad inherit="prepend">
+                self.SetBorderColor = function(self, r, g, b, a)
+                    self.top:SetColorTexture(r, g, b, a)
+                    self.right:SetColorTexture(r, g, b, a)
+                    self.bottom:SetColorTexture(r, g, b, a)
+                    self.left:SetColorTexture(r, g, b, a)
+                end
+                self.ResetBorderColor = function(self)
+                    self:SetBorderColor(1, 1, 1)
+                end
+            </OnLoad>
+        </Scripts>
+    </Frame>
+    <Frame name="WOTLKCHighlightFrameTemplate" virtual="true">
+        <Layers>
+            <Layer level="HIGHLIGHT">
+                <Texture parentKey="highlight" hidden="true">
+                    <Color r="1" g="1" b="1" a="0.4" />
+                    <Anchors>
+                        <Anchor point="TOPLEFT" />
+                        <Anchor point="BOTTOMRIGHT" />
+                    </Anchors>
+                </Texture>
+                <Texture parentKey="push" hidden="true">
+                    <Color r="1" g="1" b="1" a="0.6" />
+                    <Anchor point="TOPLEFT" />
+                    <Anchor point="BOTTOMRIGHT" />
+                </Texture>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad inherit="prepend">
+                self.SetHighlightColor = function(self, r, g, b, a)
+                    self.highlight:SetColorTexture(r, g, b, a)
+                end
+                self.ResetHighlightColor = function(self)
+                    self.highlight:SetColorTexture(1, 1, 1, 1)
+                end
+            </OnLoad>
+            <OnEnter inherit="prepend">
+                self.highlight:Show()
+            </OnEnter>
+            <OnLeave inherit="prepend">
+                self.highlight:Hide()
+            </OnLeave>
+            <OnMouseDown inherit="prepend">
+                self.highlight:Hide()
+                self.push:Show()
+            </OnMouseDown>
+            <OnMouseUp inherit="prepend">
+                self.push:Hide()
+                self.highlight:Show()
+            </OnMouseUp>
+        </Scripts>
+    </Frame>
+</Ui>

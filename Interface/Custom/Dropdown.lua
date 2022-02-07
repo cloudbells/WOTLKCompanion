@@ -61,7 +61,7 @@ end
 -- clicks one. An optional table containing color codes may be given, and an optional initial value will set the initial value of the dropdown, otherwise the default is the first value found.
 function WOTLKC:CreateDropdown(parentFrame, frameName, callback, values, colorCodes, initialValue, initialColor)
     -- Create the actual dropdown parent button (which opens/closes the dropdown itself).
-    local dropdownParent = CreateFrame("Button", frameName and frameName or nil, parentFrame, "WOTLKCDropdownParentTemplate")
+    local dropdownParent = CreateFrame("Button", frameName, parentFrame, "WOTLKCDropdownParentTemplate")
     dropdownParent:RegisterCallback(callback)
     dropdownParent:SetValues(values, colorCodes)
     dropdownParent:SetInitialValue(initialValue and initialValue or values[1], initialColor and initialColor or colorCodes and colorCodes[1] or nil)
