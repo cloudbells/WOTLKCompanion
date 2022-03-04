@@ -7,6 +7,8 @@ function WOTLKC.EventHandlers:OnQuestAccepted(_, questID)
     if step.type == WOTLKC.Types.Accept and step.questID == questID then
         WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][WOTLKC.currentStep] = true
         WOTLKC.UI.StepFrame:ScrollToNextIncomplete()
+    else
+        WOTLKC.UI.StepFrame:UpdateStepFrames() -- If the quest that was completed is currently shown.
     end
 end
 
@@ -16,6 +18,8 @@ function WOTLKC.EventHandlers:OnQuestTurnedIn(questID)
     if step.type == WOTLKC.Types.Deliver and step.questID == questID then
         WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][WOTLKC.currentStep] = true
         WOTLKC.UI.StepFrame:ScrollToNextIncomplete()
+    else
+        WOTLKC.UI.StepFrame:UpdateStepFrames()
     end
 end
 
