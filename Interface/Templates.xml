@@ -1,44 +1,4 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
-    <Button name="WOTLKCStepFrameTemplate" inherits="WOTLKCHighlightFrameTemplate" virtual="true">
-        <Layers>
-            <Layer level="BACKGROUND">
-                <Texture parentKey="background" />
-            </Layer>
-            <Layer level="OVERLAY">
-                <FontString parentKey="stepNbr" font="WOTLKCFontTemplate">
-                    <Anchors>
-                        <Anchor point="TOPLEFT" x="4" y="-4" />
-                    </Anchors>
-                </FontString>
-                <FontString parentKey="text" font="WOTLKCFontTemplate">
-                    <Anchors>
-                        <Anchor point="TOPLEFT" x="24" y="-4" />
-                    </Anchors>
-                </FontString>
-            </Layer>
-            <Layer level="BORDER">
-                <Texture parentKey="topBorder">
-                    <Size x="1" y="1" />
-                    <Color r="1" g="1" b="1" a="1" />
-                    <Anchors>
-                        <Anchor point="BOTTOMLEFT" relativePoint="TOPLEFT" x="-1" />
-                        <Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT" x="1" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
-        <Scripts>
-            <OnLoad>
-                self.UpdateStep = function(self, number, step)
-                    self.text:SetText(step.text)
-                    self.stepNbr:SetText(number)
-                end
-                self.Clear = function(self)
-                    self.text:SetText("")
-                    self.stepNbr:SetText("")
-                end
-            </OnLoad>
-        </Scripts>
-    </Button>
+    
 </Ui>

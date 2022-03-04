@@ -1,25 +1,15 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Include file="Interface/Custom/Dropdown.lua" />
-    <Button name="WOTLKCDropdownParentTemplate" registerForClicks="LeftButtonUp" inherits="WOTLKCBorderedFrameTemplate, WOTLKCHighlightFrameTemplate" virtual="true">
+    <Button name="WOTLKCDropdownParentTemplate" inherits="WOTLKCBorderedFrameTemplate, WOTLKCHighlightFrameTemplate, WOTLKCBackgroundFrameTemplate" registerForClicks="LeftButtonUp, RightButtonUp"
+            virtual="true">
         <Size y="20" />
+        <NormalFont style="WOTLKCFontTemplate" />
         <ButtonText>
             <Anchors>
                 <Anchor point="LEFT" x="2" />
             </Anchors>
         </ButtonText>
-        <NormalFont style="WOTLKCFontTemplate" />
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture>
-                    <Color r="0" g="0" b="0" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
         <Scripts>
             <OnLoad inherit="append">
                 self.selectedValue = ""
@@ -110,25 +100,14 @@
             </OnUpdate>
         </Scripts>
     </Frame>
-    <Button name="WOTLKCDropdownButtonTemplate" inherits="WOTLKCHighlightFrameTemplate" virtual="true">
+    <Button name="WOTLKCDropdownButtonTemplate" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBackgroundFrameTemplate" virtual="true">
         <Size y="20" />
+        <NormalFont style="WOTLKCFontTemplate" />
         <ButtonText>
             <Anchors>
                 <Anchor point="LEFT" x="2" />
             </Anchors>
         </ButtonText>
-        <NormalFont style="WOTLKCFontTemplate" />
-        <Layers>
-            <Layer level="ARTWORK">
-                <Texture>
-                    <Color r="0" g="0" b="0" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
         <Scripts>
             <OnLoad inherit="append">
                 self.value = ""
@@ -139,7 +118,7 @@
                         self.colorCode = colorCode <!-- Can be nil, and is nil by default. -->
                     end
                 end
-                self.GetValue = function()
+                self.GetValue = function(self)
                     return self.value
                 end
             </OnLoad>

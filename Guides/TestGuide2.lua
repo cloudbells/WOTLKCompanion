@@ -1,7 +1,8 @@
 local _, WOTLKC = ...
 
 -- The name must be unique!
-WOTLKC:RegisterGuide("Teldrassil 1-10", {
+WOTLKC:RegisterGuide({
+    ["name"] = "Teldrassil 1-10",
     [1] = {
         ["questID"] = 456,
         ["questName"] = "The Balance of Nature",

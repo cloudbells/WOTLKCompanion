@@ -1,30 +1,39 @@
 local ADDON_NAME, WOTLKC = ...
 
+WOTLKC.UI = {
+    Main = {},
+    StepFrame = {},
+    Arrow = {}
+}
+WOTLKC.EventHandlers = {}
+
 -- Variables.
 local events
-
--- Register a new guide for the addon.
-function WOTLK:RegisterGuide(guideName, guide)
-    WOTLKC.Guides[#WOTLKC.Guides + 1] = guide
-end
 
 -- Loads all saved variables.
 local function LoadVariables()
     WOTLKCOptions = WOTLKCOptions or {}
+    WOTLKCOptions.completedSteps = {}
     -- Number of steps shown (default: 4)
     WOTLKCOptions.nbrSteps = 3 -- TODO: load variable
 end
 
+-- Called when most game data is available.
+function WOTLKC.EventHandlers:OnPlayerEnteringWorld()
+    WOTLKCFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    WOTLKC.UI.Arrow:InitArrow()
+    WOTLKCOptions.currentGuideName = "Elwynn Forest 1-10" -- temp
+    if WOTLKCOptions.currentGuideName then
+        WOTLKC:SetGuide(WOTLKCOptions.currentGuideName)
+    end
+end
+
 -- Called on ADDON_LOADED.
-function WOTLKC:OnAddonLoaded(addonName)
+function WOTLKC.EventHandlers:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
         WOTLKCFrame:UnregisterEvent("ADDON_LOADED")
         LoadVariables()
-        WOTLKC:InitFrames()
-        if WOTLKCOptions.currentGuide then
-            -- WOTLKC:SetGuide(WOTLKCOptions.currentGuide)
-        end
-        WOTLKC:SetGuide("Elwynn Forest 1-10") -- temp
+        WOTLKC.UI.Main:InitFrames()
         print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside Progress.")
     end
 end
@@ -36,10 +45,14 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC:Enum{"Accept", "Do", "Deliver", "Grind", "Die", "Coordinate"} -- more?
+    WOTLKC.Types = WOTLKC:Enum{"Accept", "Do", "Deliver", "Grind", "Coordinate"}
     WOTLKC.Guides = {}
     events = {
-        ADDON_LOADED = WOTLKC.OnAddonLoaded,
+        ADDON_LOADED = WOTLKC.EventHandlers.OnAddonLoaded,
+        PLAYER_ENTERING_WORLD = WOTLKC.EventHandlers.OnPlayerEnteringWorld,
+        ZONE_CHANGED_NEW_AREA = WOTLKC.EventHandlers.OnZoneChangedNewArea,
+        QUEST_ACCEPTED = WOTLKC.EventHandlers.OnQuestAccepted,
+        QUEST_TURNED_IN = WOTLKC.EventHandlers.OnQuestTurnedIn
     }
     for event, callback in pairs(events) do
         WOTLKCFrame:RegisterEvent(event, callback)

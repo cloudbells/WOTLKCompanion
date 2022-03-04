@@ -5,21 +5,29 @@
 ## Version: v1.0
 ## SavedVariablesPerCharacter: WOTLKCOptions
 
+# Load libs.
+Libs/LibStub/LibStub.lua
+Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
+Libs/HereBeDragons/HereBeDragons-2.0.lua
+
 # Load utils.
 Util.lua
 
 # Load core files.
 Init.lua
+Main.lua
 
 # Load base UI files.
 Interface/Custom/BaseTemplates.xml
 Interface/Custom/Dropdown.xml
 
 # Load UI files.
-Interface/Templates.xml
-Interface/WOTLKCFrame.lua
+Interface/Arrow.xml
+Interface/StepFrame.xml
 Interface/WOTLKCFrame.xml
 
+
+# ------------------------------------------------------------------------------------------
 
 
 # Load guides. Add your custom guide path below to load it.

@@ -1,5 +1,6 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
+    <Include file="Interface/WOTLKCFrame.lua" />
     <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="DIALOG" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate">
         <Size x="300" y="200" />
         <ResizeBounds>
@@ -33,7 +34,7 @@
                     <OnClick function="WOTLKC_OptionsButton_OnClick" />
                 </Scripts>
             </Button>
-            <Frame name="$parentTitleFrame">
+            <Frame parentKey="titleFrame">
                 <Size x="1" y="24" />
                 <Anchors>
                     <Anchor point="TOPLEFT" />
@@ -41,19 +42,21 @@
                 </Anchors>
                 <Layers>
                     <Layer level="BACKGROUND">
-                        <FontString name="$parentText" inherits="WOTLKCFontTemplate">
+                        <FontString parentKey="text" inherits="WOTLKCFontTemplate">
                             <Size x="200" /> <!-- temp -->
                             <Anchors>
                                 <Anchor point="LEFT" x="4" />
                             </Anchors>
                         </FontString>
-                        <Texture parentKey="background">
-                            <Anchor point="TOPLEFT" />
-                            <Anchor point="BOTTOMRIGHT" />
-                        </Texture>
+                        <Texture parentKey="background" setAllPoints="true" />
                     </Layer>
                 </Layers>
                 <Scripts>
+                    <OnLoad>
+                        self.SetText = function(self, text)
+                            self.text:SetText(text)
+                        end
+                    </OnLoad>
                     <OnMouseDown>
                         self:GetParent():StartMoving()
                     </OnMouseDown>
@@ -64,7 +67,7 @@
             </Frame>
             <Frame name="$parentBodyFrame">
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="$parentTitleFrame" relativePoint="BOTTOMLEFT" />
+                    <Anchor point="TOPLEFT" relativeKey="$parent.titleFrame" relativePoint="BOTTOMLEFT" />
                     <Anchor point="BOTTOMRIGHT" />
                 </Anchors>
                 <Frames>
@@ -90,19 +93,14 @@
                             </Layer>
                         </Layers>
                         <Frames>
-                            <Button name="$parentUpButton" parentKey="upButton" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBorderedFrameTemplate" registerForClicks="LeftButtonUp">
+                            <Button name="$parentUpButton" parentKey="upButton" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBorderedFrameTemplate, WOTLKCPushableFrameTemplate" registerForClicks="LeftButtonUp">
                                 <Size x="18" y="18" />
                                 <Anchors>
                                     <Anchor point="TOPRIGHT" y="20" />
                                 </Anchors>
                                 <Layers>
                                     <Layer level="BACKGROUND">
-                                        <Texture parentKey="buttonTexture" file="Interface/Addons/WOTLKCompanion/Media/UpButton">
-                                            <Anchors>
-                                                <Anchor point="TOPLEFT" />
-                                                <Anchor point="BOTTOMRIGHT" />
-                                            </Anchors>
-                                        </Texture>
+                                        <Texture parentKey="buttonTexture" setAllPoints="true" file="Interface/Addons/WOTLKCompanion/Media/UpButton" />
                                     </Layer>
                                 </Layers>
                                 <Scripts>
@@ -117,19 +115,14 @@
                                     </OnClick>
                                 </Scripts>
                             </Button>
-                            <Button name="$parentDownButton" parentKey="downButton" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBorderedFrameTemplate" registerForClicks="LeftButtonUp">
+                            <Button name="$parentDownButton" parentKey="downButton" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBorderedFrameTemplate, WOTLKCPushableFrameTemplate" registerForClicks="LeftButtonUp">
                                 <Size x="18" y="18" />
                                 <Anchors>
                                     <Anchor point="BOTTOMRIGHT" y="-20" />
                                 </Anchors>
                                 <Layers>
                                     <Layer level="BACKGROUND">
-                                        <Texture parentKey="buttonTexture" file="Interface/Addons/WOTLKCompanion/Media/DownButton">
-                                            <Anchors>
-                                                <Anchor point="TOPLEFT" />
-                                                <Anchor point="BOTTOMRIGHT" />
-                                            </Anchors>
-                                        </Texture>
+                                        <Texture parentKey="buttonTexture" setAllPoints="true" file="Interface/Addons/WOTLKCompanion/Media/DownButton" />
                                     </Layer>
                                 </Layers>
                                 <Scripts>
@@ -165,7 +158,7 @@
                         <PushedTexture name="$parentPushed" file="Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down" />
                         <Scripts>
                             <OnMouseDown>
-                                WOTLKCFrame:StartSizing("BOTTOMRIGHT")
+                                WOTLKCFrame:StartSizing()
                             </OnMouseDown>
                             <OnMouseUp>
                                 WOTLKCFrame:StopMovingOrSizing()
@@ -178,6 +171,9 @@
         <Scripts>
             <OnLoad inherit="append">
                 WOTLKCFrame_OnLoad()
+                self.SetTitleText = function(self, text)
+                    self.titleFrame:SetText(text)
+                end
             </OnLoad>
             <OnEvent>
                 WOTLKCFrame_OnEvent(self, event, ...)

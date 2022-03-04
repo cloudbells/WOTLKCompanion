@@ -1,0 +1,28 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Include file="Interface/Arrow.lua" />
+    <Frame name="WOTLKCArrow" parent="UIParent" enableMouse="true" clampedToScreen="true" movable="true" hidden="true">
+        <Size x="56" y="42" />
+        <Anchors>
+            <Anchor point="CENTER" />
+        </Anchors>
+        <Layers>
+            <Layer level="BACKGROUND">
+                <Texture parentKey="texture" setAllPoints="true" file="Interface/Addons/WOTLKCompanion/Media/Arrow" />
+                <FontString parentKey="distanceLbl" inherits="WOTLKCFontTemplate">
+                    <Anchors>
+                        <Anchor relativePoint="BOTTOM" point="TOP" y="-4" />
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnMouseDown>
+                self:StartMoving()
+            </OnMouseDown>
+            <OnMouseUp>
+                self:StopMovingOrSizing()
+            </OnMouseUp>
+        </Scripts>
+    </Frame>
+</Ui>
