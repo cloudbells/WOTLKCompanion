@@ -14,6 +14,11 @@
                         <Anchor point="TOPLEFT" x="24" y="-4" />
                     </Anchors>
                 </FontString>
+                <FontString parentKey="objectives" font="WOTLKCFontTemplate" wordwrap="true">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" relativeKey="$parent.text" relativePoint="BOTTOMLEFT" y="-4" />
+                    </Anchors>
+                </FontString>
             </Layer>
             <Layer level="BORDER">
                 <Texture parentKey="topBorder">
@@ -35,19 +40,19 @@
                 end
                 self.ResizeText = function(self, width)
                     self.text:SetWidth(width)
+                    self.objectives:SetWidth(width)
                 end
-                self.UpdateStep = function(self, index, step, isActive, isCompleted)
+                self.UpdateStep = function(self, index, step, isAvailable, isCompleted, isActive)
                     self.text:SetText(step.text)
                     self.index = index
                     self.stepNbr:SetText(index)
-                    if isActive then
+                    if isCompleted then
+                        self:SetBackgroundColor(0, 0.4, 0, 1)
+                    elseif not isAvailable then
+                        self:SetBackgroundColor(0.4, 0, 0, 1)
+                    elseif isActive then
                         self:SetBackgroundColor(0.4, 0.4, 0, 1)
                     else
-                        self:ResetBackgroundColor()
-                    end
-                    if isCompleted then
-                        self:SetBackgroundColor(0, 0.2, 0, 1)
-                    elseif not isActive then
                         self:ResetBackgroundColor()
                     end
                 end

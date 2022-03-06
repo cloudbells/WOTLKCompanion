@@ -11,7 +11,7 @@ WOTLKC:RegisterGuide({
         ["y"] = 42.95,
     },
     [2] = {
-        ["type"] = WOTLKC.Types.Deliver,
+        ["type"] = WOTLKC.Types.Deliver, -- Deliver type quests don't need a "requires" field as the addon will simply check if the quest is finished and in the player's quest log.
         ["questID"] = 783,
         ["text"] = "Hand in A Threat Within",
         ["map"] = 1429,
@@ -19,6 +19,9 @@ WOTLKC:RegisterGuide({
         ["y"] = 41.60,
     },
     [3] = {
+        ["requires"] = {
+            2
+        },
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 7,
         ["text"] = "Pick up Kobold Camp Cleanup",
@@ -27,6 +30,12 @@ WOTLKC:RegisterGuide({
         ["y"] = 41.60,
     },
     [4] = {
+        ["requires"] = {
+            2
+        },
+        ["lockedBy"] = { -- If the steps listed in this field are completed, then this becomes unavailable.
+            6
+        },
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 5261,
         ["text"] = "Pick up Eagan Peltskinner",
@@ -51,7 +60,7 @@ WOTLKC:RegisterGuide({
         ["y"] = 40.17,
     },
     [7] = {
-        ["type"] = WOTLKC.Types.Do,
+        ["type"] = WOTLKC.Types.Do, -- Do type quests also don't need a "requires" field as the addon simply checks if the player is currently on the questID (or if a multiStep, one of the quest IDs).
         ["isMultiStep"] = true,
         ["questIDs"] = {
             33,
@@ -71,14 +80,22 @@ WOTLKC:RegisterGuide({
         ["y"] = 40.17,
     },
     [9] = {
+        ["type"] = WOTLKC.Types.Coordinate,
+        ["questID"] = 33, -- Coordinate steps should have a quest ID so they can be marked as complete if the player decides to ignore it but forgets to manually skip it in the addon.
+        ["text"] = "Walk over here",
+        ["map"] = 1429,
+        ["x"] = 46.66,
+        ["y"] = 42.00,
+    },
+    [10] = {
         ["type"] = WOTLKC.Types.Deliver,
-        ["questID"] = 33,
+        ["questID"] = 7,
         ["text"] = "Hand in Kobold Camp Cleanup",
         ["map"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
-    [10] = {
+    [11] = {
         ["type"] = WOTLKC.Types.Grind,
         ["level"] = 3,
         ["xp"] = 800,
@@ -87,11 +104,4 @@ WOTLKC:RegisterGuide({
         ["x"] = 47.81,
         ["y"] = 39.69,
     },
-    [11] = {
-        ["type"] = WOTLKC.Types.Coordinate,
-        ["text"] = "Walk over here",
-        ["map"] = 1429,
-        ["x"] = 46.66,
-        ["y"] = 42.00,
-    }
 })

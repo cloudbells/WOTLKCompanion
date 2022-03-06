@@ -1,3 +1,3 @@
-# ClassicCompanion
+# WOTLK Companion
 
-Classic Companion.
+WOTLK Companion.

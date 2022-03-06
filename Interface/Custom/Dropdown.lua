@@ -77,7 +77,7 @@ function WOTLKC:CreateDropdown(parentFrame, frameName, callback, values, colorCo
         dropdown:AttachTo(dropdownParent)
     end
     dropdownParent:HookScript("OnHide", function(self)
-        dropdown:Hide() -- Necessary for if the player hides the Interface panel, so that the dropdown doesn't show for 2 seconds when opening it again.
+        dropdown:Hide() -- Necessary for if the player hides the parent frame, so that the dropdown doesn't show for 2 seconds when opening it again.
     end)
     dropdownParent:HookScript("OnClick", function(self, button)
         if button == "LeftButton" then

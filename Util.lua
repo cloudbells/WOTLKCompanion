@@ -1,7 +1,7 @@
 local _, WOTLKC = ...
 
 -- Prints the given table for debug purposes.
-function WOTLKC:PrintTable(t, i, f)
+function WOTLKC.Util:PrintTable(t, i, f)
     if type(t) == "table" then
         i = i or "    "
         f = not f
@@ -45,7 +45,7 @@ function WOTLKC:PrintTable(t, i, f)
 end
 
 -- Returns an enum with the given values.
-function WOTLKC:Enum(t)
+function WOTLKC.Util:Enum(t)
     if type(t) == "table" and #t > 0 then
         for i = 1, #t do    
             if type(t[i]) == "string" then
@@ -57,7 +57,7 @@ function WOTLKC:Enum(t)
 end
 
 -- Deep copies the given table and returns the copy. If no table is given, this returns the original value.
-function WOTLKC:Copy(t)
+function WOTLKC.Util:Copy(t)
     if type(t) == "table" then
         local c = {}
         for k, v in pairs(t) do

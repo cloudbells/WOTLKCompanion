@@ -1,7 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Include file="Interface/WOTLKCFrame.lua" />
-    <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="DIALOG" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate">
+    <Frame name="WOTLKCFrame" parent="UIParent" frameStrata="DIALOG" clampedToScreen="true" movable="true" resizable="true" inherits="WOTLKCBorderedFrameTemplate, WOTLKCBackgroundFrameTemplate">
         <Size x="300" y="200" />
         <ResizeBounds>
             <minResize x="300" y="200" />
@@ -10,17 +10,6 @@
         <Anchors>
             <Anchor point="CENTER" />
         </Anchors>
-        <Layers>
-            <Layer level="BACKGROUND">
-                <Texture>
-                    <Color r="0" g="0" b="0" a="1" />
-                    <Anchors>
-                        <Anchor point="TOPLEFT" />
-                        <Anchor point="BOTTOMRIGHT" />
-                    </Anchors>
-                </Texture>
-            </Layer>
-        </Layers>
         <Frames>
             <Button name="$parentOptionsButton">
                 <Size x="20" y="20" />

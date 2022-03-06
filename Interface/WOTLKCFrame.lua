@@ -3,11 +3,36 @@ local _, WOTLKC = ...
 -- Variables.
 local isScrollDisabled = false
 
+-- Finds and scrolls to the first relevant step in the guide. This might be any step since the player might've already completed some of them.
+function WOTLKC.UI.StepFrame:ScrollToFirstIncomplete()
+    local index = 1
+    for i = 1, #WOTLKC.currentGuide do
+        if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
+            index = i
+            break
+        end
+    end
+    WOTLKC:SetCurrentStep(index)
+    WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
+end
+
+-- Finds the next step from the current one that is not yet completed.
+function WOTLKC.UI.StepFrame:ScrollToNextIncomplete()
+    local index = 1
+    for i = WOTLKC.currentStep, #WOTLKC.currentGuide do
+        if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
+            index = i
+            break
+        end
+    end
+    WOTLKC:SetCurrentStep(index)
+    WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
+end
+
 -- Updates the slider max value.
 function WOTLKC.UI.Main:UpdateSlider()
     local maxValue
-    local nbrStepFrames = WOTLKC.UI.StepFrame:GetNumberStepFrames()
-    if #WOTLKC.Guides[WOTLKC.currentGuideName] < nbrStepFrames then
+    if #WOTLKC.currentGuide < WOTLKCOptions.nbrSteps then
         maxValue = 1
         WOTLKCSlider:SetValue(1)
         WOTLKCSlider.upButton:Disable()
@@ -15,7 +40,7 @@ function WOTLKC.UI.Main:UpdateSlider()
         WOTLKCSlider:Disable()
         isScrollDisabled = true
     else
-        maxValue = #WOTLKC.Guides[WOTLKC.currentGuideName] - nbrStepFrames + 1
+        maxValue = #WOTLKC.currentGuide - WOTLKCOptions.nbrSteps + 1
         local currentValue = WOTLKCSlider:GetValue()
         if currentValue > 1 then
             WOTLKCSlider.upButton:Enable()
