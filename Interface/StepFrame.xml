@@ -1,7 +1,8 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
 ..\FrameXML\UI.xsd">
     <Include file="Interface/StepFrame.lua" />
-    <Button name="WOTLKCStepFrameTemplate" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBackgroundFrameTemplate, WOTLKCPushableFrameTemplate" virtual="true">
+    <Button name="WOTLKCStepFrameTemplate" inherits="WOTLKCHighlightFrameTemplate, WOTLKCBackgroundFrameTemplate, WOTLKCPushableFrameTemplate" virtual="true"
+            registerForClicks="LeftButtonUp, RightButtonUp">
         <Layers>
             <Layer level="OVERLAY">
                 <FontString parentKey="stepNbr" font="WOTLKCFontTemplate">
@@ -12,11 +13,6 @@
                 <FontString parentKey="text" font="WOTLKCFontTemplate" wordwrap="true">
                     <Anchors>
                         <Anchor point="TOPLEFT" x="24" y="-4" />
-                    </Anchors>
-                </FontString>
-                <FontString parentKey="objectives" font="WOTLKCFontTemplate" wordwrap="true">
-                    <Anchors>
-                        <Anchor point="TOPLEFT" relativeKey="$parent.text" relativePoint="BOTTOMLEFT" y="-4" />
                     </Anchors>
                 </FontString>
             </Layer>
@@ -40,10 +36,9 @@
                 end
                 self.ResizeText = function(self, width)
                     self.text:SetWidth(width)
-                    self.objectives:SetWidth(width)
                 end
-                self.UpdateStep = function(self, index, step, isAvailable, isCompleted, isActive)
-                    self.text:SetText(step.text)
+                self.UpdateStep = function(self, index, text, isAvailable, isCompleted, isActive)
+                    self.text:SetText(text)
                     self.index = index
                     self.stepNbr:SetText(index)
                     if isCompleted then

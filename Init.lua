@@ -76,8 +76,12 @@ local function Initialize()
         ZONE_CHANGED_NEW_AREA = WOTLKC.Events.OnZoneChangedNewArea,
         QUEST_ACCEPTED = WOTLKC.Events.OnQuestAccepted,
         QUEST_TURNED_IN = WOTLKC.Events.OnQuestTurnedIn,
-        QUEST_WATCH_UPDATE = WOTLKC.Events.OnQuestWatchUpdate,
+        UNIT_QUEST_LOG_CHANGED = WOTLKC.Events.OnUnitQuestLogChanged,
         QUEST_REMOVED = WOTLKC.Events.OnQuestRemoved,
+        PLAYER_STARTED_MOVING = WOTLKC.Events.OnPlayerStartedMoving,
+        PLAYER_STOPPED_MOVING = WOTLKC.Events.OnPlayerStoppedMoving,
+        PLAYER_XP_UPDATE = WOTLKC.Events.OnPlayerXPUpdate,
+        -- PLAYER_LEVEL_UP = WOTLKC.Events.OnPlayerLevelUp
     }
     for event, callback in pairs(events) do
         WOTLKCFrame:RegisterEvent(event, callback)
@@ -97,17 +101,11 @@ end
 -- Called when most game data is available.
 function WOTLKC.Events:OnPlayerEnteringWorld()
     WOTLKCFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    WOTLKC.UI.Arrow:InitArrow()
+    WOTLKC:Init()
     WOTLKCOptions.currentGuideName = "Elwynn Forest 1-10" -- temp
     if WOTLKCOptions.currentGuideName then
         WOTLKC:SetGuide(WOTLKCOptions.currentGuideName)
     end
-    
-    -- local oldFunc = C_QuestLog.RequestLoadQuestByID
-    -- C_QuestLog.RequestLoadQuestByID = function(...)
-        -- print("requested load")
-        -- oldFunc(...)
-    -- end
 end
 
 -- Called on ADDON_LOADED.

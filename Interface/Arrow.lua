@@ -1,7 +1,7 @@
 local _, WOTLKC = ...
 
 -- Variables.
-local hbd = LibStub("HereBeDragons-2.0")
+local hbd
 local timeSinceLast = 0
 local goalX, goalY
 local isInInstance
@@ -10,6 +10,7 @@ local arrowText -- Same.
 
 -- Constants.
 local THRESHOLD = 0.01 -- OnUpdate threshold.
+local GOAL_DISTANCE = 5
 local PI2 = math.pi * 2
 
 -- Localized globals.
@@ -24,6 +25,9 @@ local function OnUpdate(_, elapsed)
         local playerX, playerY, instance = hbd:GetPlayerWorldPosition() -- Need to offset the coords with player coords since we aren't at 0.
         -- Get the vector for the goal. The angle is to the goal from the player's current position.
         local angle, distance = hbd:GetWorldVector(instance, playerX, playerY, goalX, goalY)
+        if distance <= GOAL_DISTANCE then
+            -- print("COORDINATES REACHED")
+        end
         -- To get angle between the facing vector and goal vector, subtract the angle between the x axis and the facing vector.
         angle = angle - GetPlayerFacing()
         -- Use the angle to get the arrow texture coordinates.
@@ -41,11 +45,12 @@ end
 
 -- Sets the current goal world coordinate.
 function WOTLKC.UI.Arrow:SetGoal(x, y, map)
-    if not WOTLKCArrow:GetScript("OnUpdate") then
-        WOTLKCArrow:HookScript("OnUpdate", OnUpdate)
+    if x and y and map then
+        goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, map)
+        WOTLKCArrow:Show()
+    else
+        WOTLKCArrow:Hide()
     end
-    goalX, goalY, goalInstance = hbd:GetWorldCoordinatesFromZone(x, y, map)
-    WOTLKCArrow:Show()
 end
 
 -- Called when the player changes zones.
@@ -58,4 +63,6 @@ function WOTLKC.UI.Arrow:InitArrow()
     isInInstance = IsInInstance()
     arrowTexture = WOTLKCArrow.texture
     arrowText = WOTLKCArrow.distanceLbl
+    hbd = LibStub("HereBeDragons-2.0")
+    WOTLKCArrow:HookScript("OnUpdate", OnUpdate)
 end

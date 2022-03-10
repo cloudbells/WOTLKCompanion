@@ -97,11 +97,19 @@ WOTLKC:RegisterGuide({
     },
     [11] = {
         ["type"] = WOTLKC.Types.Grind,
-        ["level"] = 3,
-        ["xp"] = 800,
-        ["text"] = "Grind until you're level 3, 800 xp",
+        ["level"] = 4,
+        ["xp"] = 100,
+        ["text"] = "Grind until you're level 4, 100 xp",
         ["map"] = 1429,
         ["x"] = 47.81,
         ["y"] = 39.69,
     },
+    [12] = {
+        ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 18,
+        ["text"] = "Pick up Brotherhood of Thieves",
+        ["map"] = 1429,
+        ["x"] = 48.17,
+        ["y"] = 42.94,
+    }
 })

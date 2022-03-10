@@ -4,7 +4,7 @@ local _, WOTLKC = ...
 local isScrollDisabled = false
 
 -- Finds and scrolls to the first relevant step in the guide. This might be any step since the player might've already completed some of them.
-function WOTLKC.UI.StepFrame:ScrollToFirstIncomplete()
+function WOTLKC.UI.Main:ScrollToFirstIncomplete()
     local index = 1
     for i = 1, #WOTLKC.currentGuide do
         if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
@@ -13,20 +13,28 @@ function WOTLKC.UI.StepFrame:ScrollToFirstIncomplete()
         end
     end
     WOTLKC:SetCurrentStep(index)
+    -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
     WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
 end
 
 -- Finds the next step from the current one that is not yet completed.
-function WOTLKC.UI.StepFrame:ScrollToNextIncomplete()
+-- This will scroll from the given step index if given.
+function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
     local index = 1
-    for i = WOTLKC.currentStep, #WOTLKC.currentGuide do
+    for i = fromStep or WOTLKC.currentStep, #WOTLKC.currentGuide do
         if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
             index = i
             break
         end
     end
     WOTLKC:SetCurrentStep(index)
+    -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
     WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
+end
+
+-- Scrolls to the step with the given index.
+function WOTLKC.UI.Main:ScrollToIndex(index)
+    self:ScrollToNextIncomplete(index)
 end
 
 -- Updates the slider max value.
