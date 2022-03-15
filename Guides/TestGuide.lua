@@ -111,5 +111,25 @@ WOTLKC:RegisterGuide({
         ["map"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.94,
+    },
+    [13] = {
+        ["type"] = WOTLKC.Types.Item,
+        ["itemIDs"] = {
+            2381
+        },
+        ["text"] = "Buy Tarnished Chain Leggings",
+        ["map"] = 1429,
+        ["x"] = 47.69,
+        ["y"] = 41.42,
+    },
+    [14] = {
+        ["type"] = WOTLKC.Types.Sell,
+        ["itemIDs"] = {
+            159
+        },
+        ["text"] = "Sell your water",
+        ["map"] = 1429,
+        ["x"] = 47.69,
+        ["y"] = 41.42,
     }
 })

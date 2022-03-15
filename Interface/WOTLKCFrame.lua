@@ -70,7 +70,7 @@ end
 
 -- Called when the slider value changes (either due to scroll, clicking the up/down buttons or manually dragging the knob).
 function WOTLKC_Slider_OnValueChanged(self, value)
-    WOTLKC.UI.StepFrame:UpdateStepFrames()
+    WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_Slider_OnValueChanged")
     -- Disable/enable buttons.
     local _, maxValue = self:GetMinMaxValues()
     if value <= 1 then

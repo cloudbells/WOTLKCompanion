@@ -10,7 +10,7 @@ WOTLKC.Events = {}
 WOTLKC.Util = {}
 
 -- Variables.
-local events
+local wowEvents, events
 local minimapButton = LibStub("LibDBIcon-1.0")
 
 -- Shows or hides the minimap button.
@@ -68,9 +68,10 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC.Util:Enum{"Accept", "Do", "Deliver", "Item", "Grind", "Coordinate"}
+    WOTLKC.Types = WOTLKC.Util:Enum{"Accept", "Do", "Deliver", "Item", "Sell", "Grind", "Coordinate"}
+    -- WOTLKC.ItemSubTypes = WOTLKC.Util:Enum{"Acquire", "Sell", "PutInBank", "TakeFromBank"}
     WOTLKC.Guides = {}
-    events = {
+    wowEvents = {
         ADDON_LOADED = WOTLKC.Events.OnAddonLoaded,
         PLAYER_ENTERING_WORLD = WOTLKC.Events.OnPlayerEnteringWorld,
         ZONE_CHANGED_NEW_AREA = WOTLKC.Events.OnZoneChangedNewArea,
@@ -81,11 +82,22 @@ local function Initialize()
         PLAYER_STARTED_MOVING = WOTLKC.Events.OnPlayerStartedMoving,
         PLAYER_STOPPED_MOVING = WOTLKC.Events.OnPlayerStoppedMoving,
         PLAYER_XP_UPDATE = WOTLKC.Events.OnPlayerXPUpdate,
-        -- PLAYER_LEVEL_UP = WOTLKC.Events.OnPlayerLevelUp
     }
-    for event, callback in pairs(events) do
+    events = {
+        WOTLKC_COORDINATES_REACHED = WOTLKC.Events.OnCoordinatesReached
+    }
+    for event, callback in pairs(wowEvents) do
         WOTLKCFrame:RegisterEvent(event, callback)
     end
+    for event, callback in pairs(events) do
+        WOTLKC.Events:RegisterEvent(event, callback)
+    end
+    GameTooltip:HookScript("OnTooltipSetItem", function()
+        local itemLink = select(2, GameTooltip:GetItem())
+        if itemLink then
+            GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
+        end
+    end) -- temp
 end
 
 -- Loads all saved variables.
@@ -123,7 +135,7 @@ end
 
 -- Called when any registered event fires.
 function WOTLKCFrame_OnEvent(self, event, ...)
-    events[event](self, ...)
+    wowEvents[event](self, ...)
 end
 
 -- Called when the main frame has loaded.

@@ -36,20 +36,24 @@ local function GetStepFrame()
 end
 
 -- Updates the step frames according to the slider's current value.
-function WOTLKC.UI.StepFrame:UpdateStepFrames()
+function WOTLKC.UI.StepFrame:UpdateStepFrames(test)
     if isLoaded and WOTLKC.currentGuideName then
+        print("|cFFFF0000[" .. date("%H:%M:%S") .. "]:|r Updated frames from: " .. test)
         local currentValue = WOTLKCSlider:GetValue()
+        local text
+        local index
+        local currentStep
         for i = 1, #stepFrames do
-            local index = currentValue + i - 1
-            local step = WOTLKC.currentGuide[index]
-            if step then
-                local text = step.text
-                if WOTLKC.currentStep == index and not WOTLKC:IsStepCompleted(index) and step.type == WOTLKC.Types.Do then
+            index = currentValue + i - 1
+            currentStep = WOTLKC.currentGuide[index]
+            if currentStep then
+                text = currentStep.text
+                if WOTLKC.currentStep == index and not WOTLKC:IsStepCompleted(index) and currentStep.type == WOTLKC.Types.Do then
                     local objText = ""
-                    if step.isMultiStep then
-                        for j = 1, #step.questIDs do
-                            if IsOnQuest(step.questIDs[j]) then
-                                local objectives = GetQuestObjectives(step.questIDs[j])
+                    if currentStep.isMultiStep then
+                        for j = 1, #currentStep.questIDs do
+                            if IsOnQuest(currentStep.questIDs[j]) then
+                                local objectives = GetQuestObjectives(currentStep.questIDs[j])
                                 if objectives then
                                     for k = 1, #objectives do
                                         if objectives[k].text then
@@ -60,7 +64,7 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
                             end
                         end
                     elseif IsOnQuest(questID) then
-                        local objectives = GetQuestObjectives(step.questID)
+                        local objectives = GetQuestObjectives(currentStep.questID)
                         if objectives then
                             for j = 1, #objectives do
                                 if objectives[j].text then
@@ -72,7 +76,6 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
                     text = #objText > 0 and objText or text
                 end
                 stepFrames[i]:UpdateStep(index, text, WOTLKC:IsStepAvailable(index), WOTLKC:IsStepCompleted(index), index == WOTLKC.currentStep)
-                print("updated frames")
             else
                 stepFrames[i]:Clear()
             end
@@ -108,7 +111,10 @@ end
 function WOTLKC_StepFrame_OnClick(self, button)
     if button == "LeftButton" then
         WOTLKC:SetCurrentStep(self:GetIndex())
+        WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_StepFrame_OnClick")
     else
-        WOTLKC:MarkStepCompleted(self:GetIndex())
+        local index = self:GetIndex()
+        WOTLKC:MarkStepCompleted(index, not WOTLKC:IsStepCompleted(index))
+        WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_StepFrame_OnClick")
     end
 end

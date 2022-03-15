@@ -7,6 +7,7 @@ local goalX, goalY
 local isInInstance
 local arrowTexture -- For optimization.
 local arrowText -- Same.
+local hasEventFired = false
 
 -- Constants.
 local THRESHOLD = 0.01 -- OnUpdate threshold.
@@ -25,8 +26,11 @@ local function OnUpdate(_, elapsed)
         local playerX, playerY, instance = hbd:GetPlayerWorldPosition() -- Need to offset the coords with player coords since we aren't at 0.
         -- Get the vector for the goal. The angle is to the goal from the player's current position.
         local angle, distance = hbd:GetWorldVector(instance, playerX, playerY, goalX, goalY)
-        if distance <= GOAL_DISTANCE then
-            -- print("COORDINATES REACHED")
+        if not hasEventFired and distance <= GOAL_DISTANCE then
+            WOTLKC.Events:Fire("WOTLKC_COORDINATES_REACHED")
+            hasEventFired = true
+        elseif distance > GOAL_DISTANCE then
+            hasEventFired = false -- Event should fire the next time the player reaches the coordinates again.
         end
         -- To get angle between the facing vector and goal vector, subtract the angle between the x axis and the facing vector.
         angle = angle - GetPlayerFacing()

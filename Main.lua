@@ -18,12 +18,12 @@ function WOTLKC:SetCurrentStep(index, shouldScroll)
             WOTLKCSlider:SetValue(index)
         end
     end
-    WOTLKC.UI.StepFrame:UpdateStepFrames() -- Always update frames in case some idiot expects it to (me).
 end
 
 -- Attempts to mark the step with the given index as completed.
-function WOTLKC:MarkStepCompleted(index)
-    
+function WOTLKC:MarkStepCompleted(index, completed)
+    -- TODO: check that it can be marked incomplete here (i.e. if its been handed in already etc)
+    WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][index] = completed or nil
 end
 
 -- Checks if the step with the given index in the currently selected guide is completed. Returns true if so, false otherwise.
@@ -86,7 +86,7 @@ function WOTLKC:IsStepCompleted(index)
             return false
         end
     end
-    WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][index] = true
+    WOTLKC:MarkStepCompleted(index, true)
     return true
 end
 
@@ -131,12 +131,12 @@ end
 function WOTLKC.Events:OnQuestAccepted(_, questID)
     -- No need to check any steps for the quest ID since we check for step completion dynamically when scrolling. Just update current steps.
     -- We should only scroll if the current step is of type Accept and has the same questID as this one.
-    local step = WOTLKC.currentGuide[WOTLKC.currentStep]
-    if step.type == WOTLKC.Types.Accept and step.questID == questID then
+    local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+    if currentStep.type == WOTLKC.Types.Accept and currentStep.questID == questID then
         WOTLKC.UI.Main:ScrollToNextIncomplete() -- Calls UpdateStepFrames().
     else
         if WOTLKC:IsStepAvailable(WOTLKC.currentStep) then
-            WOTLKC.UI.StepFrame:UpdateStepFrames()
+            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestAccepted")
         else
             WOTLKC.UI.Main:ScrollToNextIncomplete() -- If the current step gets locked because the player picked up another quest, should scroll to next.
         end
@@ -155,11 +155,12 @@ function WOTLKC.Events:OnQuestTurnedIn(questID)
                 local isComplete = true
                 for j = 1, #step.questIDs do
                     local currQuestID = step.questIDs[j]
-                    isComplete = currQuestID ~= questID and not IsQuestFlaggedCompleted(currQuestID) and nil or true -- Important to not check given quest ID since it will not be completed yet.
+                    isComplete = currQuestID ~= questID and not IsQuestFlaggedCompleted(currQuestID) -- Important to not check given quest ID since it will not be completed yet.
                 end
-                WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][stepIndeces[i]] = isComplete
+                print(isComplete)
+                WOTLKC:MarkStepCompleted(stepIndeces[i], isComplete)
             else
-                WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][stepIndeces[i]] = true
+                WOTLKC:MarkStepCompleted(stepIndeces[i], true)
             end
         end
         WOTLKC.UI.Main:ScrollToNextIncomplete() -- Won't scroll if current step is incomplete.
@@ -175,26 +176,16 @@ function WOTLKC.Events:OnQuestRemoved(questID)
             local step = WOTLKC.currentGuide[stepIndeces[i]]
             if step.type == WOTLKC.Types.Accept then
                 if not IsQuestFlaggedCompleted(step.questID) then
-                    WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][stepIndeces[i]] = nil
+                    WOTLKC:MarkStepCompleted(stepIndeces[i], false)
                 end
             elseif step.type == WOTLKC.Types.Do then
-                if step.isMultiStep then
-                    local isOnAnyQuest = true
-                    for i = 1, #step.questIDs do
-                        if not IsQuestFlaggedCompleted(step.questIDs[i]) then
-                            isOnAnyQuest = IsOnQuest(step.questIDs[i])
-                        end
-                    end
-                    WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][stepIndeces[i]] = isOnAnyQuest and isOnAnyQuest or nil
-                else
-                    WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][stepIndeces[i]] = nil
-                end
+                WOTLKC:MarkStepCompleted(stepIndeces[i], WOTLKC:IsStepCompleted(stepIndeces[i]))
             end
         end
         if not WOTLKC:IsStepAvailable(WOTLKC.currentStep) then
             WOTLKC.UI.Main:ScrollToNextIncomplete() -- Calls UpdateStepFrames.
         else
-            WOTLKC.UI.StepFrame:UpdateStepFrames()
+            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestRemoved")
         end
     end
 end
@@ -203,12 +194,16 @@ end
 function WOTLKC.Events:OnUnitQuestLogChanged(unit)
     -- This function is a special case. If the player is not on all quests of the step (if multistep) then scroll to next, except don't mark the step as completed.
     if unit == "player" then
-        if WOTLKC:IsStepCompleted(WOTLKC.currentStep) then
-            WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
+        local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+        if currentStep.type == WOTLKC.Types.Do then
+            if WOTLKC:IsStepCompleted(WOTLKC.currentStep) then
+                WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep) -- Calls UpdateStepFrames.
+            else
+                WOTLKC.UI.StepFrame:UpdateStepFrames("OnUnitQuestLogChanged") -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
+            end
         end
-        WOTLKC.UI.StepFrame:UpdateStepFrames()
-    
-    
+        
+        
         -- local isPartialDone = true
         -- local isDone = true
         -- if not WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][index] then
@@ -233,15 +228,12 @@ function WOTLKC.Events:OnUnitQuestLogChanged(unit)
                         -- end
                     -- end
                 -- end
-                -- WOTLKCOptions.completedSteps[WOTLKC.currentGuideName][WOTLKC.currentStep] = isDone or nil
+                -- WOTLKC:MarkStepCompleted(WOTLKC.currentStep, isDone)
                 -- if isPartialDone or isDone then
                     -- WOTLKC.UI.Main:ScrollToNextIncomplete(WOTLKC.currentStep + 1)
                 -- end
             -- end
         -- end
-        
-        
-        
     end
 end
 
@@ -253,7 +245,16 @@ function WOTLKC.Events:OnPlayerXPUpdate()
             WOTLKC.UI.Main:ScrollToNextIncomplete()
         end
     else
-        WOTLKC.UI.StepFrame:UpdateStepFrames()
+        WOTLKC.UI.StepFrame:UpdateStepFrames("OnPlayerXPUpdate")
+    end
+end
+
+-- Called when the player has reached the current step coordinates.
+function WOTLKC.Events:OnCoordinatesReached()
+    local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+    if currentStep.type == WOTLKC.Types.Coordinate then
+        WOTLKC:MarkStepCompleted(WOTLKC.currentStep, true)
+        WOTLKC.UI.Main:ScrollToNextIncomplete()
     end
 end
 
@@ -275,31 +276,28 @@ end
 function WOTLKC:SetGuide(guideName)
     if WOTLKC.Guides[guideName] then
         WOTLKCOptions.completedSteps[guideName] = WOTLKCOptions.completedSteps[guideName] or {}
-        WOTLKCOptions.savedStepIndex[guideName] = WOTLKCOptions.savedStepIndex[guideName]
         WOTLKC.currentGuideName = guideName
         WOTLKC.currentGuide = WOTLKC.Guides[guideName]
         WOTLKCFrame:SetTitleText(WOTLKC.currentGuideName)
         WOTLKC.UI.Main:UpdateSlider()
-        WOTLKC.UI.StepFrame:UpdateStepFrames()
         if WOTLKCOptions.savedStepIndex[guideName] then
             WOTLKC:SetCurrentStep(WOTLKCOptions.savedStepIndex[guideName], true)
+            WOTLKC.UI.StepFrame:UpdateStepFrames("SetGuide")
         else
             WOTLKC.UI.Main:ScrollToFirstIncomplete()
         end
-        -- Map quest IDs to step indeces so we don't have to iterate all steps to find quest IDs.
+        -- Map quest IDs to step indeces so we don't have to iterate all steps to find them.
         for i = 1, #WOTLKC.currentGuide do
             local questID = WOTLKC.currentGuide[i].questID or WOTLKC.currentGuide[i].questIDs
             if questID then
                 if WOTLKC.currentGuide[i].isMultiStep then
                     for j = 1, #questID do
                         GetStepIndexFromQuestID[questID[j]] = GetStepIndexFromQuestID[questID[j]] or {}
-                        local stepIndex = GetStepIndexFromQuestID[questID[j]]
-                        stepIndex[#stepIndex + 1] = i
+                        GetStepIndexFromQuestID[questID[j]][#GetStepIndexFromQuestID[questID[j]] + 1] = i
                     end
                 else
                     GetStepIndexFromQuestID[questID] = GetStepIndexFromQuestID[questID] or {}
-                    local stepIndex = GetStepIndexFromQuestID[questID]
-                    stepIndex[#stepIndex + 1] = i
+                    GetStepIndexFromQuestID[questID][#GetStepIndexFromQuestID[questID] + 1] = i
                 end
             end
         end

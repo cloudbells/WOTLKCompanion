@@ -11,18 +11,18 @@
             <Anchor point="CENTER" />
         </Anchors>
         <Frames>
-            <Button name="$parentOptionsButton">
-                <Size x="20" y="20" />
-                <Anchors>
-                    <Anchor point="TOPRIGHT" x="-2" y="-2" />
-                </Anchors>
-                <NormalTexture name="$parentNormal" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" />
-                <HighlightTexture name="$parentHighlight" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon"  />
-                <PushedTexture name="$parentPushed" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" />
-                <Scripts>
-                    <OnClick function="WOTLKC_OptionsButton_OnClick" />
-                </Scripts>
-            </Button>
+            <!-- <Button name="$parentOptionsButton"> -->
+                <!-- <Size x="20" y="20" /> -->
+                <!-- <Anchors> -->
+                    <!-- <Anchor point="TOPRIGHT" x="-2" y="-2" /> -->
+                <!-- </Anchors> -->
+                <!-- <NormalTexture name="$parentNormal" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" /> -->
+                <!-- <HighlightTexture name="$parentHighlight" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon"  /> -->
+                <!-- <PushedTexture name="$parentPushed" file="Interface/Addons/WOTLKCompanion/Media/OptionsIcon" /> -->
+                <!-- <Scripts> -->
+                    <!-- <OnClick function="WOTLKC_OptionsButton_OnClick" /> -->
+                <!-- </Scripts> -->
+            <!-- </Button> -->
             <Frame parentKey="titleFrame">
                 <Size x="1" y="24" />
                 <Anchors>
