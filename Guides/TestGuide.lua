@@ -19,26 +19,26 @@ WOTLKC:RegisterGuide({
         ["y"] = 41.60,
     },
     [3] = {
-        ["requires"] = {
-            2
-        },
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 7,
         ["text"] = "Pick up Kobold Camp Cleanup",
+        ["requiresSteps"] = {
+            2
+        },
         ["map"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
     [4] = {
-        ["requires"] = {
-            2
-        },
-        ["lockedBy"] = { -- If the steps listed in this field are completed, then this becomes unavailable.
-            6
-        },
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 5261,
         ["text"] = "Pick up Eagan Peltskinner",
+        ["requiresSteps"] = {
+            2
+        },
+        ["lockedBySteps"] = { -- If the steps listed in this field are completed, then this becomes unavailable.
+            6
+        },
         ["map"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.94,
@@ -84,8 +84,8 @@ WOTLKC:RegisterGuide({
         ["questID"] = 33, -- Coordinate steps should have a quest ID so they can be marked as complete if the player decides to ignore it but forgets to manually skip it in the addon.
         ["text"] = "Walk over here",
         ["map"] = 1429,
-        ["x"] = 46.66,
-        ["y"] = 42.00,
+        ["x"] = 48.16,
+        ["y"] = 42.11,
     },
     [10] = {
         ["type"] = WOTLKC.Types.Deliver,
@@ -96,40 +96,46 @@ WOTLKC:RegisterGuide({
         ["y"] = 41.60,
     },
     [11] = {
-        ["type"] = WOTLKC.Types.Grind,
-        ["level"] = 4,
-        ["xp"] = 100,
-        ["text"] = "Grind until you're level 4, 100 xp",
+        ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 3105,
+        ["text"] = "Pick up Tainted Letter",
+        ["requiresSteps"] = {
+            10
+        },
         ["map"] = 1429,
-        ["x"] = 47.81,
-        ["y"] = 39.69,
+        ["x"] = 48.93,
+        ["y"] = 41.60,
     },
     [12] = {
         ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 15,
+        ["text"] = "Pick up Investigate Echo Ridge",
+        ["requiresSteps"] = {
+            10
+        },
+        ["map"] = 1429,
+        ["x"] = 48.93,
+        ["y"] = 41.60,
+    },
+    [13] = {
+        ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 18,
         ["text"] = "Pick up Brotherhood of Thieves",
+        ["requiresSteps"] = {
+            2
+        },
+        ["requiresLevel"] = 2, -- Minimum level required for the step to be available.
         ["map"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.94,
     },
-    [13] = {
-        ["type"] = WOTLKC.Types.Item,
-        ["itemIDs"] = {
-            2381
-        },
-        ["text"] = "Buy Tarnished Chain Leggings",
-        ["map"] = 1429,
-        ["x"] = 47.69,
-        ["y"] = 41.42,
-    },
     [14] = {
-        ["type"] = WOTLKC.Types.Sell,
-        ["itemIDs"] = {
-            159
-        },
-        ["text"] = "Sell your water",
+        ["type"] = WOTLKC.Types.Grind,
+        ["level"] = 2,
+        ["xp"] = 400,
+        ["text"] = "Grind until you're level 2, 400 xp",
         ["map"] = 1429,
-        ["x"] = 47.69,
-        ["y"] = 41.42,
-    }
+        ["x"] = 47.81,
+        ["y"] = 39.69,
+    },
 })

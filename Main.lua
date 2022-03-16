@@ -94,8 +94,14 @@ end
 function WOTLKC:IsStepAvailable(index)
     local step = WOTLKC.currentGuide[index]
     local questID = step.questID or step.questIDs
-    local requiredSteps = step.requires
-    local lockedBySteps = step.lockedBy
+    local requiresSteps = step.requiresSteps
+    local lockedBySteps = step.lockedBySteps
+    local requiresLevel = step.requiresLevel
+    if requiresLevel then
+        if UnitLevel("player") < requiresLevel then
+            return false
+        end
+    end
     if lockedBySteps then
         for i = 1, #lockedBySteps do
             if WOTLKC:IsStepCompleted(lockedBySteps[i]) then
@@ -117,9 +123,9 @@ function WOTLKC:IsStepAvailable(index)
         else
             return IsOnQuest(questID)
         end
-    elseif step.type == WOTLKC.Types.Accept and requiredSteps then
-        for i = 1, #requiredSteps do
-            if not self:IsStepCompleted(requiredSteps[i]) then
+    elseif step.type == WOTLKC.Types.Accept and requiresSteps then
+        for i = 1, #requiresSteps do
+            if not self:IsStepCompleted(requiresSteps[i]) then
                 return false
             end
         end
@@ -136,7 +142,7 @@ function WOTLKC.Events:OnQuestAccepted(_, questID)
         WOTLKC.UI.Main:ScrollToNextIncomplete() -- Calls UpdateStepFrames().
     else
         if WOTLKC:IsStepAvailable(WOTLKC.currentStep) then
-            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestAccepted")
+            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestAccepted") -- temp (remove "OnQuestAccepted")
         else
             WOTLKC.UI.Main:ScrollToNextIncomplete() -- If the current step gets locked because the player picked up another quest, should scroll to next.
         end
@@ -255,6 +261,17 @@ function WOTLKC.Events:OnCoordinatesReached()
     if currentStep.type == WOTLKC.Types.Coordinate then
         WOTLKC:MarkStepCompleted(WOTLKC.currentStep, true)
         WOTLKC.UI.Main:ScrollToNextIncomplete()
+    end
+end
+
+function WOTLKC.Events:OnQuestDetail(isItem)
+    -- temp
+    if QuestFrame:IsVisible() then
+        if not QuestFrameDetailPanel.questIDLbl then
+            QuestFrameDetailPanel.questIDLbl = QuestFrameDetailPanel:CreateFontString("WOTLKC_Temporary_FontString", "OVERLAY", "GameTooltipText")
+            QuestFrameDetailPanel.questIDLbl:SetPoint("TOP", 0, -50)
+        end
+        QuestFrameDetailPanel.questIDLbl:SetText("Quest ID: " .. GetQuestID())
     end
 end
 

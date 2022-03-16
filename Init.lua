@@ -68,8 +68,7 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC.Util:Enum{"Accept", "Do", "Deliver", "Item", "Sell", "Grind", "Coordinate"}
-    -- WOTLKC.ItemSubTypes = WOTLKC.Util:Enum{"Acquire", "Sell", "PutInBank", "TakeFromBank"}
+    WOTLKC.Types = WOTLKC.Util:Enum{"Accept", "Do", "Deliver", "Bank", "MailGet", "Grind", "Coordinate"}
     WOTLKC.Guides = {}
     wowEvents = {
         ADDON_LOADED = WOTLKC.Events.OnAddonLoaded,
@@ -82,6 +81,7 @@ local function Initialize()
         PLAYER_STARTED_MOVING = WOTLKC.Events.OnPlayerStartedMoving,
         PLAYER_STOPPED_MOVING = WOTLKC.Events.OnPlayerStoppedMoving,
         PLAYER_XP_UPDATE = WOTLKC.Events.OnPlayerXPUpdate,
+        QUEST_DETAIL = WOTLKC.Events.OnQuestDetail,
     }
     events = {
         WOTLKC_COORDINATES_REACHED = WOTLKC.Events.OnCoordinatesReached

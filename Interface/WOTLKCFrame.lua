@@ -3,20 +3,6 @@ local _, WOTLKC = ...
 -- Variables.
 local isScrollDisabled = false
 
--- Finds and scrolls to the first relevant step in the guide. This might be any step since the player might've already completed some of them.
-function WOTLKC.UI.Main:ScrollToFirstIncomplete()
-    local index = 1
-    for i = 1, #WOTLKC.currentGuide do
-        if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
-            index = i
-            break
-        end
-    end
-    WOTLKC:SetCurrentStep(index)
-    -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
-    WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
-end
-
 -- Finds the next step from the current one that is not yet completed.
 -- This will scroll from the given step index if given.
 function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
@@ -29,7 +15,17 @@ function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
     end
     WOTLKC:SetCurrentStep(index)
     -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
-    WOTLKCSlider:SetValue(index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide or index)
+    index = index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps or index -- Upper bound for the slider.
+    local oldSliderValue = WOTLKCSlider:GetValue()
+    WOTLKCSlider:SetValue(index)
+    if oldSliderValue == index then -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
+        WOTLKC.UI.StepFrame:UpdateStepFrames("ScrollToNextIncomplete")
+    end
+end
+
+-- Finds and scrolls to the first relevant step in the guide. This might be any step since the player might've already completed some of them.
+function WOTLKC.UI.Main:ScrollToFirstIncomplete()
+    self:ScrollToNextIncomplete(1)
 end
 
 -- Scrolls to the step with the given index.
