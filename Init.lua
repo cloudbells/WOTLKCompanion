@@ -8,9 +8,9 @@ WOTLKC.UI = {
 }
 WOTLKC.Events = {}
 WOTLKC.Util = {}
+WOTLKC.Logging = {}
 
 -- Variables.
-local wowEvents, events
 local minimapButton = LibStub("LibDBIcon-1.0")
 
 -- Shows or hides the minimap button.
@@ -68,36 +68,15 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC.Util:Enum{"Accept", "Do", "Deliver", "Bank", "MailGet", "Grind", "Coordinate"}
+    WOTLKC.Types = WOTLKC.Util:Enum({"Accept", "Do", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
     WOTLKC.Guides = {}
-    wowEvents = {
-        ADDON_LOADED = WOTLKC.Events.OnAddonLoaded,
-        PLAYER_ENTERING_WORLD = WOTLKC.Events.OnPlayerEnteringWorld,
-        ZONE_CHANGED_NEW_AREA = WOTLKC.Events.OnZoneChangedNewArea,
-        QUEST_ACCEPTED = WOTLKC.Events.OnQuestAccepted,
-        QUEST_TURNED_IN = WOTLKC.Events.OnQuestTurnedIn,
-        UNIT_QUEST_LOG_CHANGED = WOTLKC.Events.OnUnitQuestLogChanged,
-        QUEST_REMOVED = WOTLKC.Events.OnQuestRemoved,
-        PLAYER_STARTED_MOVING = WOTLKC.Events.OnPlayerStartedMoving,
-        PLAYER_STOPPED_MOVING = WOTLKC.Events.OnPlayerStoppedMoving,
-        PLAYER_XP_UPDATE = WOTLKC.Events.OnPlayerXPUpdate,
-        QUEST_DETAIL = WOTLKC.Events.OnQuestDetail,
-    }
-    events = {
-        WOTLKC_COORDINATES_REACHED = WOTLKC.Events.OnCoordinatesReached
-    }
-    for event, callback in pairs(wowEvents) do
-        WOTLKCFrame:RegisterEvent(event, callback)
-    end
-    for event, callback in pairs(events) do
-        WOTLKC.Events:RegisterEvent(event, callback)
-    end
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())
         if itemLink then
             GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
         end
     end) -- temp
+    WOTLKC:RegisterAllEvents()
 end
 
 -- Loads all saved variables.
@@ -107,14 +86,14 @@ local function LoadVariables()
     WOTLKCOptions.minimapTable.show = WOTLKCOptions.minimapTable.show or true
     WOTLKCOptions.completedSteps = WOTLKCOptions.completedSteps or {}
     WOTLKCOptions.savedStepIndex = WOTLKCOptions.savedStepIndex or {}
-    WOTLKCOptions.nbrSteps = 3 -- TODO: load variable
+    WOTLKCOptions.nbrSteps = 5 -- TODO: load variable
 end
 
 -- Called when most game data is available.
 function WOTLKC.Events:OnPlayerEnteringWorld()
     WOTLKCFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    WOTLKC:Init()
-    WOTLKCOptions.currentGuideName = "Elwynn Forest 1-10" -- temp
+    WOTLKC.UI:Init()
+    WOTLKCOptions.currentGuideName = "Elwynn Forest 1-10" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
     if WOTLKCOptions.currentGuideName then
         WOTLKC:SetGuide(WOTLKCOptions.currentGuideName)
     end
@@ -128,14 +107,8 @@ function WOTLKC.Events:OnAddonLoaded(addonName)
         -- Initialize stuff.
         InitMinimapButton()
         InitSlash()
-        WOTLKC.UI.Main:InitFrames()
         print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside Progress.")
     end
-end
-
--- Called when any registered event fires.
-function WOTLKCFrame_OnEvent(self, event, ...)
-    wowEvents[event](self, ...)
 end
 
 -- Called when the main frame has loaded.

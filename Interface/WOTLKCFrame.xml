@@ -171,4 +171,5 @@
             <OnMouseWheel function="WOTLKC_OnScroll" />
         </Scripts>
     </Frame>
+    <Include file="Interface/DeleteButton.xml" />
 </Ui>

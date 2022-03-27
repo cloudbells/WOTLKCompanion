@@ -19,7 +19,7 @@ function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
     local oldSliderValue = WOTLKCSlider:GetValue()
     WOTLKCSlider:SetValue(index)
     if oldSliderValue == index then -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
-        WOTLKC.UI.StepFrame:UpdateStepFrames("ScrollToNextIncomplete")
+        WOTLKC.UI.StepFrame:UpdateStepFrames()
     end
 end
 
@@ -66,7 +66,7 @@ end
 
 -- Called when the slider value changes (either due to scroll, clicking the up/down buttons or manually dragging the knob).
 function WOTLKC_Slider_OnValueChanged(self, value)
-    WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_Slider_OnValueChanged")
+    WOTLKC.UI.StepFrame:UpdateStepFrames()
     -- Disable/enable buttons.
     local _, maxValue = self:GetMinMaxValues()
     if value <= 1 then

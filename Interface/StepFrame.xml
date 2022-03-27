@@ -12,7 +12,7 @@
                 </FontString>
                 <FontString parentKey="text" font="WOTLKCFontTemplate" wordwrap="true">
                     <Anchors>
-                        <Anchor point="TOPLEFT" x="24" y="-4" />
+                        <Anchor point="TOPLEFT" x="44" y="-4" />
                     </Anchors>
                 </FontString>
             </Layer>

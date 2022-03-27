@@ -1,17 +1,22 @@
 local _, WOTLKC = ...
 
+-- Constants.
+local TAG_QUESTNAME = "{questname}"
+local TAG_X = "{x}"
+local TAG_Y = "{y}"
+
 -- Variables.
 local GetStepIndexFromQuestID = {}
 
 -- Localized globals.
-local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives
+local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives, GetQuestInfo = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives, C_QuestLog.GetQuestInfo
 local UnitXP, UnitLevel = UnitXP, UnitLevel
 
 -- Sets the current step to the given index.
 function WOTLKC:SetCurrentStep(index, shouldScroll)
+    WOTLKC.currentStep = index
+    WOTLKCOptions.savedStepIndex[WOTLKC.currentGuideName] = index
     if WOTLKC:IsStepAvailable(index) and not WOTLKC:IsStepCompleted(index) and WOTLKC.currentStep ~= index then
-        WOTLKC.currentStep = index
-        WOTLKCOptions.savedStepIndex[WOTLKC.currentGuideName] = index
         local step = WOTLKC.currentGuide[WOTLKC.currentStep]
         WOTLKC.UI.Arrow:SetGoal(step.x / 100, step.y / 100, step.map)
         if shouldScroll then
@@ -133,7 +138,7 @@ function WOTLKC:IsStepAvailable(index)
     return true -- No requirements for this step.
 end
 
--- Called when the player has accepted a quest.
+-- Called on QUEST_ACCEPTED (when the player has accepted a quest).
 function WOTLKC.Events:OnQuestAccepted(_, questID)
     -- No need to check any steps for the quest ID since we check for step completion dynamically when scrolling. Just update current steps.
     -- We should only scroll if the current step is of type Accept and has the same questID as this one.
@@ -142,14 +147,14 @@ function WOTLKC.Events:OnQuestAccepted(_, questID)
         WOTLKC.UI.Main:ScrollToNextIncomplete() -- Calls UpdateStepFrames().
     else
         if WOTLKC:IsStepAvailable(WOTLKC.currentStep) then
-            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestAccepted") -- temp (remove "OnQuestAccepted")
+            WOTLKC.UI.StepFrame:UpdateStepFrames()
         else
             WOTLKC.UI.Main:ScrollToNextIncomplete() -- If the current step gets locked because the player picked up another quest, should scroll to next.
         end
     end
 end
 
--- Called when the player has handed in a quest.
+-- Called on QUEST_TURNED_IN (when the player has handed in a quest).
 function WOTLKC.Events:OnQuestTurnedIn(questID)
     -- Quests aren't instantly marked as complete so need to manually mark them.
     -- Should simply just mark all steps containing this quest ID to completed, except if its a multi-step, in which case we check all the quests in that step before marking.
@@ -163,7 +168,6 @@ function WOTLKC.Events:OnQuestTurnedIn(questID)
                     local currQuestID = step.questIDs[j]
                     isComplete = currQuestID ~= questID and not IsQuestFlaggedCompleted(currQuestID) -- Important to not check given quest ID since it will not be completed yet.
                 end
-                print(isComplete)
                 WOTLKC:MarkStepCompleted(stepIndeces[i], isComplete)
             else
                 WOTLKC:MarkStepCompleted(stepIndeces[i], true)
@@ -173,7 +177,7 @@ function WOTLKC.Events:OnQuestTurnedIn(questID)
     end
 end
 
--- Called when a quest has been removed from the player's quest log.
+-- Called on QUEST_REMOVED (when a quest has been removed from the player's quest log).
 function WOTLKC.Events:OnQuestRemoved(questID)
     -- If the player abandonded a quest, it's assumed the player didn't want to do that part of the guide, so skip ahead to the next available quest (if the current step is now unavailable).
     local stepIndeces = GetStepIndexFromQuestID(questID)
@@ -191,12 +195,12 @@ function WOTLKC.Events:OnQuestRemoved(questID)
         if not WOTLKC:IsStepAvailable(WOTLKC.currentStep) then
             WOTLKC.UI.Main:ScrollToNextIncomplete() -- Calls UpdateStepFrames.
         else
-            WOTLKC.UI.StepFrame:UpdateStepFrames("OnQuestRemoved")
+            WOTLKC.UI.StepFrame:UpdateStepFrames()
         end
     end
 end
 
--- Called when a quest's objectives are changed (and at other times).
+-- Called on UNIT_QUESTLOG_CHANGED (when a quest's objectives are changed [and at other times]).
 function WOTLKC.Events:OnUnitQuestLogChanged(unit)
     -- This function is a special case. If the player is not on all quests of the step (if multistep) then scroll to next, except don't mark the step as completed.
     if unit == "player" then
@@ -205,7 +209,7 @@ function WOTLKC.Events:OnUnitQuestLogChanged(unit)
             if WOTLKC:IsStepCompleted(WOTLKC.currentStep) then
                 WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep) -- Calls UpdateStepFrames.
             else
-                WOTLKC.UI.StepFrame:UpdateStepFrames("OnUnitQuestLogChanged") -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
+                WOTLKC.UI.StepFrame:UpdateStepFrames() -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
             end
         end
         
@@ -243,7 +247,7 @@ function WOTLKC.Events:OnUnitQuestLogChanged(unit)
     end
 end
 
--- Called when the player receives XP.
+-- Called on PLAYER_XP_UPDATE (when the player receives XP).
 function WOTLKC.Events:OnPlayerXPUpdate()
     local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
     if currentStep.type == WOTLKC.Types.Grind and WOTLKC:IsStepCompleted(WOTLKC.currentStep) then
@@ -251,11 +255,11 @@ function WOTLKC.Events:OnPlayerXPUpdate()
             WOTLKC.UI.Main:ScrollToNextIncomplete()
         end
     else
-        WOTLKC.UI.StepFrame:UpdateStepFrames("OnPlayerXPUpdate")
+        WOTLKC.UI.StepFrame:UpdateStepFrames()
     end
 end
 
--- Called when the player has reached the current step coordinates.
+-- Called on COORDINATES_REACHED (when the player has reached the current step coordinates).
 function WOTLKC.Events:OnCoordinatesReached()
     local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
     if currentStep.type == WOTLKC.Types.Coordinate then
@@ -264,14 +268,19 @@ function WOTLKC.Events:OnCoordinatesReached()
     end
 end
 
-function WOTLKC.Events:OnQuestDetail(isItem)
-    -- temp
-    if QuestFrame:IsVisible() then
-        if not QuestFrameDetailPanel.questIDLbl then
-            QuestFrameDetailPanel.questIDLbl = QuestFrameDetailPanel:CreateFontString("WOTLKC_Temporary_FontString", "OVERLAY", "GameTooltipText")
-            QuestFrameDetailPanel.questIDLbl:SetPoint("TOP", 0, -50)
+-- Called on MERCHANT_SHOW (whenever the player visits a vendor). Sells any items in the player's bags that are specified by the guide.
+function WOTLKC.Events:OnMerchantShow()
+    local itemsToSell = WOTLKC.currentGuide.itemsToSell
+    if itemsToSell then
+        for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+            for slot = 1, GetContainerNumSlots(bag) do
+                local _, itemCount, _, _, _, _, itemLink, _, _, itemID = GetContainerItemInfo(bag, slot)
+                if itemID and itemsToSell[itemID] then
+                    WOTLKC.Logging:Message("selling " .. itemLink .. (itemCount > 1 and "x" .. itemCount or ""))
+                    UseContainerItem(bag, slot)
+                end
+            end
         end
-        QuestFrameDetailPanel.questIDLbl:SetText("Quest ID: " .. GetQuestID())
     end
 end
 
@@ -282,6 +291,30 @@ function WOTLKC:RegisterGuide(guide)
         if WOTLKC.Guides[guide.name] then
             print("WOTLKCompanion: Guide with that name is already registered. Name must be unique.")
         else
+            for i = 1, #guide do
+                local step = guide[i]
+                if step.text then
+                    for tag in step.text:gmatch("{%a+}") do
+                        if tag:lower() == TAG_QUESTNAME then
+                            if step.isMultiStep then
+                                -- what to do if step is multistep? (ie "Do" type)
+                            else
+                                if step.questID then
+                                    step.text = step.text:gsub(tag, GetQuestInfo(step.questID))
+                                end
+                            end
+                        elseif tag:lower() == TAG_X then
+                            if step.x then
+                                step.text = step.text:gsub(tag, step.x)
+                            end
+                        elseif tag:lower() == TAG_Y then
+                            if step.y then
+                                step.text = step.text:gsub(tag, step.y)
+                            end
+                        end
+                    end
+                end
+            end
             WOTLKC.Guides[guide.name] = guide
         end
     else
@@ -295,11 +328,24 @@ function WOTLKC:SetGuide(guideName)
         WOTLKCOptions.completedSteps[guideName] = WOTLKCOptions.completedSteps[guideName] or {}
         WOTLKC.currentGuideName = guideName
         WOTLKC.currentGuide = WOTLKC.Guides[guideName]
+        if WOTLKC.currentGuide.itemsToSell then
+            WOTLKC.Events:RegisterWowEvent("MERCHANT_SHOW", WOTLKC.Events.OnMerchantShow)
+        else
+            WOTLKC.Events:UnregisterWowEvent("MERCHANT_SHOW")
+        end
+        if WOTLKC.currentGuide.itemsToDelete then
+            WOTLKC.Events:RegisterWowEvent("BAG_UPDATE", WOTLKC.Events.OnBagUpdate)
+            for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+                WOTLKC:ScanBag(bag)
+            end
+        else
+            WOTLKC.Events:UnregisterWowEvent("BAG_UPDATE")
+        end
         WOTLKCFrame:SetTitleText(WOTLKC.currentGuideName)
         WOTLKC.UI.Main:UpdateSlider()
         if WOTLKCOptions.savedStepIndex[guideName] then
             WOTLKC:SetCurrentStep(WOTLKCOptions.savedStepIndex[guideName], true)
-            WOTLKC.UI.StepFrame:UpdateStepFrames("SetGuide")
+            WOTLKC.UI.StepFrame:UpdateStepFrames()
         else
             WOTLKC.UI.Main:ScrollToFirstIncomplete()
         end
@@ -328,6 +374,8 @@ function WOTLKC:SetGuide(guideName)
     end
 end
 
-function WOTLKC:Init()
+-- Initializes the UI.
+function WOTLKC.UI:Init()
+    WOTLKC.UI.Main:InitFrames()
     WOTLKC.UI.Arrow:InitArrow()
 end

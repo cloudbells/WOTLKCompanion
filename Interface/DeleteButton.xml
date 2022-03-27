@@ -1,0 +1,53 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Include file="Interface/DeleteButton.lua" />
+    <Button name="WOTLKCDeleteButton" inherits="WOTLKCBorderedFrameTemplate, WOTLKCHighlightFrameTemplate, WOTLKCPushableFrameTemplate, WOTLKCTogglableFrameTemplate" parent="WOTLKCFrame" hidden="true">
+        <Size x="32" y="32" />
+        <Anchors>
+            <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" y="-4" />
+        </Anchors>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon" hidden="true">
+                    <TexCoords left="0.07" right="0.93" top="0.07" bottom="0.93" />
+                </Texture>
+            </Layer>
+            <Layer level="OVERLAY">
+                <Texture file="Interface/Addons/WOTLKCompanion/Media/Delete" setAllPoints="true" />
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnLoad inherit="append">
+                self.HasItem = function(self)
+                    return self.link ~= nil
+                end
+                self.SetItem = function(self, texture, quality, itemLink)
+                    self.link = itemLink
+                    local c = ITEM_QUALITY_COLORS[quality]
+                    self:SetBorderColor(c.r, c.g, c.b)
+                    self.icon:SetTexture(texture)
+                    self.icon:Show()
+                    if self:IsMouseOver() then
+                        GameTooltip:SetHyperlink(itemLink)
+                    end
+                end
+                self.RemoveItem = function(self)
+                    self.icon:Hide()
+                    self:SetBorderColor(0.3, 0.3, 0.3)
+                    self.link = nil
+                end
+            </OnLoad>
+            <OnClick function="WOTLKC_DeleteButton_OnClick" />
+            <OnEnter inherit="append">
+                GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+                if self.link then
+                    GameTooltip:SetHyperlink(self.link)
+                end
+                GameTooltip:Show()
+            </OnEnter>
+            <OnLeave inherit="append">
+                GameTooltip:Hide()
+            </OnLeave>
+        </Scripts>
+    </Button>
+</Ui>

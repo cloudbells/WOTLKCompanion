@@ -68,3 +68,8 @@ function WOTLKC.Util:Copy(t)
     end
     return t
 end
+
+-- Returns the ID contained in the given chat link (e.g. an item link).
+function WOTLKC.Util:ParseIDFromLink(link)
+    return tonumber(link:match(":(%d+)"))
+end

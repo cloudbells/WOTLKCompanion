@@ -9,7 +9,7 @@ local isLoaded = false
 local IsOnQuest, GetQuestObjectives = C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives
 
 -- Constants.
-local STEP_TEXT_MARGIN = 28
+local STEP_TEXT_MARGIN = 48
 
 -- Returns (or creates if there is none available) a step frame from the pool.
 local function GetStepFrame()
@@ -36,9 +36,8 @@ local function GetStepFrame()
 end
 
 -- Updates the step frames according to the slider's current value.
-function WOTLKC.UI.StepFrame:UpdateStepFrames(test)
+function WOTLKC.UI.StepFrame:UpdateStepFrames()
     if isLoaded and WOTLKC.currentGuideName then
-        print("|cFFFF0000[" .. date("%H:%M:%S") .. "]:|r Updated frames from: " .. test)
         local currentValue = WOTLKCSlider:GetValue()
         local text
         local index
@@ -111,10 +110,10 @@ end
 function WOTLKC_StepFrame_OnClick(self, button)
     if button == "LeftButton" then
         WOTLKC:SetCurrentStep(self:GetIndex())
-        WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_StepFrame_OnClick")
+        WOTLKC.UI.StepFrame:UpdateStepFrames()
     else
         local index = self:GetIndex()
         WOTLKC:MarkStepCompleted(index, not WOTLKC:IsStepCompleted(index))
-        WOTLKC.UI.StepFrame:UpdateStepFrames("WOTLKC_StepFrame_OnClick")
+        WOTLKC.UI.StepFrame:UpdateStepFrames()
     end
 end

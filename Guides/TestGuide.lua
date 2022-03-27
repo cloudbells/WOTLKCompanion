@@ -2,10 +2,33 @@ local _, WOTLKC = ...
 
 WOTLKC:RegisterGuide({
     ["name"] = "Elwynn Forest 1-10",
+    ["itemsToSell"] = { -- Every time the player visits a vendor, these will be automatically sold. These need to be keys and need to be true if they should be sold.
+        [159] = true,
+        [4604] = true,
+        [7074] = true
+    },
+    ["itemsToDelete"] = {
+        [7073] = true,
+        [1372] = true,
+        [4865] = true,
+        [2210] = true,
+        [3365] = true,
+        [7074] = true,
+        [2654] = true,
+        [1366] = true,
+        [1376] = true,
+        [1369] = true,
+        [1378] = true,
+        [3363] = true,
+        [2210] = true,
+        [2211] = true,
+        [1364] = true,
+        [1370] = true,
+    },
     [1] = {
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 783,
-        ["text"] = "Pick up A Threat Within",
+        ["text"] = "Pick up {questName}", -- A Threat Within.
         ["map"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.95,
@@ -13,7 +36,7 @@ WOTLKC:RegisterGuide({
     [2] = {
         ["type"] = WOTLKC.Types.Deliver, -- Deliver type quests don't need a "requires" field as the addon will simply check if the quest is finished and in the player's quest log.
         ["questID"] = 783,
-        ["text"] = "Hand in A Threat Within",
+        ["text"] = "Hand in {questName} at {x}, {y}", -- A Threat Within.
         ["map"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
@@ -74,6 +97,7 @@ WOTLKC:RegisterGuide({
     [8] = {
         ["type"] = WOTLKC.Types.Deliver,
         ["questID"] = 33,
+        ["rewardID"] = 80,
         ["text"] = "Hand in Wolves Across the Border",
         ["map"] = 1429,
         ["x"] = 48.94,
@@ -130,6 +154,39 @@ WOTLKC:RegisterGuide({
         ["y"] = 42.94,
     },
     [14] = {
+        ["type"] = WOTLKC.Types.Do,
+        ["questID"] = 18,
+        ["text"] = "Do Brotherhood of Thieves",
+        ["map"] = 1429,
+        ["x"] = 52.70,
+        ["y"] = 46.26,
+    },
+    [15] = {
+        ["type"] = WOTLKC.Types.Deliver,
+        ["questID"] = 18,
+        ["text"] = "Hand in Brotherhood of Thieves",
+        ["rewardID"] = 2224,
+        ["map"] = 1429,
+        ["x"] = 48.17,
+        ["y"] = 42.95,
+    },
+    [16] = {
+        ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 3903,
+        ["text"] = "Pick up Milly Osworth",
+        ["map"] = 1429,
+        ["x"] = 48.17,
+        ["y"] = 42.95,
+    },
+    [17] = {
+        ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 6,
+        ["text"] = "Pick up Bounty on Garrick Padfoot",
+        ["map"] = 1429,
+        ["x"] = 48.17,
+        ["y"] = 42.95,
+    },
+    [18] = {
         ["type"] = WOTLKC.Types.Grind,
         ["level"] = 2,
         ["xp"] = 400,

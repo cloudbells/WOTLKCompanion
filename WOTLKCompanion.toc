@@ -1,4 +1,4 @@
-## Interface: 20503
+## Interface: 20504
 ## Title: <Progress> WOTLK Companion
 ## Notes: In-house addon for WOTLK race. Do NOT share this outside the guild.
 ## Author: cloudbells
@@ -16,9 +16,11 @@ Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
 Init.lua
 Events.lua
 Main.lua
+AutoAccept.lua
 
 # Load utils.
 Util.lua
+Logger.lua
 
 # Load base UI files.
 Interface/Custom/BaseTemplates.xml
