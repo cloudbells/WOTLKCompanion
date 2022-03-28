@@ -3,15 +3,15 @@ local _, WOTLKC = ...
 -- Variables.
 local hasRegistered = false
 local callbacks = {}
-local wowEvents = {}
-local events = {}
+local wowEvents, events
 
 -- Registers all events.
 function WOTLKC:RegisterAllEvents()
     if not hasRegistered then
         hasRegistered = true
         events = {
-            WOTLKC_COORDINATES_REACHED = WOTLKC.Events.OnCoordinatesReached
+            WOTLKC_COORDINATES_REACHED = WOTLKC.Events.OnCoordinatesReached,
+            ITEM_UPDATE = WOTLKC.Events.OnItemUpdate
         }
         wowEvents = {
             ADDON_LOADED = WOTLKC.Events.OnAddonLoaded,

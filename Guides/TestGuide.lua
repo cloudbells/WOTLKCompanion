@@ -1,19 +1,17 @@
 local _, WOTLKC = ...
 
+-- if any of x, y, or mapID are provided, they must all be provided
+
 WOTLKC:RegisterGuide({
     ["name"] = "Elwynn Forest 1-10",
     ["itemsToSell"] = { -- Every time the player visits a vendor, these will be automatically sold. These need to be keys and need to be true if they should be sold.
-        [159] = true,
-        [4604] = true,
-        [7074] = true
+        
     },
     ["itemsToDelete"] = {
-        [7073] = true,
         [1372] = true,
         [4865] = true,
         [2210] = true,
         [3365] = true,
-        [7074] = true,
         [2654] = true,
         [1366] = true,
         [1376] = true,
@@ -29,56 +27,56 @@ WOTLKC:RegisterGuide({
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 783,
         ["text"] = "Pick up {questName}", -- A Threat Within.
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.95,
     },
     [2] = {
         ["type"] = WOTLKC.Types.Deliver, -- Deliver type quests don't need a "requires" field as the addon will simply check if the quest is finished and in the player's quest log.
         ["questID"] = 783,
-        ["text"] = "Hand in {questName} at {x}, {y}", -- A Threat Within.
-        ["map"] = 1429,
+        ["text"] = "Hand in {questName}", -- A Threat Within.
+        ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
     [3] = {
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 7,
-        ["text"] = "Pick up Kobold Camp Cleanup",
+        ["text"] = "Pick up {questName}", -- Kobold Camp Cleanup.
         ["requiresSteps"] = {
             2
         },
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
     [4] = {
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 5261,
-        ["text"] = "Pick up Eagan Peltskinner",
+        ["text"] = "Pick up {questName}", -- Eagan Peltskinner.
         ["requiresSteps"] = {
             2
         },
         ["lockedBySteps"] = { -- If the steps listed in this field are completed, then this becomes unavailable.
             6
         },
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.94,
     },
     [5] = {
         ["type"] = WOTLKC.Types.Deliver,
         ["questID"] = 5261,
-        ["text"] = "Hand in Eagan Peltskinner",
-        ["map"] = 1429,
+        ["text"] = "Hand in {questName}", -- Eagan Peltskinner.
+        ["mapID"] = 1429,
         ["x"] = 48.94,
         ["y"] = 40.17,
     },
     [6] = {
         ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 33,
-        ["text"] = "Pick up Wolves Across the Border",
-        ["map"] = 1429,
+        ["text"] = "Pick up {questName}", -- Wolves Across the Border.
+        ["mapID"] = 1429,
         ["x"] = 48.94,
         ["y"] = 40.17,
     },
@@ -86,112 +84,139 @@ WOTLKC:RegisterGuide({
         ["type"] = WOTLKC.Types.Do, -- Do type quests also don't need a "requires" field as the addon simply checks if the player is currently on the questID (or if a multiStep, one of the quest IDs).
         ["isMultiStep"] = true,
         ["questIDs"] = {
-            33,
-            7
+            33, -- Wolves Across the Border.
+            7 -- Kobold Camp Cleanup.
         },
-        ["text"] = "Do Wolves Across the Border and Kobold Camp Cleanup",
-        ["map"] = 1429,
+        ["text"] = "Do {questName1} and {questName2}",
+        ["mapID"] = 1429,
         ["x"] = 47.04,
         ["y"] = 36.90,
     },
     [8] = {
+        ["type"] = WOTLKC.Types.Item,
+        ["requiresSteps"] = { -- Optional here. If it isn't provided, the guide will assume the step is available whenever (i.e. if the item isn't a quest item then don't provide this).
+            7
+        },
+        ["questID"] = 33, -- The addon will mark this step as complete once this quest is turned in. Mandatory.
+        ["itemIDs"] = {
+            1368, -- Chipped Claw.
+            2654 -- Broken Fang.
+        },
+        ["itemCounts"] = {
+            1, -- The player only needs 1 of 7074 (Chipped Claw).
+            1 -- The player only needs 1 of 7073 (Broken Fang).
+        },
+        ["text"] = "Get a {itemName1} and a {itemName2}",
+        ["mapID"] = 1429,
+        ["x"] = 47.04,
+        ["y"] = 36.90,
+    },
+    [9] = {
         ["type"] = WOTLKC.Types.Deliver,
         ["questID"] = 33,
         ["rewardID"] = 80,
-        ["text"] = "Hand in Wolves Across the Border",
-        ["map"] = 1429,
+        ["text"] = "Hand in {questName}", -- Wolves Across the Border.
+        ["mapID"] = 1429,
         ["x"] = 48.94,
         ["y"] = 40.17,
     },
-    [9] = {
+    [10] = {
         ["type"] = WOTLKC.Types.Coordinate,
-        ["questID"] = 33, -- Coordinate steps should have a quest ID so they can be marked as complete if the player decides to ignore it but forgets to manually skip it in the addon.
-        ["text"] = "Walk over here",
-        ["map"] = 1429,
+        ["questID"] = 7, -- Coordinate steps should have a quest ID so they can be marked as complete if the player decides to ignore it but forgets to manually skip it in the addon.
+        ["text"] = "Walk over here ({x}, {y})",
+        ["mapID"] = 1429,
         ["x"] = 48.16,
         ["y"] = 42.11,
     },
-    [10] = {
+    [11] = {
         ["type"] = WOTLKC.Types.Deliver,
         ["questID"] = 7,
-        ["text"] = "Hand in Kobold Camp Cleanup",
-        ["map"] = 1429,
-        ["x"] = 48.93,
-        ["y"] = 41.60,
-    },
-    [11] = {
-        ["type"] = WOTLKC.Types.Accept,
-        ["questID"] = 3105,
-        ["text"] = "Pick up Tainted Letter",
-        ["requiresSteps"] = {
-            10
-        },
-        ["map"] = 1429,
+        ["text"] = "Hand in {questName}", -- Kobold Camp Cleanup.
+        ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
     [12] = {
         ["type"] = WOTLKC.Types.Accept,
-        ["questID"] = 15,
-        ["text"] = "Pick up Investigate Echo Ridge",
+        ["questID"] = 3105,
+        ["text"] = "Pick up {questName}", -- Tainted Letter.
         ["requiresSteps"] = {
-            10
+            11
         },
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
     },
     [13] = {
         ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 15,
+        ["text"] = "Pick up {questName}", -- Investigate Echo Ridge.
+        ["requiresSteps"] = {
+            11
+        },
+        ["mapID"] = 1429,
+        ["x"] = 48.93,
+        ["y"] = 41.60,
+    },
+    [14] = {
+        ["type"] = WOTLKC.Types.Accept,
         ["questID"] = 18,
-        ["text"] = "Pick up Brotherhood of Thieves",
+        ["text"] = "Pick up {questName}", -- Brotherhood of Thieves.
         ["requiresSteps"] = {
             2
         },
         ["requiresLevel"] = 2, -- Minimum level required for the step to be available.
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.94,
     },
-    [14] = {
+    [15] = {
         ["type"] = WOTLKC.Types.Do,
         ["questID"] = 18,
-        ["text"] = "Do Brotherhood of Thieves",
-        ["map"] = 1429,
+        ["text"] = "Do {questName}", -- Brotherhood of Thieves.
+        ["mapID"] = 1429,
         ["x"] = 52.70,
         ["y"] = 46.26,
     },
-    [15] = {
+    [16] = {
         ["type"] = WOTLKC.Types.Deliver,
         ["questID"] = 18,
-        ["text"] = "Hand in Brotherhood of Thieves",
+        ["text"] = "Hand in {questName}", -- Brotherhood of Thieves.
         ["rewardID"] = 2224,
-        ["map"] = 1429,
-        ["x"] = 48.17,
-        ["y"] = 42.95,
-    },
-    [16] = {
-        ["type"] = WOTLKC.Types.Accept,
-        ["questID"] = 3903,
-        ["text"] = "Pick up Milly Osworth",
-        ["map"] = 1429,
+        ["mapID"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.95,
     },
     [17] = {
         ["type"] = WOTLKC.Types.Accept,
-        ["questID"] = 6,
-        ["text"] = "Pick up Bounty on Garrick Padfoot",
-        ["map"] = 1429,
+        ["questID"] = 3903,
+        ["text"] = "Pick up {questName}", -- Milly Osworth.
+        ["requiresSteps"] = {
+            9
+        },
+        ["requiresLevel"] = 2,
+        ["mapID"] = 1429,
         ["x"] = 48.17,
         ["y"] = 42.95,
     },
     [18] = {
+        ["type"] = WOTLKC.Types.Accept,
+        ["questID"] = 6,
+        ["text"] = "Pick up {questName}", -- Bounty on Garrick Padfoot.
+        ["requiresSteps"] = {
+            15
+        },
+        ["requiresLevel"] = 2,
+        ["mapID"] = 1429,
+        ["x"] = 48.17,
+        ["y"] = 42.95,
+    },
+    [19] = {
         ["type"] = WOTLKC.Types.Grind,
         ["level"] = 2,
         ["xp"] = 400,
-        ["text"] = "Grind until you're level 2, 400 xp",
-        ["map"] = 1429,
+        ["text"] = "Grind until you're level 4, 400 xp",
+        ["mapID"] = 1429,
         ["x"] = 47.81,
         ["y"] = 39.69,
     },

@@ -68,7 +68,7 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC.Util:Enum({"Accept", "Do", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
+    WOTLKC.Types = WOTLKC.Util:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
     WOTLKC.Guides = {}
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())

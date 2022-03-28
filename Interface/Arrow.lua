@@ -48,9 +48,9 @@ local function OnUpdate(_, elapsed)
 end
 
 -- Sets the current goal world coordinate.
-function WOTLKC.UI.Arrow:SetGoal(x, y, map)
-    if x and y and map then
-        goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, map)
+function WOTLKC.UI.Arrow:SetGoal(x, y, mapID)
+    if x and y and mapID then
+        goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, mapID)
         WOTLKCArrow:Show()
     else
         WOTLKCArrow:Hide()

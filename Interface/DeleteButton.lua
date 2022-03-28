@@ -89,6 +89,7 @@ end
 function WOTLKC.Events:OnBagUpdate(bag)
     if bag >= BACKPACK_CONTAINER then
         WOTLKC:ScanBag(bag)
+        WOTLKC.Events:Fire("ITEM_UPDATE")
     end
 end
 

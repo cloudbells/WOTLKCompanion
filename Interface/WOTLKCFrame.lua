@@ -7,7 +7,7 @@ local isScrollDisabled = false
 -- This will scroll from the given step index if given.
 function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
     local index = 1
-    for i = fromStep or WOTLKC.currentStep, #WOTLKC.currentGuide do
+    for i = fromStep or WOTLKC.currentStepIndex, #WOTLKC.currentGuide do
         if not WOTLKC:IsStepCompleted(i) and WOTLKC:IsStepAvailable(i) then
             index = i
             break
@@ -15,7 +15,7 @@ function WOTLKC.UI.Main:ScrollToNextIncomplete(fromStep)
     end
     WOTLKC:SetCurrentStep(index)
     -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
-    index = index > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps or index -- Upper bound for the slider.
+    index = index - 1 > #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps and #WOTLKC.currentGuide + 1 - WOTLKCOptions.nbrSteps or index - 1 -- Upper bound for the slider.
     local oldSliderValue = WOTLKCSlider:GetValue()
     WOTLKCSlider:SetValue(index)
     if oldSliderValue == index then -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.

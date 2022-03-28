@@ -7,6 +7,7 @@ local isLoaded = false
 
 -- Localized globals.
 local IsOnQuest, GetQuestObjectives = C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives
+local GetItemInfo, GetItemCount = GetItemInfo, GetItemCount
 
 -- Constants.
 local STEP_TEXT_MARGIN = 48
@@ -47,34 +48,50 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
             currentStep = WOTLKC.currentGuide[index]
             if currentStep then
                 text = currentStep.text
-                if WOTLKC.currentStep == index and not WOTLKC:IsStepCompleted(index) and currentStep.type == WOTLKC.Types.Do then
-                    local objText = ""
-                    if currentStep.isMultiStep then
-                        for j = 1, #currentStep.questIDs do
-                            if IsOnQuest(currentStep.questIDs[j]) then
-                                local objectives = GetQuestObjectives(currentStep.questIDs[j])
-                                if objectives then
-                                    for k = 1, #objectives do
-                                        if objectives[k].text then
-                                            objText = objText .. objectives[k].text .. "\n"
+                local type = currentStep.type
+                if WOTLKC.currentStepIndex == index and not WOTLKC:IsStepCompleted(index) then
+                    if type == WOTLKC.Types.Do then
+                        local objText = ""
+                        if currentStep.isMultiStep then
+                            for j = 1, #currentStep.questIDs do
+                                if IsOnQuest(currentStep.questIDs[j]) then
+                                    local objectives = GetQuestObjectives(currentStep.questIDs[j])
+                                    if objectives then
+                                        for k = 1, #objectives do
+                                            if objectives[k].text then
+                                                objText = objText .. objectives[k].text .. "\n"
+                                            end
                                         end
                                     end
                                 end
                             end
-                        end
-                    elseif IsOnQuest(questID) then
-                        local objectives = GetQuestObjectives(currentStep.questID)
-                        if objectives then
-                            for j = 1, #objectives do
-                                if objectives[j].text then
-                                    objText = objText .. objectives[j].text .. "\n"
+                        elseif IsOnQuest(questID) then
+                            local objectives = GetQuestObjectives(currentStep.questID)
+                            if objectives then
+                                for j = 1, #objectives do
+                                    if objectives[j].text then
+                                        objText = objText .. objectives[j].text .. "\n"
+                                    end
                                 end
                             end
                         end
+                        text = #objText > 0 and objText or text
+                    elseif type == WOTLKC.Types.Item then
+                        local itemText = ""
+                        local itemIDs = currentStep.itemIDs
+                        for i = 1, #itemIDs do
+                            local itemID = itemIDs[i]
+                            local itemName = GetItemInfo(itemID)
+                            local requiredItemCount = currentStep.itemCounts[i]
+                            if itemName then
+                                local itemCount = GetItemCount(itemID)
+                                itemText = itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" .. requiredItemCount .. "\n"
+                            end
+                        end
+                        text = #itemText > 0 and itemText or text
                     end
-                    text = #objText > 0 and objText or text
                 end
-                stepFrames[i]:UpdateStep(index, text, WOTLKC:IsStepAvailable(index), WOTLKC:IsStepCompleted(index), index == WOTLKC.currentStep)
+                stepFrames[i]:UpdateStep(index, text, WOTLKC:IsStepAvailable(index), WOTLKC:IsStepCompleted(index), index == WOTLKC.currentStepIndex)
             else
                 stepFrames[i]:Clear()
             end

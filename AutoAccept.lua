@@ -2,7 +2,7 @@ local _, WOTLKC = ...
 
 -- Called on QUEST_ACCEPT_CONFIRM. Fires when an escort quest is started nearby.
 function WOTLKC.Events.OnQuestAcceptConfirm(_, questTitle)
-    local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+    local currentStep = WOTLKC.currentStep
     if C_QuestLog.GetQuestInfo(currentStep.questID) == questTitle then
         ConfirmAcceptQuest()
     end
@@ -20,7 +20,7 @@ function WOTLKC.Events:OnQuestDetail(...)
     end
     -- end of temp
     if not IsShiftKeyDown() then -- todo: change to chosen modifier by user in options
-        local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+        local currentStep = WOTLKC.currentStep
         if currentStep.type == WOTLKC.Types.Accept then
             if currentStep.questID == GetQuestID() then -- GetQuestID returns the quest ID of the currently offered quest.
                 AcceptQuest()
@@ -31,8 +31,8 @@ end
 
 -- Called on QUEST_PROGRESS. Fires when the player is able to click the "Continue" button (right after choosing a quest in the menu and right before being able to pick a quest reward).
 function WOTLKC.Events:OnQuestProgress()
-    if not IsShiftKeyDown() and WOTLKC.currentStep then
-        local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+    if not IsShiftKeyDown() and WOTLKC.currentStepIndex then
+        local currentStep = WOTLKC.currentStep
         if currentStep.type == WOTLKC.Types.Deliver then
             if currentStep.questID == GetQuestID() then
                 CompleteQuest()
@@ -44,7 +44,7 @@ end
 -- Called on QUEST_COMPLETE. Fires when the player is able to finally complete a quest (and choose a reward if there is any).
 function WOTLKC.Events:OnQuestComplete()
     if not IsShiftKeyDown() then
-        local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+        local currentStep = WOTLKC.currentStep
         if currentStep.type == WOTLKC.Types.Deliver then
             local nbrOfChoices = GetNumQuestChoices()
             if nbrOfChoices == 1 then -- Not sure if this is possible but just in case.
@@ -73,7 +73,7 @@ end
 function WOTLKC.Events:OnGossipShow()
     if not IsShiftKeyDown() then
         if UnitExists("npc") then -- Check if player is currently interacting with an NPC.
-            local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+            local currentStep = WOTLKC.currentStep
             if currentStep.type == WOTLKC.Types.Accept then
                 local availableQuests = {GetGossipAvailableQuests()}
                 for i = 1, #availableQuests, 7 do
@@ -97,7 +97,7 @@ end
 function WOTLKC.Events:OnQuestGreeting(...)
     if not IsShiftKeyDown() then
         if UnitExists("npc") then
-            local currentStep = WOTLKC.currentGuide[WOTLKC.currentStep]
+            local currentStep = WOTLKC.currentStep
             if currentStep.type == WOTLKC.Types.Accept then
                 local availableQuests = GetNumAvailableQuests()
                 for i = 1, availableQuests do
