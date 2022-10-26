@@ -1,36 +1,27 @@
-local ADDON_NAME, WOTLKC = ...
-
--- Namespaces.
-WOTLKC.UI = {
-    Main = {},
-    StepFrame = {},
-    Arrow = {}
-}
-WOTLKC.Events = {}
-WOTLKC.Util = {}
-WOTLKC.Logging = {}
+local ADDON_NAME, CGM = ...
 
 -- Variables.
+local eventFrame
 local minimapButton = LibStub("LibDBIcon-1.0")
 
 -- Shows or hides the minimap button.
 local function ToggleMinimapButton()
-    WOTLKCOptions.minimapTable.show = not WOTLKCOptions.minimapTable.show
-    if not WOTLKCOptions.minimapTable.show then
-        minimapButton:Hide("WOTLKCompanion")
-        print("|cFFFFFF00WOTLK Companion:|r Minimap button hidden. Type /wotlkc minimap to show it again.")
+    CGMOptions.minimapTable.show = not CGMOptions.minimapTable.show
+    if not CGMOptions.minimapTable.show then
+        minimapButton:Hide("ClassicGuideMaker")
+        print("|cFFFFFF00ClassicGuideMaker:|r Minimap button hidden. Type /CGM minimap to show it again.")
     else
-        minimapButton:Show("WOTLKCompanion")
+        minimapButton:Show("ClassicGuideMaker")
     end
 end
 
 -- Initializes the minimap button.
 local function InitMinimapButton()
     -- Register for eventual data brokers.
-    local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("WOTLKCompanion", {
+    local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("ClassicGuideMaker", {
         type = "data source",
-        text = "WOTLKCompanion",
-        icon = "Interface/Addons/WOTLKCompanion/Media/FrostPresence", -- TEMP
+        text = "ClassicGuideMaker",
+        icon = "Interface/Addons/ClassicGuideMaker/Media/FrostPresence", -- TEMP
         OnClick = function(self, button)
             if button == "LeftButton" then
                 -- toggle options here
@@ -40,7 +31,7 @@ local function InitMinimapButton()
         end,
         OnEnter = function(self)
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            GameTooltip:AddLine("|cFFFFFFFFWOTLK Companion|r")
+            GameTooltip:AddLine("|cFFFFFFFFClassicGuideMaker|r")
             GameTooltip:AddLine("TEMP BLABLA") -- temp
             GameTooltip:Show()
         end,
@@ -49,15 +40,14 @@ local function InitMinimapButton()
         end
     })
     -- Create minimap icon.
-    minimapButton:Register("WOTLKCompanion", LDB, WOTLKCOptions.minimapTable)
+    minimapButton:Register("ClassicGuideMaker", LDB, CGMOptions.minimapTable)
 end
 
 -- Initializes slash commands.
 local function InitSlash()
-    SLASH_WOTLKC1 = "/wotlkc"
-    SLASH_WOTLKC2 = "/wotlkcompanion"
-    SLASH_WOTLKC3 = "/wrathofthelichkingcompanion"
-    function SlashCmdList.WOTLKC(text)
+    SLASH_CGM1 = "/CGM"
+    SLASH_CGM3 = "/ClassicGuideMaker"
+    function SlashCmdList.CGM(text)
         if text == "minimap" then
             ToggleMinimapButton()
         else
@@ -68,50 +58,48 @@ end
 
 -- Registers for events.
 local function Initialize()
-    WOTLKC.Types = WOTLKC.Util:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
-    WOTLKC.Guides = {}
+    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
+    CGM.Guides = {}
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())
         if itemLink then
             GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
         end
     end) -- temp
-    WOTLKC:RegisterAllEvents()
+    eventFrame = CreateFrame("Frame")
+    CGM:RegisterAllEvents(eventFrame)
 end
 
 -- Loads all saved variables.
 local function LoadVariables()
-    WOTLKCOptions = WOTLKCOptions or {}
-    WOTLKCOptions.minimapTable = WOTLKCOptions.minimapTable or {}
-    WOTLKCOptions.minimapTable.show = WOTLKCOptions.minimapTable.show or true
-    WOTLKCOptions.completedSteps = WOTLKCOptions.completedSteps or {}
-    WOTLKCOptions.savedStepIndex = WOTLKCOptions.savedStepIndex or {}
-    WOTLKCOptions.nbrSteps = 5 -- TODO: load variable
+    CGMOptions = CGMOptions or {}
+    CGMOptions.minimapTable = CGMOptions.minimapTable or {}
+    CGMOptions.minimapTable.show = CGMOptions.minimapTable.show or true
+    CGMOptions.completedSteps = CGMOptions.completedSteps or {}
+    CGMOptions.savedStepIndex = CGMOptions.savedStepIndex or {}
+    CGMOptions.nbrSteps = 5 -- TODO: load variable
 end
 
 -- Called when most game data is available.
-function WOTLKC.Events:OnPlayerEnteringWorld()
-    WOTLKCFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    WOTLKC.UI:Init()
-    WOTLKCOptions.currentGuideName = "Elwynn Forest 1-10" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
-    if WOTLKCOptions.currentGuideName then
-        WOTLKC:SetGuide(WOTLKCOptions.currentGuideName)
+function CGM:OnPlayerEnteringWorld()
+    eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
+    CGMOptions.currentGuideName = "Elwynn Forest 1-10" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
+    if CGMOptions.currentGuideName then
+        CGM:SetGuide(CGMOptions.currentGuideName)
     end
 end
 
 -- Called on ADDON_LOADED.
-function WOTLKC.Events:OnAddonLoaded(addonName)
+function CGM:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
-        WOTLKCFrame:UnregisterEvent("ADDON_LOADED")
+        eventFrame:UnregisterEvent("ADDON_LOADED")
         LoadVariables()
         -- Initialize stuff.
+        CGM:InitFrames()
         InitMinimapButton()
         InitSlash()
-        print("|cFFFFFF00WOTLK Companion|r loaded! Do not share this with anyone outside Progress.")
+        print("|cFFFFFF00ClassicGuideMaker|r loaded!")
     end
 end
 
--- Called when the main frame has loaded.
-function WOTLKCFrame_OnLoad(self)
-    Initialize()
-end
+Initialize()

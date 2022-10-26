@@ -1,7 +1,9 @@
-local _, WOTLKC = ...
+local _, CGM = ...
 
 -- Variables.
+local arrow
 local hbd
+local CUI
 local timeSinceLast = 0
 local goalX, goalY
 local isInInstance
@@ -18,6 +20,16 @@ local PI2 = math.pi * 2
 local GetPlayerFacing = GetPlayerFacing
 local sqrt, cos, sin, acos, floor = math.sqrt, math.cos, math.sin, math.acos, math.floor
 
+-- Called when the mouse is down on the arrow.
+local function Arrow_OnMouseDown(self)
+    self:StartMoving()
+end
+
+-- Called when the mouse is released.
+local function Arrow_OnMouseUp(self)
+    self:StopMovingOrSizing()
+end
+
 -- Gets called every frame update.
 local function OnUpdate(_, elapsed)
     timeSinceLast = timeSinceLast + elapsed
@@ -27,7 +39,7 @@ local function OnUpdate(_, elapsed)
         -- Get the vector for the goal. The angle is to the goal from the player's current position.
         local angle, distance = hbd:GetWorldVector(instance, playerX, playerY, goalX, goalY)
         if not hasEventFired and distance <= GOAL_DISTANCE then
-            WOTLKC.Events:Fire("WOTLKC_COORDINATES_REACHED")
+            CGM:Fire("CGM_COORDINATES_REACHED")
             hasEventFired = true
         elseif distance > GOAL_DISTANCE then
             hasEventFired = false -- Event should fire the next time the player reaches the coordinates again.
@@ -48,25 +60,47 @@ local function OnUpdate(_, elapsed)
 end
 
 -- Sets the current goal world coordinate.
-function WOTLKC.UI.Arrow:SetGoal(x, y, mapID)
+function CGM:SetGoal(x, y, mapID)
     if x and y and mapID then
         goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, mapID)
-        WOTLKCArrow:Show()
+        CGMArrow:Show()
     else
-        WOTLKCArrow:Hide()
+        CGMArrow:Hide()
     end
 end
 
 -- Called when the player changes zones.
-function WOTLKC.Events:OnZoneChangedNewArea()
+function CGM:OnZoneChangedNewArea()
     isInInstance = IsInInstance()
 end
 
 -- Initializes the arrow.
-function WOTLKC.UI.Arrow:InitArrow()
+function CGM:InitArrow()
+    CUI = LibStub("CloudUI-1.0")
+    -- Create arrow.
+    arrow = CreateFrame("Frame", "CGMArrow", UIParent)
+    arrow:EnableMouse(true)
+    arrow:SetClampedToScreen(true)
+    arrow:SetMovable(true)
+    arrow:HookScript("OnMouseDown", Arrow_OnMouseDown)
+    arrow:HookScript("OnMouseUp", Arrow_OnMouseUp)
+    arrow:Hide()
+    arrow:SetSize(56, 42)
+    arrow:SetPoint("CENTER")
+    -- Arrow texture.
+    local texture = arrow:CreateTexture(nil, "BACKGROUND")
+    texture:SetTexture("Interface/Addons/ClassicGuideMaker/Media/Arrow")
+    texture:SetAllPoints(arrow)
+    arrow.texture = texture
+    -- Arrow fontstring.
+    local fontInstance = CUI:GetFontNormal()
+    fontInstance:SetJustifyH("LEFT")
+    local distanceLbl = arrow:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    distanceLbl:SetPoint("TOP", arrow, "BOTTOM", 0, -4)
+    arrow.distanceLbl = distanceLbl
     isInInstance = IsInInstance()
-    arrowTexture = WOTLKCArrow.texture
-    arrowText = WOTLKCArrow.distanceLbl
+    arrowTexture = CGMArrow.texture
+    arrowText = CGMArrow.distanceLbl
     hbd = LibStub("HereBeDragons-2.0")
-    WOTLKCArrow:HookScript("OnUpdate", OnUpdate)
+    CGMArrow:HookScript("OnUpdate", OnUpdate)
 end

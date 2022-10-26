@@ -1,6 +1,7 @@
-local _, WOTLKC = ...
+local _, CGM = ...
 
 -- Variables.
+local CUI
 local stepFrames = {}
 local framePool = {}
 local isLoaded = false
@@ -12,6 +13,56 @@ local GetItemInfo, GetItemCount = GetItemInfo, GetItemCount
 -- Constants.
 local STEP_TEXT_MARGIN = 48
 
+-- Resizes the text.
+local function StepFrame_ResizeText(self, width)
+    self.text:SetWidth(width)
+end
+
+-- Updates this current step.
+local function StepFrame_UpdateStep(self, index, text, isAvailable, isCompleted, isActive)
+    self.text:SetText(text)
+    self.index = index
+    self.stepNbr:SetText(index)
+    if isCompleted then
+        self:SetBackgroundColor(0, 0.4, 0, 1)
+    elseif not isAvailable then
+        self:SetBackgroundColor(0.4, 0, 0, 1)
+    elseif isActive then
+        self:SetBackgroundColor(0.4, 0.4, 0, 1)
+    else
+        self:ResetBackgroundColor()
+    end
+end
+
+-- Clears the step.
+local function StepFrame_Clear(self)
+    self.text:SetText("")
+    self.stepNbr:SetText("")
+end
+
+-- Called when the player clicks a step.
+local function StepFrame_OnClick(self, button)
+    if button == "LeftButton" then
+        CGM:SetCurrentStep(self.index)
+        CGM:UpdateStepFrames()
+    else
+        CGM:MarkStepCompleted(self.index, not CGM:IsStepCompleted(self.index))
+        CGM:UpdateStepFrames()
+    end
+end
+
+-- Called when the mouse enters the frame.
+local function StepFrame_OnEnter(self)
+    self.shouldChangeText = false
+    CGM:UpdateStepFrames(self:GetID())
+end
+
+-- Called when the mouse leaves the frame.
+local function StepFrame_OnLeave(self)
+    self.shouldChangeText = true
+    CGM:UpdateStepFrames(self:GetID())
+end
+
 -- Returns (or creates if there is none available) a step frame from the pool.
 local function GetStepFrame()
     for i = 1, #framePool do
@@ -21,7 +72,37 @@ local function GetStepFrame()
         end
     end
     -- No available button was found, so create a new one and add it to the pool.
-    local frame = CreateFrame("Button", "WOTLKCStepFrame" .. #framePool + 1, WOTLKCFrameBodyFrame, "WOTLKCStepFrameTemplate")
+    -- Main frame.
+    local frame = CreateFrame("Button", "CGMStepFrame" .. #framePool + 1, CGMFrame.bodyFrame)
+    frame:RegisterForClicks("LeftButtonUp, RightButtonUp")
+    CUI:ApplyTemplate(frame, CUI.templates.HighlightFrameTemplate)
+    CUI:ApplyTemplate(frame, CUI.templates.BackgroundFrameTemplate)
+    CUI:ApplyTemplate(frame, CUI.templates.PushableFrameTemplate)
+    -- Fontstrings.
+    local fontInstance = CUI:GetFontNormal()
+    fontInstance:SetJustifyH("LEFT")
+    local stepNbr = frame:CreateFontString(nil, "OVERLAY", fontInstance:GetName())
+    stepNbr:SetPoint("TOPLEFT", 4, -4)
+    frame.stepNbr = stepNbr
+    local text = frame:CreateFontString(nil, "OVERLAY", fontInstance:GetName())
+    text:SetWordWrap(true)
+    text:SetPoint("TOPLEFT", 44, -4)
+    frame.text = text
+    -- Top border.
+    local topBorder = frame:CreateTexture(nil, "BORDER")
+    topBorder:SetSize(1, 1)
+    topBorder:SetColorTexture(1, 1, 1, 1)
+    topBorder:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", -1, 0)
+    topBorder:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 1, 0)
+    frame.topBorder = topBorder
+    frame.ResizeText = StepFrame_ResizeText
+    frame.UpdateStep = StepFrame_UpdateStep
+    frame.Clear = StepFrame_Clear
+    frame:HookScript("OnClick", StepFrame_OnClick)
+    frame:HookScript("OnEnter", StepFrame_OnEnter)
+    frame:HookScript("OnLeave", StepFrame_OnLeave)
+    -- frame.index = 1 -- temp, might be needed
+    -- frame.active = false
     frame.Lock = function(self)
         self.isUsed = true
     end
@@ -37,20 +118,20 @@ local function GetStepFrame()
 end
 
 -- Updates the step frames according to the slider's current value.
-function WOTLKC.UI.StepFrame:UpdateStepFrames()
-    if isLoaded and WOTLKC.currentGuideName then
-        local currentValue = WOTLKCSlider:GetValue()
+function CGM:UpdateStepFrames(stepFrameIndex)
+    if isLoaded and CGM.currentGuideName then
+        local currentValue = CGMSlider:GetValue()
         local text
         local index
         local currentStep
-        for i = 1, #stepFrames do
+        for i = stepFrameIndex or 1, stepFrameIndex or #stepFrames do
             index = currentValue + i - 1
-            currentStep = WOTLKC.currentGuide[index]
+            currentStep = CGM.currentGuide[index]
             if currentStep then
                 text = currentStep.text
                 local type = currentStep.type
-                if WOTLKC.currentStepIndex == index and not WOTLKC:IsStepCompleted(index) then
-                    if type == WOTLKC.Types.Do then
+                if CGM.currentStepIndex == index and not CGM:IsStepCompleted(index) then
+                    if type == CGM.Types.Do and stepFrames[i].shouldChangeText then
                         local objText = ""
                         if currentStep.isMultiStep then
                             for j = 1, #currentStep.questIDs do
@@ -76,7 +157,7 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
                             end
                         end
                         text = #objText > 0 and objText or text
-                    elseif type == WOTLKC.Types.Item then
+                    elseif type == CGM.Types.Item then
                         local itemText = ""
                         local itemIDs = currentStep.itemIDs
                         for i = 1, #itemIDs do
@@ -91,7 +172,7 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
                         text = #itemText > 0 and itemText or text
                     end
                 end
-                stepFrames[i]:UpdateStep(index, text, WOTLKC:IsStepAvailable(index), WOTLKC:IsStepCompleted(index), index == WOTLKC.currentStepIndex)
+                stepFrames[i]:UpdateStep(index, text, CGM:IsStepAvailable(index), CGM:IsStepCompleted(index), index == CGM.currentStepIndex)
             else
                 stepFrames[i]:Clear()
             end
@@ -100,37 +181,27 @@ function WOTLKC.UI.StepFrame:UpdateStepFrames()
 end
 
 -- Resizes each step frame to fit the parent frame. Code shamelessly stolen from Gemt.
-function WOTLKC.UI.StepFrame:ResizeStepFrames()
+function CGM:ResizeStepFrames()
     if isLoaded then
-        local height = WOTLKCFrameBodyFrame:GetHeight()
+        local height = CGMFrame.bodyFrame:GetHeight()
         local nbrSteps = #stepFrames
         for i = 1, nbrSteps do
             local topOffset = (i - 1) * (height / nbrSteps)
             local bottomOffset = height - (i * (height / nbrSteps))
-            stepFrames[i]:SetPoint("TOPLEFT", WOTLKCFrameBodyFrame, "TOPLEFT", 0, -topOffset)
-            stepFrames[i]:SetPoint("BOTTOMRIGHT", WOTLKCFrameBodyFrame, "BOTTOMRIGHT", -19, bottomOffset)
+            stepFrames[i]:SetPoint("TOPLEFT", CGMFrame.bodyFrame, "TOPLEFT", 0, -topOffset)
+            stepFrames[i]:SetPoint("BOTTOMRIGHT", CGMFrame.bodyFrame, "BOTTOMRIGHT", -17, bottomOffset)
             stepFrames[i]:ResizeText(stepFrames[i]:GetWidth() - STEP_TEXT_MARGIN)
         end
     end
 end
 
 -- Initializes the frames containing steps, getting frames from a frame pool.
-function WOTLKC.UI.StepFrame:InitStepFrames()
-    for i = 1, WOTLKCOptions.nbrSteps do
+function CGM:InitStepFrames()
+    CUI = LibStub("CloudUI-1.0")
+    for i = 1, CGMOptions.nbrSteps do
         stepFrames[i] = GetStepFrame()
+        stepFrames[i]:SetID(i)
     end
     isLoaded = true
-    WOTLKC.UI.StepFrame:ResizeStepFrames() -- Needs to be called once on addon load.
-end
-
--- Called when the player clicks a step.
-function WOTLKC_StepFrame_OnClick(self, button)
-    if button == "LeftButton" then
-        WOTLKC:SetCurrentStep(self:GetIndex())
-        WOTLKC.UI.StepFrame:UpdateStepFrames()
-    else
-        local index = self:GetIndex()
-        WOTLKC:MarkStepCompleted(index, not WOTLKC:IsStepCompleted(index))
-        WOTLKC.UI.StepFrame:UpdateStepFrames()
-    end
+    CGM:ResizeStepFrames() -- Needs to be called once on addon load.
 end

@@ -1,7 +1,7 @@
-local _, WOTLKC = ...
+local _, CGM = ...
 
 -- Prints the given table for debug purposes.
-function WOTLKC.Util:PrintTable(t, i, f)
+function CGM:PrintTable(t, i, f)
     if type(t) == "table" then
         i = i or "    "
         f = not f
@@ -45,7 +45,7 @@ function WOTLKC.Util:PrintTable(t, i, f)
 end
 
 -- Returns an enum with the given values.
-function WOTLKC.Util:Enum(t)
+function CGM:Enum(t)
     if type(t) == "table" and #t > 0 then
         for i = 1, #t do    
             if type(t[i]) == "string" then
@@ -57,7 +57,7 @@ function WOTLKC.Util:Enum(t)
 end
 
 -- Deep copies the given table and returns the copy. If no table is given, this returns the original value.
-function WOTLKC.Util:Copy(t)
+function CGM:Copy(t)
     if type(t) == "table" then
         local c = {}
         for k, v in pairs(t) do
@@ -70,6 +70,6 @@ function WOTLKC.Util:Copy(t)
 end
 
 -- Returns the ID contained in the given chat link (e.g. an item link).
-function WOTLKC.Util:ParseIDFromLink(link)
+function CGM:ParseIDFromLink(link)
     return tonumber(link:match(":(%d+)"))
 end
