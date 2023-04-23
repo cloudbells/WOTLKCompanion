@@ -74,7 +74,7 @@ local function GetStepFrame()
     -- No available button was found, so create a new one and add it to the pool.
     -- Main frame.
     local frame = CreateFrame("Button", "CGMStepFrame" .. #framePool + 1, CGMFrame.bodyFrame)
-    frame:RegisterForClicks("LeftButtonUp, RightButtonUp")
+    frame:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     CUI:ApplyTemplate(frame, CUI.templates.HighlightFrameTemplate)
     CUI:ApplyTemplate(frame, CUI.templates.BackgroundFrameTemplate)
     CUI:ApplyTemplate(frame, CUI.templates.PushableFrameTemplate)

@@ -34,3 +34,4 @@ Init.lua
 
 # Load guides. Add the path to your custom guide below to load it.
 Guides/TestGuide.lua
+Guides/DM_Draft.lua

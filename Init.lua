@@ -21,10 +21,10 @@ local function InitMinimapButton()
     local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("ClassicGuideMaker", {
         type = "data source",
         text = "ClassicGuideMaker",
-        icon = "Interface/Addons/ClassicGuideMaker/Media/FrostPresence", -- TEMP
+        icon = "Interface/Addons/ClassicGuideMaker/Media/MinimapButton",
         OnClick = function(self, button)
             if button == "LeftButton" then
-                -- toggle options here
+                
             elseif button == "RightButton" then
                 ToggleMinimapButton()
             end
@@ -32,7 +32,8 @@ local function InitMinimapButton()
         OnEnter = function(self)
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
             GameTooltip:AddLine("|cFFFFFFFFClassicGuideMaker|r")
-            GameTooltip:AddLine("TEMP BLABLA") -- temp
+            GameTooltip:AddLine("Left click to show the main window.")
+            GameTooltip:AddLine("Right click to hide this minimap button.")
             GameTooltip:Show()
         end,
         OnLeave = function(self)
@@ -58,14 +59,14 @@ end
 
 -- Registers for events.
 local function Initialize()
-    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate"})
+    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train"})
     CGM.Guides = {}
-    GameTooltip:HookScript("OnTooltipSetItem", function()
-        local itemLink = select(2, GameTooltip:GetItem())
-        if itemLink then
-            GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
-        end
-    end) -- temp
+    -- GameTooltip:HookScript("OnTooltipSetItem", function()
+        -- local itemLink = select(2, GameTooltip:GetItem())
+        -- if itemLink then
+            -- GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
+        -- end
+    -- end) -- temp
     eventFrame = CreateFrame("Frame")
     CGM:RegisterAllEvents(eventFrame)
 end
@@ -83,7 +84,7 @@ end
 -- Called when most game data is available.
 function CGM:OnPlayerEnteringWorld()
     eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    CGMOptions.currentGuideName = "Elwynn Forest 1-10" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
+    CGMOptions.currentGuideName = "DM Draft" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
     if CGMOptions.currentGuideName then
         CGM:SetGuide(CGMOptions.currentGuideName)
     end

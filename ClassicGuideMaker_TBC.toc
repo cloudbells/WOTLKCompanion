@@ -6,15 +6,14 @@
 ## SavedVariablesPerCharacter: CGMOptions
 
 # Load libs.
-Libs/LibStub/LibStub.lua
-Libs/CallbackHandler-1.0/CallbackHandler-1.0.lua
-Libs/HereBeDragons/HereBeDragons-2.0.lua
-Libs/LibDataBroker-1.1/LibDataBroker-1.1.lua
-Libs/LibDBIcon-1.0/LibDBIcon-1.0.lua
-Libs/CloudUI-1.0/CloudUI-1.0.xml
+Libs\LibStub.lua
+Libs\CallbackHandler-1.0.lua
+Libs\HereBeDragons-2.0.lua
+Libs\LibDataBroker-1.1.lua
+Libs\LibDBIcon-1.0.lua
+Libs\CloudUI-1.0\CloudUI-1.0.xml
 
 # Load core files.
-Init.lua
 Events.lua
 Main.lua
 AutoAccept.lua
@@ -24,11 +23,15 @@ Util.lua
 Logger.lua
 
 # Load UI files.
-Interface/Arrow.xml
-Interface/StepFrame.xml
-Interface/CGMFrame.xml
+Interface/Arrow.lua
+Interface/StepFrame.lua
+Interface/CGMFrame.lua
+Interface/DeleteButton.lua
+
+Init.lua
 
 # ------------------------------------------------------------------------------------------
 
 # Load guides. Add the path to your custom guide below to load it.
 Guides/TestGuide.lua
+Guides/DM_Draft.lua

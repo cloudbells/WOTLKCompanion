@@ -52,6 +52,17 @@ local function ProcessTags(guide)
                     if step.y then
                         step.text = step.text:gsub("{" .. tag .. "}", step.y)
                     end
+                elseif tagLower == "cost" then
+                    local cost = step.cost
+                    step.text = step.text:gsub("{" .. tag .. "}", cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
+                elseif tagLower == "spells" then
+                    if step.spells then
+                        local str = ""
+                        for _, info in pairs(step.spells) do
+                            str = str .. info.name .. ", "
+                        end
+                        step.text = step.text:gsub("{" .. tag .. "}", str:gsub(", $", ""))
+                    end
                 else
                     -- give error message here
                 end
@@ -61,8 +72,8 @@ local function ProcessTags(guide)
 end
 
 -- Sets the current step to the given index.
-function CGM:SetCurrentStep(index, shouldScroll)
-    if CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) and CGM.currentStepIndex ~= index then
+function CGM:SetCurrentStep(index, shouldScroll, str)
+    if CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) then
         CGM.currentStepIndex = index
         CGMOptions.savedStepIndex[CGM.currentGuideName] = index
         local step = CGM.currentGuide[index]
@@ -132,8 +143,17 @@ function CGM:IsStepCompleted(index)
             return false
         end
     elseif type == CGM.Types.Coordinate then -- First check if the quest has been completed, then check if the next step has been completed and return that.
-        if not (IsQuestFlaggedCompleted(questID) or (CGM.currentGuideName[index + 1] and CGM:IsStepCompleted(index + 1))) then
+        if not questID or not (IsQuestFlaggedCompleted(questID) or (CGM.currentGuideName[index + 1] and CGM:IsStepCompleted(index + 1))) then
             return false
+        end
+    elseif type == CGM.Types.Buy then -- Can't check if player already has item in case the guide asks them to buy a duplicate item so just return false by default.
+        return false
+    elseif type == CGM.Types.Train then -- If just one of the spells in the list isn't known, return false.
+        local spells = step.spells
+        for spellID in pairs(spells) do
+            if not IsSpellKnown(spellID) then
+                return false
+            end
         end
     end
     if type ~= CGM.Types.Item or (type == CGM.Types.Item and IsQuestFlaggedCompleted(questID)) then -- If the player removes an item from bags, this should return false.
@@ -146,17 +166,14 @@ end
 function CGM:IsStepAvailable(index)
     local step = CGM.currentGuide[index]
     local questID = step.questID or step.questIDs
-    local requiresSteps = step.requiresSteps
-    local lockedBySteps = step.lockedBySteps
-    local requiresLevel = step.requiresLevel
-    if requiresLevel then
-        if UnitLevel("player") < requiresLevel then
+    if step.requiresLevel then
+        if UnitLevel("player") < step.requiresLevel then
             return false
         end
     end
-    if lockedBySteps then
-        for i = 1, #lockedBySteps do
-            if CGM:IsStepCompleted(lockedBySteps[i]) then
+    if step.lockedBySteps then
+        for i = 1, #step.lockedBySteps do
+            if CGM:IsStepCompleted(step.lockedBySteps[i]) then
                 return false
             end
         end
@@ -176,11 +193,15 @@ function CGM:IsStepAvailable(index)
         else
             return IsOnQuest(questID)
         end
-    elseif requiresSteps and (type == CGM.Types.Accept or type == CGM.Types.Item) then
-        for i = 1, #requiresSteps do
-            if not self:IsStepCompleted(requiresSteps[i]) then
+    elseif step.requiresSteps and (type == CGM.Types.Accept or type == CGM.Types.Item) then
+        for i = 1, #step.requiresSteps do
+            if not self:IsStepCompleted(step.requiresSteps[i]) then
                 return false
             end
+        end
+    elseif type == CGM.Types.Buy or type == CGM.Types.Train then
+        if GetMoney() < step.cost then
+            return false
         end
     end
     return true -- No requirements for this step.
@@ -220,6 +241,7 @@ function CGM:OnQuestAccepted(_, questID)
             CGM:ScrollToNextIncomplete() -- If the current step gets locked because the player picked up another quest, should scroll to next.
         end
     end
+    CGM:UpdateStepFrames()
 end
 
 -- Called on QUEST_TURNED_IN (when the player has handed in a quest).
@@ -350,6 +372,53 @@ function CGM:OnMerchantShow()
             end
         end
     end
+    
+    
+    -- todo: check for correct NPC ID before entering if
+    
+    
+    if CGM.currentStep.type == CGM.Types.Buy then
+        local boughtItems = {}
+        for i = 1, GetMerchantNumItems() do
+            local itemID = GetMerchantItemID(i)
+            if CGM.currentStep.items[itemID] then
+                for j = 1, CGM.currentStep.items[itemID] do
+                    boughtItems[itemID] = boughtItems[itemID] and boughtItems[itemID] + 1 or 1
+                    BuyMerchantItem(i)
+                end
+            end
+        end
+        local complete = true
+        for itemID, num in pairs(CGM.currentStep.items) do -- If player bought all the items in the list then we mark it as complete.
+            if boughtItems[itemID] ~= num then
+                complete = false
+                break
+            end
+        end
+        
+        
+        -- todo: mark step completed here if correct NPC was visited and all items were bought
+        
+        
+    end
+end
+
+-- Called on TRAINER_SHOW (whenever the trainer window shows). Trains any spells specified in the current step, if any.
+function CGM:OnTrainerShow()
+    local currentStep = CGM.currentStep
+    if currentStep.type == CGM.Types.Train and currentStep.spells then
+        for i = 1, GetNumTrainerServices() do
+            local name, rank = GetTrainerServiceInfo(i)
+            rank = tonumber(rank:match("(%d+)"))
+            for _, info in pairs(currentStep.spells) do
+                if info.name == name and info.rank == rank then
+                    BuyTrainerService(i)
+                    break
+                end
+            end
+        end
+        CGM:IsStepCompleted(CGM.currentStepIndex)
+    end
 end
 
 -- Register a new guide for the addon.
@@ -389,13 +458,20 @@ function CGM:SetGuide(guideName)
         CGMFrame:SetTitleText(CGM.currentGuideName)
         CGM:UpdateSlider()
         if CGMOptions.savedStepIndex[guideName] then
-            CGM:SetCurrentStep(CGMOptions.savedStepIndex[guideName], true)
+            CGM:SetCurrentStep(CGMOptions.savedStepIndex[guideName], true, "SetGuide")
             CGM:UpdateStepFrames()
         else
             CGM:ScrollToFirstIncomplete()
         end
         -- Map quest IDs to step indeces so we don't have to iterate all steps to find them.
+        -- Also register for any relevant events here.
         for i = 1, #CGM.currentGuide do
+            local type = CGM.currentGuide[i].type
+            if type == CGM.Types.Buy then
+                CGM:RegisterWowEvent("MERCHANT_SHOW", CGM.OnMerchantShow)
+            elseif type == CGM.Types.Train then
+                CGM:RegisterWowEvent("TRAINER_SHOW", CGM.OnTrainerShow)
+            end
             local questID = CGM.currentGuide[i].questID or CGM.currentGuide[i].questIDs
             if questID then
                 if CGM.currentGuide[i].isMultiStep then
@@ -415,6 +491,6 @@ function CGM:SetGuide(guideName)
             end
         })
     else
-        print("CGMompanion: guide \"" .. guideName .. "\" hasn't been registered yet! Can't set the guide.")
+        print("CGM: guide \"" .. guideName .. "\" hasn't been registered yet! Can't set the guide.")
     end
 end

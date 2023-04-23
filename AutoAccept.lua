@@ -2,8 +2,7 @@ local _, CGM = ...
 
 -- Called on QUEST_ACCEPT_CONFIRM. Fires when an escort quest is started nearby.
 function CGM.OnQuestAcceptConfirm(_, questTitle)
-    local currentStep = CGM.currentStep
-    if C_QuestLog.GetQuestInfo(currentStep.questID) == questTitle then
+    if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == questTitle then
         ConfirmAcceptQuest()
     end
 end
@@ -19,10 +18,9 @@ function CGM:OnQuestDetail(...)
         QuestFrameDetailPanel.questIDLbl:SetText("Quest ID: " .. GetQuestID())
     end
     -- end of temp
-    if not IsShiftKeyDown() then -- todo: change to chosen modifier by user in options
-        local currentStep = CGM.currentStep
-        if currentStep.type == CGM.Types.Accept then
-            if currentStep.questID == GetQuestID() then -- GetQuestID returns the quest ID of the currently offered quest.
+    if not IsShiftKeyDown() then -- todo: change to chosen modifier by user in options -- temp
+        if CGM.currentStep.type == CGM.Types.Accept then
+            if CGM.currentStep.questID == GetQuestID() then -- GetQuestID returns the quest ID of the currently offered quest.
                 AcceptQuest()
             end
         end
@@ -44,23 +42,22 @@ end
 -- Called on QUEST_COMPLETE. Fires when the player is able to finally complete a quest (and choose a reward if there is any).
 function CGM:OnQuestComplete()
     if not IsShiftKeyDown() then
-        local currentStep = CGM.currentStep
-        if currentStep.type == CGM.Types.Deliver then
+        if CGM.currentStep.type == CGM.Types.Deliver then
             local nbrOfChoices = GetNumQuestChoices()
             if nbrOfChoices == 1 then -- Not sure if this is possible but just in case.
                 GetQuestReward(1)
             elseif nbrOfChoices > 1 then
-                if currentStep.rewardID then
+                if CGM.currentStep.rewardID then
                     for i = 1, nbrOfChoices do
                         local itemLink = GetQuestItemLink("choice", i)
                         local itemID = CGM:ParseIDFromLink(itemLink)
-                        if itemID == currentStep.rewardID then
+                        if itemID == CGM.currentStep.rewardID then
                             CGM:Message("Picking quest reward: " .. itemLink)
                             GetQuestReward(i)
-                            return
+                            break
                         end
                     end
-                    CGM:Message("No quest reward found with the specified item ID: " .. currentStep.rewardID)
+                    CGM:Message("No quest reward found with the specified item ID: " .. CGM.currentStep.rewardID)
                 end
             else
                 GetQuestReward()
@@ -73,19 +70,25 @@ end
 function CGM:OnGossipShow()
     if not IsShiftKeyDown() then
         if UnitExists("npc") then -- Check if player is currently interacting with an NPC.
-            local currentStep = CGM.currentStep
-            if currentStep.type == CGM.Types.Accept then
+            if CGM.currentStep.type == CGM.Types.Accept then
                 local availableQuests = {GetGossipAvailableQuests()}
                 for i = 1, #availableQuests, 7 do
-                    if C_QuestLog.GetQuestInfo(currentStep.questID) == availableQuests[i] then
+                    if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == availableQuests[i] then
                         SelectGossipAvailableQuest(i % 6)
                     end
                 end
-            elseif currentStep.type == CGM.Types.Deliver then
+            elseif CGM.currentStep.type == CGM.Types.Deliver then
                 local completableQuests = {GetGossipActiveQuests()}
                 for i = 1, #completableQuests, 6 do
-                    if C_QuestLog.GetQuestInfo(currentStep.questID) == completableQuests[i] and IsQuestComplete(currentStep.questID) then
+                    if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == completableQuests[i] and IsQuestComplete(CGM.currentStep.questID) then
                         SelectGossipActiveQuest(i % 5)
+                    end
+                end
+            elseif CGM.currentStep.type == CGM.Types.Train then
+                local gossipInfo = {GetGossipOptions()}
+                for i = 2, #gossipInfo, 2 do
+                    if gossipInfo[i] == "trainer" then
+                        SelectGossipOption(i / 2)
                     end
                 end
             end
@@ -97,18 +100,17 @@ end
 function CGM:OnQuestGreeting(...)
     if not IsShiftKeyDown() then
         if UnitExists("npc") then
-            local currentStep = CGM.currentStep
-            if currentStep.type == CGM.Types.Accept then
+            if CGM.currentStep.type == CGM.Types.Accept then
                 local availableQuests = GetNumAvailableQuests()
                 for i = 1, availableQuests do
-                    if GetAvailableTitle(i) == C_QuestLog.GetQuestInfo(currentStep.questID) then
+                    if GetAvailableTitle(i) == C_QuestLog.GetQuestInfo(CGM.currentStep.questID) then
                         SelectAvailableQuest(i)
                     end
                 end
-            elseif currentStep.type == CGM.Types.Deliver then
+            elseif CGM.currentStep.type == CGM.Types.Deliver then
                 local completableQuests = GetNumActiveQuests()
                 for i = 1, completableQuests do
-                    if GetActiveTitle(i) == C_QuestLog.GetQuestInfo(currentStep.questID) and IsQuestComplete(currentStep.questID) then
+                    if GetActiveTitle(i) == C_QuestLog.GetQuestInfo(CGM.currentStep.questID) and IsQuestComplete(CGM.currentStep.questID) then
                         SelectActiveQuest(i)
                     end
                 end
