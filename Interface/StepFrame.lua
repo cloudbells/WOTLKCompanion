@@ -159,11 +159,8 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                         text = #objText > 0 and objText or text
                     elseif type == CGM.Types.Item then
                         local itemText = ""
-                        local itemIDs = currentStep.itemIDs
-                        for i = 1, #itemIDs do
-                            local itemID = itemIDs[i]
+                        for itemID, itemCount in pairs(currentStep.items) do
                             local itemName = GetItemInfo(itemID)
-                            local requiredItemCount = currentStep.itemCounts[i]
                             if itemName then
                                 local itemCount = GetItemCount(itemID)
                                 itemText = itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" .. requiredItemCount .. "\n"
@@ -180,11 +177,25 @@ function CGM:UpdateStepFrames(stepFrameIndex)
     end
 end
 
--- Resizes each step frame to fit the parent frame. Code shamelessly stolen from Gemt.
+-- Resizes each step frame to fit the parent frame.
 function CGM:ResizeStepFrames()
     if isLoaded then
+        -- Get rid of frames we aren't going to use.
+        if #stepFrames > CGMOptions.settings.nbrSteps then
+            for i = CGMOptions.settings.nbrSteps + 1, #stepFrames do
+                stepFrames[i]:Unlock()
+                stepFrames[i]:Hide()
+                stepFrames[i] = nil
+            end
+        elseif #stepFrames < CGMOptions.settings.nbrSteps then -- Get new frames if necessary.
+            for i = #stepFrames + 1, CGMOptions.settings.nbrSteps do
+                stepFrames[i] = GetStepFrame()
+                stepFrames[i]:SetID(i)
+                stepFrames[i]:Show()
+            end
+        end
         local height = CGMFrame.bodyFrame:GetHeight()
-        local nbrSteps = #stepFrames
+        local nbrSteps = CGMOptions.settings.nbrSteps
         for i = 1, nbrSteps do
             local topOffset = (i - 1) * (height / nbrSteps)
             local bottomOffset = height - (i * (height / nbrSteps))
@@ -198,7 +209,7 @@ end
 -- Initializes the frames containing steps, getting frames from a frame pool.
 function CGM:InitStepFrames()
     CUI = LibStub("CloudUI-1.0")
-    for i = 1, CGMOptions.nbrSteps do
+    for i = 1, CGMOptions.settings.nbrSteps do
         stepFrames[i] = GetStepFrame()
         stepFrames[i]:SetID(i)
     end

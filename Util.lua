@@ -69,6 +69,12 @@ function CGM:Copy(t)
     return t
 end
 
+-- Returns the ID of the given GUID.
+function CGM:ParseIDFromGUID(guid)
+    local _, _, _, _, _, id = strsplit("-", guid)
+    return tonumber(id)
+end
+
 -- Returns the ID contained in the given chat link (e.g. an item link).
 function CGM:ParseIDFromLink(link)
     return tonumber(link:match(":(%d+)"))

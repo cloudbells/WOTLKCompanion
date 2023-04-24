@@ -36,7 +36,7 @@ local function ProcessTags(guide)
                 elseif tagLower:find("itemname") then
                     local n = tonumber(tag:match("%a+(%d+)"))
                     if n then
-                        local itemID = step.itemIDs[n]
+                        local itemID = step.items[n]
                         if itemID then
                             local itemName = GetItemInfo(itemID)
                             if itemName then
@@ -106,9 +106,8 @@ function CGM:IsStepCompleted(index)
             return false
         end
     elseif type == CGM.Types.Item and not IsQuestFlaggedCompleted(questID) then -- First check if the player has completed the associated quest, then check if the items are in the player's bags.
-        local itemIDs = step.itemIDs
-        for i = 1, #itemIDs do
-            if GetItemCount(itemIDs[i]) <= 0 then
+        for itemID, itemCount in pairs(step.items) do
+            if GetItemCount(step.items[i]) <= 0 then
                 return false
             end
         end
@@ -302,38 +301,6 @@ function CGM:OnUnitQuestLogChanged(unit)
                 CGM:UpdateStepFrames() -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
             end
         end
-        
-        
-        -- local isPartialDone = true
-        -- local isDone = true
-        -- if not CGMOptions.completedSteps[CGM.currentGuideName][index] then
-            -- local currentStep = CGM.currentStep
-            -- if currentStep and currentStep.type == CGM.Types.Do then
-                -- if currentStep.isMultiStep then
-                    -- for i = 1, #currentStep.questIDs do -- Quest objectives can be non-nil and non-empty for quests the player is not on.
-                        -- local objectives = GetQuestObjectives(currentStep.questIDs[i])
-                        -- if objectives then
-                            -- for j = 1, #objectives do
-                                -- isDone = IsOnQuest(currentStep.questIDs[i]) and objectives.finished or false -- 'finished' can be nil.
-                                -- isPartialDone = not objectives.finished and false or true
-                            -- end
-                        -- end
-                    -- end  
-                -- elseif IsOnQuest(currentStep.questID) then
-                    -- local objectives = GetQuestObjectives(currentStep.questID)
-                    -- if objectives then
-                        -- for i = 1, #objectives do
-                            -- isDone = IsOnQuest(currentStep.questID) and objectives.finished or false -- 'finished' can be nil.
-                            -- isPartialDone = objectives.finished or false
-                        -- end
-                    -- end
-                -- end
-                -- CGM:MarkStepCompleted(CGM.currentStepIndex, isDone)
-                -- if isPartialDone or isDone then
-                    -- CGM:ScrollToNextIncomplete(CGM.currentStepIndex + 1)
-                -- end
-            -- end
-        -- end
     end
 end
 
@@ -372,34 +339,18 @@ function CGM:OnMerchantShow()
             end
         end
     end
-    
-    
-    -- todo: check for correct NPC ID before entering if
-    
-    
-    if CGM.currentStep.type == CGM.Types.Buy then
-        local boughtItems = {}
+    local npcID = CGM:ParseIDFromGUID(UnitGUID("npc"))
+    if npcID == CGM.currentStep.unitID and CGM.currentStep.type == CGM.Types.Buy then
         for i = 1, GetMerchantNumItems() do
             local itemID = GetMerchantItemID(i)
             if CGM.currentStep.items[itemID] then
                 for j = 1, CGM.currentStep.items[itemID] do
-                    boughtItems[itemID] = boughtItems[itemID] and boughtItems[itemID] + 1 or 1
                     BuyMerchantItem(i)
                 end
             end
         end
-        local complete = true
-        for itemID, num in pairs(CGM.currentStep.items) do -- If player bought all the items in the list then we mark it as complete.
-            if boughtItems[itemID] ~= num then
-                complete = false
-                break
-            end
-        end
-        
-        
-        -- todo: mark step completed here if correct NPC was visited and all items were bought
-        
-        
+        CGM:MarkStepCompleted(CGM.currentStepIndex, true)
+        CGM:ScrollToNextIncomplete()
     end
 end
 
@@ -425,6 +376,7 @@ end
 function CGM:RegisterGuide(guide)
     -- this function should check each step to make sure it has legal fields (i.e. there cant be any multistep Deliver steps etc)
     if guide.name then
+        CGM.defaultGuide = CGM.defaultGuide or guide.name -- Default to first registered.
         if CGM.Guides[guide.name] then
             print("ClassicGuideMaker: Guide with that name is already registered. Name must be unique.")
         else
@@ -432,13 +384,16 @@ function CGM:RegisterGuide(guide)
             CGM.Guides[guide.name] = guide
         end
     else
-        print("ClassicGuideMaker: The guide has no name! To help you identify which guide it is, here is the first step description:\n" .. guide[1].text)
+        print(guide[1] and "ClassicGuideMaker: The guide has no name! To help you identify which guide it is, here is the first step description:\n" .. guide[1].text or
+            "The guide has no name!")
     end
 end
 
 -- Sets the currently displayed guide to the given guide (has to have been registered first).
 function CGM:SetGuide(guideName)
     if CGM.Guides[guideName] then
+        CGMOptions.settings.currentGuide = guideName
+        CGMGuideDropdown:SetText(guideName) -- This hurts.
         CGMOptions.completedSteps[guideName] = CGMOptions.completedSteps[guideName] or {}
         CGM.currentGuideName = guideName
         CGM.currentGuide = CGM.Guides[guideName]
@@ -458,7 +413,7 @@ function CGM:SetGuide(guideName)
         CGMFrame:SetTitleText(CGM.currentGuideName)
         CGM:UpdateSlider()
         if CGMOptions.savedStepIndex[guideName] then
-            CGM:SetCurrentStep(CGMOptions.savedStepIndex[guideName], true, "SetGuide")
+            CGM:SetCurrentStep(CGMOptions.savedStepIndex[guideName], true)
             CGM:UpdateStepFrames()
         else
             CGM:ScrollToFirstIncomplete()

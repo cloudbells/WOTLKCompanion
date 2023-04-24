@@ -98,11 +98,8 @@ CGM:RegisterGuide({
             7
         },
         ["questID"] = 33, -- The addon will mark this step as complete once this quest is turned in. Mandatory.
-        ["itemIDs"] = {
-            7073, -- Broken Fang.
-        },
-        ["itemCounts"] = {
-            1, -- The player only needs 1 of 7074 (Chipped Claw).
+        ["items"] = {
+            [7073] = 1, -- Broken Fang.
         },
         ["text"] = "Get a {itemName1}",
         ["mapID"] = 1429,

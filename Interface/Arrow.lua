@@ -2,6 +2,7 @@ local _, CGM = ...
 
 -- Variables.
 local arrow
+local hasGoal = false
 local hbd
 local CUI
 local timeSinceLast = 0
@@ -35,18 +36,15 @@ local function OnUpdate(_, elapsed)
     timeSinceLast = timeSinceLast + elapsed
     if not isInInstance and timeSinceLast >= THRESHOLD then
         timeSinceLast = 0
-        local playerX, playerY, instance = hbd:GetPlayerWorldPosition() -- Need to offset the coords with player coords since we aren't at 0.
-        -- Get the vector for the goal. The angle is to the goal from the player's current position.
+        local playerX, playerY, instance = hbd:GetPlayerWorldPosition()
         local angle, distance = hbd:GetWorldVector(instance, playerX, playerY, goalX, goalY)
         if not hasEventFired and distance <= GOAL_DISTANCE then
             CGM:Fire("CGM_COORDINATES_REACHED")
             hasEventFired = true
         elseif distance > GOAL_DISTANCE then
-            hasEventFired = false -- Event should fire the next time the player reaches the coordinates again.
+            hasEventFired = false
         end
-        -- To get angle between the facing vector and goal vector, subtract the angle between the x axis and the facing vector.
         angle = angle - GetPlayerFacing()
-        -- Use the angle to get the arrow texture coordinates.
         local cell = floor(angle / PI2 * 108 + 0.5) % 108 -- floor(angle / PI2 * NUMBER_ARROWS + 0.5) % NUMBER_ARROWS
         local column = cell % 9 -- local column = cell % NUMBER_COLUMNS
         local row = floor(cell / 9) -- local row = floor(cell / NUMBER_COLUMNS)
@@ -57,21 +55,6 @@ local function OnUpdate(_, elapsed)
         arrowTexture:SetTexCoord(xStart, xEnd, yStart, yEnd)
         arrowText:SetText(floor(distance + 0.5) .. " yards")
     end
-end
-
--- Sets the current goal world coordinate.
-function CGM:SetGoal(x, y, mapID)
-    if x and y and mapID then
-        goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, mapID)
-        CGMArrow:Show()
-    else
-        CGMArrow:Hide()
-    end
-end
-
--- Called when the player changes zones.
-function CGM:OnZoneChangedNewArea()
-    isInInstance = IsInInstance()
 end
 
 -- Initializes the arrow.
@@ -99,8 +82,37 @@ function CGM:InitArrow()
     distanceLbl:SetPoint("TOP", arrow, "BOTTOM", 0, -4)
     arrow.distanceLbl = distanceLbl
     isInInstance = IsInInstance()
-    arrowTexture = CGMArrow.texture
-    arrowText = CGMArrow.distanceLbl
+    arrowTexture = arrow.texture
+    arrowText = arrow.distanceLbl
     hbd = LibStub("HereBeDragons-2.0")
-    CGMArrow:HookScript("OnUpdate", OnUpdate)
+    arrow:HookScript("OnUpdate", OnUpdate)
+end
+
+-- Toggles the arrow.
+function CGM:ToggleArrow()
+    if CGMOptions.isArrowHidden and hasGoal then
+        arrow:Show()
+    elseif not CGMOptions.isArrowHidden then
+        arrow:Hide()
+    end
+    CGMOptions.isArrowHidden = not CGMOptions.isArrowHidden
+end
+
+-- Sets the current goal world coordinate.
+function CGM:SetGoal(x, y, mapID)
+    if x and y and mapID then
+        hasGoal = true
+        goalX, goalY = hbd:GetWorldCoordinatesFromZone(x, y, mapID)
+        if not CGMOptions.isArrowHidden then
+            arrow:Show()
+        end
+    else
+        hasGoal = false
+        arrow:Hide()
+    end
+end
+
+-- Called when the player changes zones.
+function CGM:OnZoneChangedNewArea()
+    isInInstance = IsInInstance()
 end

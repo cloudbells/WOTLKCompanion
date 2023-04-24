@@ -104,7 +104,7 @@ function DeleteQueue:Dequeue()
     end
 end
 
--- Scans the player's bags for items that should be deleted. Scans only the one bag if given.
+-- Scans the player's bags for items that should be deleted.
 function CGM:ScanBag(bag)
     local itemsToDelete = CGM.currentGuide.itemsToDelete
     for slot = 1, GetContainerNumSlots(bag) do

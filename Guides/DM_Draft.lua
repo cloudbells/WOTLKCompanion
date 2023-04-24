@@ -29,12 +29,13 @@ CGM:RegisterGuide({
         ["questID"] = 456,
         ["text"] = "Do {questName}",
         ["mapID"] = 1438,
-        ["x"] = 60.09,
-        ["y"] = 43.28,
+        ["x"] = 61.11,
+        ["y"] = 42.81,
     },
     [4] = {
         ["type"] = CGM.Types.Deliver,
         ["questID"] = 456,
+        ["rewardID"] = 5394,
         ["text"] = "Hand in {questName}",
         ["mapID"] = 1438,
         ["x"] = 58.70,
@@ -83,6 +84,7 @@ CGM:RegisterGuide({
     [10] = {
         ["type"] = CGM.Types.Deliver,
         ["questID"] = 459,
+        ["rewardID"] = 5398,
         ["text"] = "Hand in {questName}",
         ["mapID"] = 1438,
         ["x"] = 57.76,
@@ -98,6 +100,7 @@ CGM:RegisterGuide({
     },
     [12] = {
         ["type"] = CGM.Types.Buy,
+        ["unitID"] = 3589,
         ["items"] = {
             [2512] = 1,
         },

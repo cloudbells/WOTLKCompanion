@@ -3,7 +3,14 @@ local _, CGM = ...
 -- Variables.
 local CUI
 local CGMFrame
+local slider
 local isScrollDisabled = false
+
+-- Called when user scrolls in the body frame.
+function CGMFrame_OnMouseWheel(_, delta)
+    -- Dividing by delta is done only to achieve the correct sign (negative/positive). Delta is always 1.
+    CGMSlider:SetValue(CGMSlider:GetValue() - CGMSlider:GetValueStep() / delta)
+end
 
 -- Sets the title text.
 local function CGMFrame_SetTitleText(self, text)
@@ -13,12 +20,6 @@ end
 -- Called when the size of the frame changes.
 local function CGMFrame_OnSizeChanged(self)
     CGM:ResizeStepFrames()
-end
-
--- Called when user scrolls in the body frame.
-function CGMFrame_OnMouseWheel(_, delta)
-    -- Dividing by delta is done only to achieve the correct sign (negative/positive). Delta is always 1.
-    CGMSlider:SetValue(CGMSlider:GetValue() - CGMSlider:GetValueStep() / delta)
 end
 
 -- Sets the text of the title frame.
@@ -100,7 +101,7 @@ local function InitCGMFrame()
     bodyFrame:SetPoint("TOPLEFT", titleFrame, "BOTTOMLEFT")
     bodyFrame:SetPoint("BOTTOMRIGHT")
     -- Slider.
-    local slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
+    slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
         "Interface/Addons/ClassicGuideMaker/Media/DownButton", false)
     slider:SetPoint("BOTTOMRIGHT", 0, 18)
     slider:SetPoint("TOPRIGHT", 0, -18)
@@ -119,6 +120,21 @@ local function InitCGMFrame()
     bodyFrame.resizeButton = resizeButton
     CGMFrame.bodyFrame = bodyFrame
     CGMFrame:SetPoint("CENTER")
+    if CGMOptions.isCGMFrameHidden then
+        CGMFrame:Hide()
+    end
+end
+
+-- Toggles the main frame on or off.
+function CGM:ToggleCGMFrame()
+    if CGMOptions.isCGMFrameHidden then
+        CGMFrame:Show()
+        PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB)
+    else
+        CGMFrame:Hide()
+        PlaySound(SOUNDKIT.IG_MAINMENU_CLOSE)
+    end
+    CGMOptions.isCGMFrameHidden = not CGMOptions.isCGMFrameHidden
 end
 
 -- Finds the next step from the current one that is not yet completed.
@@ -133,7 +149,7 @@ function CGM:ScrollToNextIncomplete(fromStep)
     end
     CGM:SetCurrentStep(index)
     -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
-    index = index - 1 > #CGM.currentGuide + 1 - CGMOptions.nbrSteps and #CGM.currentGuide + 1 - CGMOptions.nbrSteps or index - 1 -- Upper bound for the slider.
+    index = index - 1 > #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps and #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps or index - 1 -- Upper bound for the slider.
     local oldSliderValue = CGMSlider:GetValue()
     CGMSlider:SetValue(index)
     if oldSliderValue == index then -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
@@ -141,7 +157,7 @@ function CGM:ScrollToNextIncomplete(fromStep)
     end
 end
 
--- Finds and scrolls to the first relevant step in the guide. This might be any step since the player might've already completed some of them.
+-- Finds and scrolls to the first incomplete step in the guide.
 function CGM:ScrollToFirstIncomplete()
     self:ScrollToNextIncomplete(1)
 end
@@ -154,36 +170,32 @@ end
 -- Updates the slider max value.
 function CGM:UpdateSlider()
     local maxValue
-    if #CGM.currentGuide < CGMOptions.nbrSteps then
+    if #CGM.currentGuide < CGMOptions.settings.nbrSteps then
         maxValue = 1
-        CGMSlider:SetValue(1)
-        CGMSlider.upButton:Disable()
-        CGMSlider.downButton:Disable()
-        CGMSlider:Disable()
+        slider:SetValue(1)
+        slider.upButton:Disable()
+        slider.downButton:Disable()
+        slider:Disable()
         isScrollDisabled = true
     else
-        maxValue = #CGM.currentGuide - CGMOptions.nbrSteps + 1
-        local currentValue = CGMSlider:GetValue()
+        maxValue = #CGM.currentGuide - CGMOptions.settings.nbrSteps + 1
+        local currentValue = slider:GetValue()
         if currentValue > 1 then
-            CGMSlider.upButton:Enable()
+            slider.upButton:Enable()
         end
         if currentValue < maxValue then
-            CGMSlider.downButton:Enable()
+            slider.downButton:Enable()
         end
-        CGMSlider:Enable()
+        slider:Enable()
         isScrollDisabled = false
     end
-    CGMSlider:SetMinMaxValues(1, maxValue)
-end
-
--- Called when the options button was pressed by the player.
-function CGM_OptionsButton_OnClick()
-    print("options clicked, NYI")
+    slider:SetMinMaxValues(1, maxValue)
 end
 
 -- Initializes all the frames.
 function CGM:InitFrames()
     InitCGMFrame()
+    CGM.InitOptionsFrame()
     CGM.InitDeleteFrame()
     CGM:InitStepFrames()
     CGM:InitArrow()

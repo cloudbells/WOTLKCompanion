@@ -24,7 +24,13 @@ local function InitMinimapButton()
         icon = "Interface/Addons/ClassicGuideMaker/Media/MinimapButton",
         OnClick = function(self, button)
             if button == "LeftButton" then
-                
+                if IsShiftKeyDown() then
+                    CGM:ToggleArrow()
+                elseif IsControlKeyDown() then
+                    CGM:ToggleOptionsFrame()
+                else
+                    CGM:ToggleCGMFrame()
+                end
             elseif button == "RightButton" then
                 ToggleMinimapButton()
             end
@@ -32,7 +38,9 @@ local function InitMinimapButton()
         OnEnter = function(self)
             GameTooltip:SetOwner(self, "ANCHOR_LEFT")
             GameTooltip:AddLine("|cFFFFFFFFClassicGuideMaker|r")
-            GameTooltip:AddLine("Left click to show the main window.")
+            GameTooltip:AddLine("Left click to toggle the main window.")
+            GameTooltip:AddLine("Shift-left click to toggle the arrow.")
+            GameTooltip:AddLine("CTRL-left click to open options.")
             GameTooltip:AddLine("Right click to hide this minimap button.")
             GameTooltip:Show()
         end,
@@ -61,12 +69,12 @@ end
 local function Initialize()
     CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train"})
     CGM.Guides = {}
-    -- GameTooltip:HookScript("OnTooltipSetItem", function()
-        -- local itemLink = select(2, GameTooltip:GetItem())
-        -- if itemLink then
-            -- GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
-        -- end
-    -- end) -- temp
+    GameTooltip:HookScript("OnTooltipSetItem", function()
+        local itemLink = select(2, GameTooltip:GetItem())
+        if itemLink then
+            GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
+        end
+    end) -- temp
     eventFrame = CreateFrame("Frame")
     CGM:RegisterAllEvents(eventFrame)
 end
@@ -78,16 +86,16 @@ local function LoadVariables()
     CGMOptions.minimapTable.show = CGMOptions.minimapTable.show or true
     CGMOptions.completedSteps = CGMOptions.completedSteps or {}
     CGMOptions.savedStepIndex = CGMOptions.savedStepIndex or {}
-    CGMOptions.nbrSteps = 5 -- TODO: load variable
+    CGMOptions.isCGMFrameHidden = CGMOptions.isCGMFrameHidden or false
+    CGMOptions.isArrowHidden = CGMOptions.isArrowHidden or false
+    CGMOptions.settings = CGMOptions.settings or {}
+    CGMOptions.settings.nbrSteps = CGMOptions.settings.nbrSteps or 4
 end
 
 -- Called when most game data is available.
 function CGM:OnPlayerEnteringWorld()
     eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
-    CGMOptions.currentGuideName = "DM Draft" -- temp, if this is nil it means the player hasnt selected a guide at all yet, as soon as she has, it will always set the last guide
-    if CGMOptions.currentGuideName then
-        CGM:SetGuide(CGMOptions.currentGuideName)
-    end
+    CGM:SetGuide(CGMOptions.settings.currentGuide or CGM.defaultGuide)
 end
 
 -- Called on ADDON_LOADED.

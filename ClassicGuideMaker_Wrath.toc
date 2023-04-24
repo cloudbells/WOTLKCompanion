@@ -27,6 +27,7 @@ Interface/Arrow.lua
 Interface/StepFrame.lua
 Interface/CGMFrame.lua
 Interface/DeleteButton.lua
+Interface/OptionsFrame.lua
 
 Init.lua
 
