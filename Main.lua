@@ -38,10 +38,13 @@ local function ProcessTags(guide)
                     if n then
                         local itemID = step.items[n]
                         if itemID then
-                            local itemName = GetItemInfo(itemID)
-                            if itemName then
-                                step.text = step.text:gsub("{" .. tag .. "}", itemName)
-                            end
+                            local item = Item:CreateFromItemID(itemID)
+                            item:ContinueOnItemLoad(function()
+                                local itemName = item:GetItemName()
+                                if itemName then
+                                    step.text = step.text:gsub("{" .. tag .. "}", itemName)
+                                end
+                            end)
                         end
                     end
                 elseif tagLower == "x" then

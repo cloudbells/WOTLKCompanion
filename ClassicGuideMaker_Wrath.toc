@@ -28,7 +28,9 @@ Interface/StepFrame.lua
 Interface/CGMFrame.lua
 Interface/DeleteButton.lua
 Interface/OptionsFrame.lua
+Interface/EditFrame.lua
 
+# Init.
 Init.lua
 
 # ------------------------------------------------------------------------------------------

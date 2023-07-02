@@ -69,6 +69,11 @@ function CGM:Copy(t)
     return t
 end
 
+-- Returns the ID of the unit with the given unit ID.
+function CGM:UnitID(unitID)
+    return self:ParseIDFromGUID(UnitGUID(unitID))
+end
+
 -- Returns the ID of the given GUID.
 function CGM:ParseIDFromGUID(guid)
     local _, _, _, _, _, id = strsplit("-", guid)
@@ -78,4 +83,32 @@ end
 -- Returns the ID contained in the given chat link (e.g. an item link).
 function CGM:ParseIDFromLink(link)
     return tonumber(link:match(":(%d+)"))
+end
+
+-- Returns true if the game version is classic, false otherwise.
+function CGM:IsClassic()
+    return WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+end
+
+-- Returns true if the game version is TBC, false otherwise.
+function CGM:IsTBC()
+    return WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+end
+
+-- Returns true if the game version is WotLK, false otherwise.
+function CGM:IsWOTLK()
+    return WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+end
+
+-- Returns true if the designated modifier key is down.
+function CGM:IsModifierDown()
+    local mod = CGMOptions.settings.modifier
+    if mod == CGM.Modifiers.SHIFT then
+        return IsShiftKeyDown()
+    elseif mod == CGM.Modifiers.CTRL then
+        return IsControlKeyDown()
+    elseif mod == CGM.Modifiers.ALT then
+        return IsAltKeyDown()
+    end
+    return false
 end

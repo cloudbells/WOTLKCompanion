@@ -5,6 +5,7 @@ local optionsFrame
 local nbrStepsSlider
 local lastValue
 local guideDropdown
+local isInitalized = false
 
 -- Called when the size of the frame changes.
 local function CGMOptionsFrame_OnSizeChanged(self)
@@ -43,18 +44,24 @@ end
 
 -- Called when the number of steps slider's value is changed.
 local function NbrStepsSlider_OnValueChanged(self, value)
-    if lastValue ~= value then -- Throttle.
+    if isInitalized and lastValue ~= value then -- Throttle.
         lastValue = value
         self.nbrStepsText:SetText(value)
         CGMOptions.settings.nbrSteps = value
+        CGM:UpdateSlider()
         CGM:ResizeStepFrames()
         CGM:UpdateStepFrames()
     end
 end
 
--- Called when the player selects a value in the dropdown.
-local function CGMDropdown_OnValueChanged(self, value)
+-- Called when the player selects a value in the guide dropdown.
+local function CGMGuideDropdown_OnValueChanged(self, value)
     CGM:SetGuide(value)
+end
+
+-- Called when the player selects a value in the modifier dropdown.
+local function CGMModifierDropdown_OnValueChanged(self, value)
+    CGMOptions.settings.modifier = value
 end
 
 -- Called when the close button is clicked.
@@ -62,8 +69,16 @@ local function CloseButton_OnClick()
     optionsFrame:Hide()
 end
 
+local function DebugButton_OnClick()
+    CGMOptions.settings.debug = not CGMOptions.settings.debug
+end
+
+local function AutoAcceptButton_OnClick()
+    CGMOptions.settings.autoAccept = not CGMOptions.settings.autoAccept
+end
+
 -- Initializes the options frame.
-function CGM.InitOptionsFrame()
+function CGM:InitOptionsFrame()
     CUI = LibStub("CloudUI-1.0")
     local fontInstance = CUI:GetFontNormal()
     -- Main frame.
@@ -87,7 +102,7 @@ function CGM.InitOptionsFrame()
     -- Title fontstring.
     local title = optionsFrame:CreateFontString(nil, "BACKGROUND", CUI:GetFontBig():GetName())
     title:SetText("ClassicGuideMaker Options")
-    title:SetPoint("TOPLEFT", 5, -4)
+    title:SetPoint("TOPLEFT", 4, -3)
     -- Separator.
     local separator = optionsFrame:CreateTexture(nil, "OVERLAY")
     separator:SetHeight(1)
@@ -124,7 +139,7 @@ function CGM.InitOptionsFrame()
     for guideName in pairs(CGM.Guides) do
         values[#values + 1] = guideName
     end
-    guideDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMGuideDropdown", {CGMDropdown_OnValueChanged}, values, values)
+    guideDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMGuideDropdown", {CGMGuideDropdown_OnValueChanged}, values, values)
     guideDropdown:SetPoint("TOPLEFT", guideDropdownDescription, "BOTTOMLEFT", 2, -4)
     guideDropdown:SetWidth(168)
     -- Number of steps.
@@ -135,10 +150,46 @@ function CGM.InitOptionsFrame()
     nbrStepsSlider:HookScript("OnValueChanged", NbrStepsSlider_OnValueChanged)
     nbrStepsSlider:SetPoint("TOPLEFT", nbrStepsDescription, "BOTTOMLEFT", 2, -4)
     local nbrStepsText = nbrStepsSlider:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    nbrStepsText:SetPoint("BOTTOM", 0, -14)
+    nbrStepsText:SetPoint("RIGHT", 16, 0)
+    nbrStepsText:SetText(CGMOptions.settings.nbrSteps)
     nbrStepsSlider.nbrStepsText = nbrStepsText
     nbrStepsSlider:SetValue(CGMOptions.settings.nbrSteps)
     nbrStepsSlider:SetHeight(20)
+    -- Show debug messages.
+    local debugDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    debugDescription:SetPoint("TOPLEFT", nbrStepsDescription, "BOTTOMLEFT", 0, -32)
+    debugDescription:SetText("Show debug messages")
+    local debugButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {DebugButton_OnClick}, "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
+    debugButton:SetSize(20, 20)
+    debugButton:SetPoint("TOPLEFT", debugDescription, "BOTTOMLEFT", 2, -4)
+    debugButton:SetChecked(CGMOptions.settings.debug)
+    -- Auto accept modifier.
+    local modifierDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    modifierDescription:SetPoint("TOPLEFT", debugDescription, "BOTTOMLEFT", 0, -32)
+    modifierDescription:SetText("Auto accept modifier")
+    local modifierDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMModifierDropdown", {CGMModifierDropdown_OnValueChanged}, {
+        1,
+        2,
+        3,
+        4
+    }, {
+        "SHIFT",
+        "CTRL",
+        "ALT",
+        "None"
+    })
+    modifierDropdown:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 2, -4)
+    modifierDropdown:SetWidth(168)
+    modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier)
+    -- Auto accept default or not.
+    local autoAcceptDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    autoAcceptDescription:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 0, -32)
+    autoAcceptDescription:SetText("Auto accept quests")
+    local autoAcceptButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {AutoAcceptButton_OnClick}, "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
+    autoAcceptButton:SetSize(20, 20)
+    autoAcceptButton:SetPoint("TOPLEFT", autoAcceptDescription, "BOTTOMLEFT", 2, -4)
+    autoAcceptButton:SetChecked(CGMOptions.settings.autoAccept)
+    isInitalized = true
 end
 
 -- Toggles the options frame.

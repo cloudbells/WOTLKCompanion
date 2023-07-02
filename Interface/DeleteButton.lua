@@ -7,6 +7,8 @@ local DeleteQueue = {
     first = 0,
     last = -1
 }
+local GetContainerNumSlots = C_Container.GetContainerNumSlots
+local GetContainerItemInfo = C_Container.GetContainerItemInfo
 
 -- Returns true if the button has an item currently.
 local function DeleteButton_HasItem(self)
@@ -144,7 +146,7 @@ function CGM:OnBagUpdate(bag)
 end
 
 -- Initializes the delete frame.
-function CGM.InitDeleteFrame()
+function CGM:InitDeleteFrame()
     CUI = LibStub("CloudUI-1.0")
     -- Create main button.
     local deleteButton = CUI:CreateLinkButton(CGMFrame, "CGMDeleteButton", {DeleteButton_OnClick})

@@ -38,7 +38,7 @@ local function OnUpdate(_, elapsed)
         timeSinceLast = 0
         local playerX, playerY, instance = hbd:GetPlayerWorldPosition()
         local angle, distance = hbd:GetWorldVector(instance, playerX, playerY, goalX, goalY)
-        if not hasEventFired and distance <= GOAL_DISTANCE then
+        if not hasEventFired and distance and distance <= GOAL_DISTANCE then
             CGM:Fire("CGM_COORDINATES_REACHED")
             hasEventFired = true
         elseif distance > GOAL_DISTANCE then

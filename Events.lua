@@ -36,7 +36,7 @@ function CGM:RegisterAllEvents(_eventFrame)
             QUEST_GREETING = CGM.OnQuestGreeting,
             QUEST_DETAIL = CGM.OnQuestDetail,
             QUEST_PROGRESS = CGM.OnQuestProgress,
-            QUEST_COMPLETE = CGM.OnQuestComplete
+            QUEST_COMPLETE = CGM.OnQuestComplete,
         }
         for event, callback in pairs(wowEvents) do
             eventFrame:RegisterEvent(event, callback)

@@ -238,7 +238,7 @@ end
 -- Sets the selected value for the given frame as well as sets the text of the frame.
 local function SetSelectedValue(self, text, value)
     assert(text and type(text) == "string" or type(text) == "number", "SetSelectedValue: 'text' needs to be a number or a string")
-    assert(value, "SetSelectedValue: 'value' can't be nil")
+    assert(type(value) ~= nil, "SetSelectedValue: 'value' can't be nil")
     self.selectedValue = value
     self:SetText(text)
     if self.callbacks and #self.callbacks > 0 then

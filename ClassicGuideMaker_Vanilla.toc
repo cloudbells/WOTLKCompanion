@@ -1,4 +1,4 @@
-## Interface: 11403
+## Interface: 11404
 ## Title: ClassicGuideMaker
 ## Notes: A guide maker for Classic.
 ## Author: cloudbells
@@ -28,7 +28,9 @@ Interface/StepFrame.lua
 Interface/CGMFrame.lua
 Interface/DeleteButton.lua
 Interface/OptionsFrame.lua
+Interface/EditFrame.lua
 
+# Init.
 Init.lua
 
 # ------------------------------------------------------------------------------------------
