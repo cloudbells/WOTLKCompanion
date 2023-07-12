@@ -5,7 +5,7 @@ local _, CGM = ...
 CGM:RegisterGuide({
     ["name"] = "Elwynn Forest 1-10",
     ["itemsToSell"] = { -- Every time the player visits a vendor, these will be automatically sold. These need to be keys and need to be true if they should be sold.
-        
+        [755] = true,
     },
     ["itemsToDelete"] = {
         [1372] = true,
@@ -43,9 +43,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 7,
         ["text"] = "Pick up {questName}", -- Kobold Camp Cleanup.
-        ["requiresSteps"] = {
-            2
-        },
+        ["requiresSteps"] = {2},
         ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
@@ -54,11 +52,9 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 5261,
         ["text"] = "Pick up {questName}", -- Eagan Peltskinner.
-        ["requiresSteps"] = {
-            2
-        },
+        ["requiresSteps"] = {2},
         ["lockedBySteps"] = { -- If the steps listed in this field are completed, then this becomes unavailable.
-            6
+            6,
         },
         ["mapID"] = 1429,
         ["x"] = 48.17,
@@ -85,7 +81,7 @@ CGM:RegisterGuide({
         ["isMultiStep"] = true,
         ["questIDs"] = {
             33, -- Wolves Across the Border.
-            7 -- Kobold Camp Cleanup.
+            7, -- Kobold Camp Cleanup.
         },
         ["text"] = "Do {questName1} and {questName2}",
         ["mapID"] = 1429,
@@ -95,7 +91,7 @@ CGM:RegisterGuide({
     [8] = {
         ["type"] = CGM.Types.Item,
         ["requiresSteps"] = { -- Optional here. If it isn't provided, the guide will assume the step is available whenever (i.e. if the item isn't a quest item then don't provide this).
-            7
+            7,
         },
         ["questID"] = 33, -- The addon will mark this step as complete once this quest is turned in. Mandatory.
         ["items"] = {
@@ -135,9 +131,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 3105,
         ["text"] = "Pick up {questName}", -- Tainted Letter.
-        ["requiresSteps"] = {
-            11
-        },
+        ["requiresSteps"] = {11},
         ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
@@ -146,9 +140,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 15,
         ["text"] = "Pick up {questName}", -- Investigate Echo Ridge.
-        ["requiresSteps"] = {
-            11
-        },
+        ["requiresSteps"] = {11},
         ["mapID"] = 1429,
         ["x"] = 48.93,
         ["y"] = 41.60,
@@ -157,9 +149,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 18,
         ["text"] = "Pick up {questName}", -- Brotherhood of Thieves.
-        ["requiresSteps"] = {
-            2
-        },
+        ["requiresSteps"] = {2},
         ["requiresLevel"] = 2, -- Minimum level required for the step to be available.
         ["mapID"] = 1429,
         ["x"] = 48.17,
@@ -186,9 +176,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 3903,
         ["text"] = "Pick up {questName}", -- Milly Osworth.
-        ["requiresSteps"] = {
-            9
-        },
+        ["requiresSteps"] = {9},
         ["requiresLevel"] = 2,
         ["mapID"] = 1429,
         ["x"] = 48.17,
@@ -198,9 +186,7 @@ CGM:RegisterGuide({
         ["type"] = CGM.Types.Accept,
         ["questID"] = 6,
         ["text"] = "Pick up {questName}", -- Bounty on Garrick Padfoot.
-        ["requiresSteps"] = {
-            15
-        },
+        ["requiresSteps"] = {15},
         ["requiresLevel"] = 2,
         ["mapID"] = 1429,
         ["x"] = 48.17,

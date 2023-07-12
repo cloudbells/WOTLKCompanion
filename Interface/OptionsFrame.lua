@@ -77,10 +77,20 @@ local function AutoAcceptButton_OnClick()
     CGMOptions.settings.autoAccept = not CGMOptions.settings.autoAccept
 end
 
+local function Option_OnEnter(self)
+    CGM:ShowGameTooltip(self, {self.helpString}, "ANCHOR_RIGHT")
+end
+
+local function Option_OnLeave()
+    CGM:HideGameTooltip()
+end
+
 -- Initializes the options frame.
 function CGM:InitOptionsFrame()
+    local options = {}
     CUI = LibStub("CloudUI-1.0")
     local fontInstance = CUI:GetFontNormal()
+
     -- Main frame.
     optionsFrame = CreateFrame("Frame", "CGMOptionsFrame", UIParent)
     optionsFrame:SetMovable(true)
@@ -99,16 +109,19 @@ function CGM:InitOptionsFrame()
     optionsFrame:SetPoint("CENTER")
     optionsFrame:SetBackgroundColor(0, 0, 0, 0.5)
     optionsFrame:Hide()
+
     -- Title fontstring.
     local title = optionsFrame:CreateFontString(nil, "BACKGROUND", CUI:GetFontBig():GetName())
     title:SetText("ClassicGuideMaker Options")
     title:SetPoint("TOPLEFT", 4, -3)
+
     -- Separator.
     local separator = optionsFrame:CreateTexture(nil, "OVERLAY")
     separator:SetHeight(1)
     separator:SetColorTexture(1, 1, 1, 1)
     separator:SetPoint("TOPLEFT", 0, -20)
     separator:SetPoint("TOPRIGHT", 0, -20)
+
     -- Close button.
     local closeButton = CreateFrame("Button", "CGMOptionsFrameCloseButton", optionsFrame)
     CUI:ApplyTemplate(closeButton, CUI.templates.HighlightFrameTemplate)
@@ -121,6 +134,7 @@ function CGM:InitOptionsFrame()
     closeButton.texture = texture
     closeButton:SetPoint("TOPRIGHT")
     closeButton:HookScript("OnClick", CloseButton_OnClick)
+
     -- Resize button.
     -- local resizeButton = CreateFrame("Button", "CGMOptionsResizeButton", optionsFrame)
     -- resizeButton:SetFrameLevel(3)
@@ -131,6 +145,7 @@ function CGM:InitOptionsFrame()
     -- resizeButton:SetPushedTexture("Interface/ChatFrame/UI-ChatIM-SizeGrabber-Down")
     -- resizeButton:HookScript("OnMouseDown", ResizeButton_OnMouseDown)
     -- resizeButton:HookScript("OnMouseUp", ResizeButton_OnMouseUp)
+
     -- Guide dropdown.
     local guideDropdownDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
     guideDropdownDescription:SetText("Currrent guide")
@@ -142,6 +157,9 @@ function CGM:InitOptionsFrame()
     guideDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMGuideDropdown", {CGMGuideDropdown_OnValueChanged}, values, values)
     guideDropdown:SetPoint("TOPLEFT", guideDropdownDescription, "BOTTOMLEFT", 2, -4)
     guideDropdown:SetWidth(168)
+    guideDropdown.helpString = "Select which guide to show."
+    options[#options + 1] = guideDropdown
+
     -- Number of steps.
     local nbrStepsDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
     nbrStepsDescription:SetPoint("TOPLEFT", guideDropdownDescription, "BOTTOMLEFT", 0, -32)
@@ -155,40 +173,49 @@ function CGM:InitOptionsFrame()
     nbrStepsSlider.nbrStepsText = nbrStepsText
     nbrStepsSlider:SetValue(CGMOptions.settings.nbrSteps)
     nbrStepsSlider:SetHeight(20)
+    nbrStepsSlider.helpString = "Choose how many steps to show at once."
+    options[#options + 1] = nbrStepsSlider
+
+    -- Auto accept modifier.
+    local modifierDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    modifierDescription:SetPoint("TOPLEFT", nbrStepsDescription, "BOTTOMLEFT", 0, -32)
+    modifierDescription:SetText("Auto accept modifier")
+    local modifierDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMModifierDropdown", {CGMModifierDropdown_OnValueChanged}, {1, 2, 3, 4},
+                                                {"SHIFT", "CTRL", "ALT", "None"})
+    modifierDropdown:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 2, -4)
+    modifierDropdown:SetWidth(168)
+    modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier)
+    modifierDropdown.helpString =
+        "When auto accept is ON, holding this key down will disable it temporarily.\nWhen auto accept is OFF, holding this key down will enable it temporarily."
+    options[#options + 1] = modifierDropdown
+
+    -- Auto accept default or not.
+    local autoAcceptDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    autoAcceptDescription:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 0, -32)
+    autoAcceptDescription:SetText("Auto accept quests")
+    local autoAcceptButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {AutoAcceptButton_OnClick},
+                                                   "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
+    autoAcceptButton:SetSize(20, 20)
+    autoAcceptButton:SetPoint("TOPLEFT", autoAcceptDescription, "BOTTOMLEFT", 2, -4)
+    autoAcceptButton:SetChecked(CGMOptions.settings.autoAccept)
+    autoAcceptButton.helpString = "Enable/disable auto accepting quests in the current step."
+    options[#options + 1] = autoAcceptButton
+
     -- Show debug messages.
     local debugDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    debugDescription:SetPoint("TOPLEFT", nbrStepsDescription, "BOTTOMLEFT", 0, -32)
+    debugDescription:SetPoint("TOPLEFT", autoAcceptDescription, "BOTTOMLEFT", 0, -32)
     debugDescription:SetText("Show debug messages")
     local debugButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {DebugButton_OnClick}, "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
     debugButton:SetSize(20, 20)
     debugButton:SetPoint("TOPLEFT", debugDescription, "BOTTOMLEFT", 2, -4)
     debugButton:SetChecked(CGMOptions.settings.debug)
-    -- Auto accept modifier.
-    local modifierDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    modifierDescription:SetPoint("TOPLEFT", debugDescription, "BOTTOMLEFT", 0, -32)
-    modifierDescription:SetText("Auto accept modifier")
-    local modifierDropdown = CUI:CreateDropdown(CGMOptionsFrame, "CGMModifierDropdown", {CGMModifierDropdown_OnValueChanged}, {
-        1,
-        2,
-        3,
-        4
-    }, {
-        "SHIFT",
-        "CTRL",
-        "ALT",
-        "None"
-    })
-    modifierDropdown:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 2, -4)
-    modifierDropdown:SetWidth(168)
-    modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier)
-    -- Auto accept default or not.
-    local autoAcceptDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    autoAcceptDescription:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 0, -32)
-    autoAcceptDescription:SetText("Auto accept quests")
-    local autoAcceptButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {AutoAcceptButton_OnClick}, "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
-    autoAcceptButton:SetSize(20, 20)
-    autoAcceptButton:SetPoint("TOPLEFT", autoAcceptDescription, "BOTTOMLEFT", 2, -4)
-    autoAcceptButton:SetChecked(CGMOptions.settings.autoAccept)
+    debugButton.helpString = "Enable/disable debug messages."
+    options[#options + 1] = debugButton
+
+    for _, widget in pairs(options) do
+        widget:HookScript("OnEnter", Option_OnEnter)
+        widget:HookScript("OnLeave", Option_OnLeave)
+    end
     isInitalized = true
 end
 

@@ -38,18 +38,17 @@ local function InitMinimapButton()
             end
         end,
         OnEnter = function(self)
-            GameTooltip:SetOwner(self, "ANCHOR_LEFT")
-            GameTooltip:AddLine("|cFFFFFFFFClassicGuideMaker|r")
-            GameTooltip:AddLine("Left click to toggle the main window.")
-            GameTooltip:AddLine("Shift-left click to toggle the arrow.")
-            GameTooltip:AddLine("Ctrl-left click to open options.")
-            GameTooltip:AddLine("Alt-left click to open the guide creation window.")
-            GameTooltip:AddLine("Right click to hide this minimap button.")
-            GameTooltip:Show()
+            CGM:ShowGameTooltip(self, {
+                "Left click to toggle the main window.",
+                "Shift-left click to toggle the arrow.",
+                "Ctrl-left click to open options.",
+                "Alt-left click to open the guide creation window.",
+                "Right click to hide this minimap button.",
+            }, "ANCHOR_LEFT")
         end,
-        OnLeave = function(self)
-            GameTooltip:Hide()
-        end
+        OnLeave = function()
+            CGM:HideGameTooltip()
+        end,
     })
     -- Create minimap icon.
     minimapButton:Register("ClassicGuideMaker", LDB, CGMOptions.minimapTable)
@@ -60,10 +59,13 @@ local function InitSlash()
     SLASH_CGM1 = "/CGM"
     SLASH_CGM3 = "/ClassicGuideMaker"
     function SlashCmdList.CGM(text)
-        if text == "minimap" then
+        local split = {strsplit(" ", text:lower())}
+        if split[1] == "minimap" then
             ToggleMinimapButton()
-        else
+        elseif split[1] == "" then
             CGM:ToggleOptionsFrame()
+        else
+            CGM:Message("unknown command")
         end
     end
 end
@@ -72,7 +74,6 @@ end
 local function Initialize()
     CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train"})
     CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "None"})
-    CGM:PrintTable(CGM.Modifiers) -- temp
     CGM.Guides = {}
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())
@@ -109,16 +110,21 @@ end
 -- Called on ADDON_LOADED.
 function CGM:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
-        if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
-            CGM:Message("This addon is for classic versions of the game only. It may not work properly with retail.")
-        end
         eventFrame:UnregisterEvent("ADDON_LOADED")
+        if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+            CGM:Message("This addon is for classic versions of the game only. It will not work properly with retail.")
+            return
+        end
         LoadVariables()
         -- Initialize stuff.
         CGM:InitFrames()
         InitMinimapButton()
         InitSlash()
-        CGM:Message("|cFFFFFF00ClassicGuideMaker|r loaded!")
+        CGM:Message("addon loaded!")
+        CGM:Debug("debugging is on, you can disable this in the options (CTRL-click the minimap button).")
+        CGM:Debug("game version is " ..
+                      (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or WOW_PROJECT_ID ==
+                          WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))
     end
 end
 

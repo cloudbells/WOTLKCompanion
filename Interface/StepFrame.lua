@@ -46,7 +46,7 @@ local function StepFrame_OnClick(self, button)
         CGM:SetCurrentStep(self.index)
         CGM:UpdateStepFrames()
     else
-        CGM:MarkStepCompleted(self.index, not CGM:IsStepCompleted(self.index))
+        CGM:MarkStepCompleted(self.index, not CGM:IsStepCompleted(self.index), true)
         CGM:UpdateStepFrames()
     end
 end
@@ -163,7 +163,8 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                             local itemName = GetItemInfo(itemID)
                             if itemName then
                                 local itemCount = GetItemCount(itemID)
-                                itemText = itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" .. requiredItemCount .. "\n"
+                                itemText = itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" ..
+                                               requiredItemCount .. "\n"
                             end
                         end
                         text = #itemText > 0 and itemText or text

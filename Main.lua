@@ -4,9 +4,12 @@ local _, CGM = ...
 local GetStepIndexFromQuestID = {}
 
 -- Localized globals.
-local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives, GetQuestInfo = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives, C_QuestLog.GetQuestInfo
+local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives, GetQuestInfo = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest,
+                                                                             C_QuestLog.GetQuestObjectives, C_QuestLog.GetQuestInfo
 local UnitXP, UnitLevel = UnitXP, UnitLevel
 local GetItemCount, GetItemInfo = GetItemCount, GetItemInfo
+local GetContainerNumSlots, GetContainerItemInfo, UseContainerItem = C_Container.GetContainerNumSlots, C_Container.GetContainerItemInfo,
+                                                                     C_Container.UseContainerItem
 
 -- Processes all tags in the given guide and replaces them with the proper strings.
 local function ProcessTags(guide)
@@ -57,7 +60,8 @@ local function ProcessTags(guide)
                     end
                 elseif tagLower == "cost" then
                     local cost = step.cost
-                    step.text = step.text:gsub("{" .. tag .. "}", cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
+                    step.text = step.text:gsub("{" .. tag .. "}",
+                                               cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
                 elseif tagLower == "spells" then
                     if step.spells then
                         local str = ""
@@ -67,16 +71,31 @@ local function ProcessTags(guide)
                         step.text = step.text:gsub("{" .. tag .. "}", str:gsub(", $", ""))
                     end
                 else
-                    -- give error message here
+                    CGM:Debug("unknown tag in " .. guide.name)
                 end
             end
         end
     end
 end
 
+-- Shows the GameTooltip on the given frame with the given lines and anchor.
+function CGM:ShowGameTooltip(frame, lines, anchor)
+    GameTooltip:SetOwner(frame, anchor or "ANCHOR_RIGHT")
+    GameTooltip:AddLine("|cFFFFFFFFClassicGuideMaker|r")
+    for _, line in ipairs(lines) do
+        GameTooltip:AddLine(line)
+    end
+    GameTooltip:Show()
+end
+
+-- Hides the GameTooltip.
+function CGM:HideGameTooltip()
+    GameTooltip:Hide()
+end
+
 -- Sets the current step to the given index.
-function CGM:SetCurrentStep(index, shouldScroll, str)
-    if CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) then
+function CGM:SetCurrentStep(index, shouldScroll)
+    if CGM.currentStepIndex ~= index and CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) then
         CGM.currentStepIndex = index
         CGMOptions.savedStepIndex[CGM.currentGuideName] = index
         local step = CGM.currentGuide[index]
@@ -85,19 +104,25 @@ function CGM:SetCurrentStep(index, shouldScroll, str)
         if shouldScroll then
             CGMSlider:SetValue(index - 1)
         end
+        CGM:Debug("set step to " .. index)
     end
 end
 
 -- Attempts to mark the step with the given index as completed.
-function CGM:MarkStepCompleted(index, completed)
+function CGM:MarkStepCompleted(index, completed, isManual)
     -- TODO: check that it can be marked incomplete here (i.e. if its been handed in already etc) -- temp
     -- if marking a step incomplete here makes the current step unavailable, should go back to step index #currentStep.requiredSteps (the last step in that table) or if that is unvailable
     -- then go to #currentStep.requiredSteps - 1 etc. (see OnItemUpdate)
+    CGM:Debug("marked " .. index .. " as " .. (completed and "completed" or "not completed"))
     CGMOptions.completedSteps[CGM.currentGuideName][index] = completed or nil
+    if completed and isManual then
+        CGM:ScrollToNextIncomplete()
+    end
 end
 
 -- Checks if the step with the given index in the currently selected guide is completed. Returns true if so, false otherwise.
 function CGM:IsStepCompleted(index)
+    -- CGM:Debug("checking if " .. index .. " is completed...")
     if CGMOptions.completedSteps[CGM.currentGuideName][index] then
         return true
     end
@@ -109,9 +134,13 @@ function CGM:IsStepCompleted(index)
             return false
         end
     elseif type == CGM.Types.Item and not IsQuestFlaggedCompleted(questID) then -- First check if the player has completed the associated quest, then check if the items are in the player's bags.
-        for itemID, itemCount in pairs(step.items) do
-            if GetItemCount(step.items[i]) <= 0 then
-                return false
+        if IsQuestFlaggedCompleted(step.questID) then
+            return true
+        else
+            for itemID, itemCount in pairs(step.items) do
+                if GetItemCount(itemID) < itemCount then
+                    return false
+                end
             end
         end
     elseif type == CGM.Types.Do then -- Check if quest is complete in quest log, and if not then check if the player has completed all objectives of the quest(s).
@@ -132,7 +161,8 @@ function CGM:IsStepCompleted(index)
             end
         else
             questObjectives = GetQuestObjectives(questID)
-            if not (IsQuestComplete(questID) or IsQuestFlaggedCompleted(questID) or (questObjectives and questObjectives.finished ~= nil and questObjectives.finished)) then
+            if not (IsQuestComplete(questID) or IsQuestFlaggedCompleted(questID) or
+                (questObjectives and questObjectives.finished ~= nil and questObjectives.finished)) then
                 return false
             end
         end
@@ -161,6 +191,7 @@ function CGM:IsStepCompleted(index)
     if type ~= CGM.Types.Item or (type == CGM.Types.Item and IsQuestFlaggedCompleted(questID)) then -- If the player removes an item from bags, this should return false.
         CGM:MarkStepCompleted(index, true)
     end
+    -- CGM:Debug(index .. " is completed")
     return true
 end
 
@@ -299,7 +330,7 @@ function CGM:OnUnitQuestLogChanged(unit)
         local currentStep = CGM.currentStep
         if currentStep.type == CGM.Types.Do then
             if CGM:IsStepCompleted(CGM.currentStepIndex) then
-                CGM:ScrollToNextIncomplete(fromStep) -- Calls UpdateStepFrames.
+                CGM:ScrollToNextIncomplete() -- Calls UpdateStepFrames.
             else
                 CGM:UpdateStepFrames() -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
             end
@@ -334,15 +365,19 @@ function CGM:OnMerchantShow()
     if itemsToSell then
         for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
             for slot = 1, GetContainerNumSlots(bag) do
-                local _, itemCount, _, _, _, _, itemLink, _, _, itemID = GetContainerItemInfo(bag, slot)
+                local slotInfo = GetContainerItemInfo(bag, slot)
+                local itemID
+                if slotInfo then
+                    itemID = slotInfo.itemID
+                end
                 if itemID and itemsToSell[itemID] then
-                    CGM:Message("selling " .. itemLink .. (itemCount > 1 and "x" .. itemCount or ""))
+                    CGM:Message("selling " .. slotInfo.hyperlink .. (slotInfo.stackCount > 1 and "x" .. slotInfo.stackCount or ""))
                     UseContainerItem(bag, slot)
                 end
             end
         end
     end
-    local npcID = CGM:ParseIDFromGUID(UnitGUID("npc"))
+    local npcID = CGM:UnitID("npc")
     if npcID == CGM.currentStep.unitID and CGM.currentStep.type == CGM.Types.Buy then
         for i = 1, GetMerchantNumItems() do
             local itemID = GetMerchantItemID(i)
@@ -387,8 +422,8 @@ function CGM:RegisterGuide(guide)
             CGM.Guides[guide.name] = guide
         end
     else
-        print(guide[1] and "ClassicGuideMaker: The guide has no name! To help you identify which guide it is, here is the first step description:\n" .. guide[1].text or
-            "The guide has no name!")
+        print(guide[1] and "ClassicGuideMaker: The guide has no name! To help you identify which guide it is, here is the first step description:\n" ..
+                  guide[1].text or "The guide has no name!")
     end
 end
 
@@ -446,7 +481,7 @@ function CGM:SetGuide(guideName)
         setmetatable(GetStepIndexFromQuestID, {
             __call = function(self, questID)
                 return self[questID]
-            end
+            end,
         })
     else
         print("CGM: guide \"" .. guideName .. "\" hasn't been registered yet! Can't set the guide.")
