@@ -22,6 +22,7 @@ CGM:RegisterGuide({
         [2211] = true,
         [1364] = true,
         [1370] = true,
+        [755] = true,
     },
     [1] = {
         ["type"] = CGM.Types.Accept,

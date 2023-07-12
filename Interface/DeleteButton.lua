@@ -3,12 +3,8 @@ local _, CGM = ...
 -- Variables.
 local CUI
 local deleteButton
-local DeleteQueue = {
-    first = 0,
-    last = -1
-}
-local GetContainerNumSlots = C_Container.GetContainerNumSlots
-local GetContainerItemInfo = C_Container.GetContainerItemInfo
+local DeleteQueue = {first = 0, last = -1}
+local GetContainerNumSlots, GetContainerItemInfo = C_Container.GetContainerNumSlots, C_Container.GetContainerItemInfo
 
 -- Returns true if the button has an item currently.
 local function DeleteButton_HasItem(self)
@@ -39,23 +35,9 @@ local function DeleteButton_OnClick()
     local item = DeleteQueue:Dequeue()
     if item then
         CGM:Message("deleted " .. item.itemLink .. (item.itemCount > 1 and "x" .. item.itemCount or ""))
-        PickupContainerItem(item.bag, item.slot)
+        C_Container.PickupContainerItem(item.bag, item.slot)
         DeleteCursorItem()
     end
-end
-
--- Called when the mouse enters the button.
-local function DeleteButton_OnEnter(self)
-    GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
-    if self.link then
-        GameTooltip:SetHyperlink(self.link)
-    end
-    GameTooltip:Show()
-end
-
--- Called when the mouse leaves the button.
-local function DeleteButton_OnLeave()
-    GameTooltip:Hide()
 end
 
 -- Returns the item that's first in line.
@@ -93,10 +75,10 @@ function DeleteQueue:Dequeue()
     local first = self.first
     local next = self[first + 1]
     if next then
-        CGMDeleteButton:SetItem(next.texture, next.quality, next.itemLink, next.itemCount)
+        deleteButton:SetItem(next.texture, next.quality, next.itemLink)
     else
-        CGMDeleteButton:RemoveItem()
-        CGMDeleteButton:Hide()
+        deleteButton:RemoveItem()
+        deleteButton:Hide()
     end
     if not (first > self.last) then
         local item = self[first]
@@ -109,33 +91,37 @@ end
 -- Scans the player's bags for items that should be deleted.
 function CGM:ScanBag(bag)
     local itemsToDelete = CGM.currentGuide.itemsToDelete
-    for slot = 1, GetContainerNumSlots(bag) do
-        local itemGUID = Item:CreateFromBagAndSlot(bag, slot):GetItemGUID()
-        if not DeleteQueue:Contains(itemGUID) then
-            local texture, itemCount, _, quality, _, _, itemLink, _, _, itemID = GetContainerItemInfo(bag, slot)
-            if itemID and itemsToDelete[itemID] then
-                local item = {
-                    bag = bag,
-                    slot = slot,
-                    texture = texture,
-                    itemCount = itemCount,
-                    quality = quality,
-                    itemLink = itemLink,
-                    itemID = itemID,
-                    itemGUID = itemGUID
-                }
-                DeleteQueue:Enqueue(item)
+    if itemsToDelete then
+        for slot = 1, GetContainerNumSlots(bag) do
+            local itemGUID = Item:CreateFromBagAndSlot(bag, slot):GetItemGUID()
+            if itemGUID and not DeleteQueue:Contains(itemGUID) then
+                print(itemGUID)
+                local slotInfo = GetContainerItemInfo(bag, slot)
+                local itemID = slotInfo.itemID
+                if itemID and itemsToDelete[itemID] then
+                    local item = {
+                        bag = bag,
+                        slot = slot,
+                        texture = slotInfo.iconFileID,
+                        itemCount = slotInfo.stackCount,
+                        quality = slotInfo.quality,
+                        itemLink = slotInfo.hyperlink,
+                        itemID = itemID,
+                        itemGUID = itemGUID,
+                    }
+                    DeleteQueue:Enqueue(item)
+                end
+            end
+        end
+        if not deleteButton:HasItem() and DeleteQueue:GetCount() > 0 then
+            local item = DeleteQueue:GetFirst()
+            if item then
+                deleteButton:SetItem(item.texture, item.quality, item.itemLink)
+                deleteButton:Show()
             end
         end
     end
-    if not CGMDeleteButton:HasItem() and DeleteQueue:GetCount() > 0 then
-        local item = DeleteQueue:GetFirst()
-        if item then
-            CGMDeleteButton:SetItem(item.texture, item.quality, item.itemLink)
-            CGMDeleteButton:Show()
-        end
-    end
-end 
+end
 
 -- Called when a bag's inventory is changed. Deletes any items in the given bag if it's specified by the guide.
 function CGM:OnBagUpdate(bag)
@@ -147,19 +133,18 @@ end
 
 -- Initializes the delete frame.
 function CGM:InitDeleteFrame()
+    CGM:Debug("initializing DeleteFrame")
     CUI = LibStub("CloudUI-1.0")
     -- Create main button.
-    local deleteButton = CUI:CreateLinkButton(CGMFrame, "CGMDeleteButton", {DeleteButton_OnClick})
+    deleteButton = CUI:CreateLinkButton(CGM.CGMFrame, "CGMDeleteButton", {DeleteButton_OnClick})
     deleteButton:SetSize(32, 32)
-    deleteButton:SetPoint("TOPLEFT", CGMFrame, "BOTTOMLEFT", 0, -4)
+    deleteButton:SetPoint("TOPLEFT", CGM.CGMFrame, "BOTTOMLEFT", 0, -4)
     local texture = deleteButton:CreateTexture(nil, "OVERLAY")
     texture:SetTexture("Interface/Addons/ClassicGuideMaker/Media/Delete")
     texture:SetAllPoints(deleteButton)
     CUI:ApplyTemplate(deleteButton, CUI.templates.BorderedFrameTemplate)
     CUI:ApplyTemplate(deleteButton, CUI.templates.HighlightFrameTemplate)
     CUI:ApplyTemplate(deleteButton, CUI.templates.PushableFrameTemplate)
-    deleteButton:HookScript("OnEnter", DeleteButton_OnEnter)
-    deleteButton:HookScript("OnLeave", DeleteButton_OnLeave)
     deleteButton.HasItem = DeleteButton_HasItem
     deleteButton.SetItem = DeleteButton_SetItem
     deleteButton.RemoveItem = DeleteButton_RemoveItem

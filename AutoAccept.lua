@@ -1,12 +1,12 @@
 local _, CGM = ...
 
--- Returns true if we should auto accept quests.
--- Will be true if:
---      * Auto accept is on and modifier key is set to None (auto accept no matter what).
---      * Auto accept is NOT on and modifier key is set to SHIFT/CTRL/ALT and that key IS down (don't auto accept unless modifier key is down).
--- Will be false if:
---      * Auto accept is on and modifier key is set to SHIFT/CTRL/ALT and that key is down (auto accept except if modifier key is down).
---      * Auto accept is NOT on and modifier key is set to None (DON'T auto accept no matter what).
+--[[ Returns true if we should auto accept quests.
+Will be true if:
+    * Auto accept is on and modifier key is set to None (auto accept no matter what).
+    * Auto accept is NOT on and modifier key is set to SHIFT/CTRL/ALT and that key IS down (don't auto accept unless modifier key is down).
+Will be false if:
+    * Auto accept is on and modifier key is set to SHIFT/CTRL/ALT and that key is down (auto accept except if modifier key is down).
+    * Auto accept is NOT on and modifier key is set to None (DON'T auto accept no matter what). --]]
 local function ShouldAutoAccept()
     local mod = CGMOptions.settings.modifier
     if CGMOptions.settings.autoAccept then
@@ -15,7 +15,8 @@ local function ShouldAutoAccept()
         else
             return not CGM:IsModifierDown()
         end
-    else -- Auto accept only if modifier key is not "None" and is down.
+    else
+        -- Auto accept only if modifier key is not "None" and is down.
         if mod == CGM.Modifiers.None then
             return false
         else
@@ -26,9 +27,10 @@ end
 
 -- Called on QUEST_ACCEPT_CONFIRM. Fires when an escort quest is started nearby.
 function CGM.OnQuestAcceptConfirm(_, questTitle)
-    if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == questTitle then
-        ConfirmAcceptQuest()
-    end
+    -- if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == questTitle then
+    -- Auto accept always for safety. If you don't want the quest after, just abandon it.
+    ConfirmAcceptQuest()
+    -- end
 end
 
 -- Called on QUEST_DETAIL. Fires when you're able to accept or decline a quest from an NPC.
@@ -47,7 +49,8 @@ function CGM:OnQuestDetail(...)
     end
 end
 
--- Called on QUEST_PROGRESS. Fires when the player is able to click the "Continue" button (right after choosing a quest in the menu and right before being able to pick a quest reward).
+-- Called on QUEST_PROGRESS. Fires when the player is able to click the "Continue" button (right after choosing a quest in the menu and right before being able
+-- to pick a quest reward).
 function CGM:OnQuestProgress()
     if ShouldAutoAccept() and CGM.currentStepIndex then
         local currentStep = CGM.currentStep
@@ -63,7 +66,8 @@ end
 function CGM:OnQuestComplete()
     if ShouldAutoAccept() and CGM.currentStep.type == CGM.Types.Deliver then
         local nbrOfChoices = GetNumQuestChoices()
-        if nbrOfChoices == 1 then -- Not sure if this is possible but just in case.
+        -- Not sure if this is possible but just in case.
+        if nbrOfChoices == 1 then
             GetQuestReward(1)
         elseif nbrOfChoices > 1 then
             if CGM.currentStep.rewardID then
@@ -71,12 +75,12 @@ function CGM:OnQuestComplete()
                     local itemLink = GetQuestItemLink("choice", i)
                     local itemID = CGM:ParseIDFromLink(itemLink)
                     if itemID == CGM.currentStep.rewardID then
-                        CGM:Message("Picking quest reward: " .. itemLink)
+                        CGM:Message("picking quest reward: " .. itemLink)
                         GetQuestReward(i)
                         break
                     end
                 end
-                CGM:Message("No quest reward found with the specified item ID: " .. CGM.currentStep.rewardID)
+                CGM:Message("no quest reward found with the specified item ID: " .. CGM.currentStep.rewardID)
             end
         else
             GetQuestReward()
@@ -84,7 +88,8 @@ function CGM:OnQuestComplete()
     end
 end
 
--- Called on GOSSIP_SHOW. Fires when the gossip frame shows. (Different from an NPC that only gives quests since gossip can be shown regardless of if there are quests or not.)
+-- Called on GOSSIP_SHOW. Fires when the gossip frame shows. (Different from an NPC that only gives quests since gossip can be shown regardless of if there are
+-- quests or not.)
 function CGM:OnGossipShow()
     if ShouldAutoAccept() and UnitExists("npc") then
         if CGM.currentStep.type == CGM.Types.Accept then

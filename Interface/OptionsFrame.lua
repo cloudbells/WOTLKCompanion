@@ -44,10 +44,12 @@ end
 
 -- Called when the number of steps slider's value is changed.
 local function NbrStepsSlider_OnValueChanged(self, value)
-    if isInitalized and lastValue ~= value then -- Throttle.
+    -- Throttle.
+    if isInitalized and lastValue ~= value then
         lastValue = value
         self.nbrStepsText:SetText(value)
         CGMOptions.settings.nbrSteps = value
+        CGM:Debug("set nbrSteps to " .. value)
         CGM:UpdateSlider()
         CGM:ResizeStepFrames()
         CGM:UpdateStepFrames()
@@ -62,6 +64,7 @@ end
 -- Called when the player selects a value in the modifier dropdown.
 local function CGMModifierDropdown_OnValueChanged(self, value)
     CGMOptions.settings.modifier = value
+    CGM:Debug("auto accept modifier is " .. CGM.Modifiers[value])
 end
 
 -- Called when the close button is clicked.
@@ -69,24 +72,35 @@ local function CloseButton_OnClick()
     optionsFrame:Hide()
 end
 
+-- Called when the debug check button is clicked.
 local function DebugButton_OnClick()
     CGMOptions.settings.debug = not CGMOptions.settings.debug
+    if CGMOptions.settings.debug then
+        CGM:Debug("debug mode is ON")
+    else
+        CGM:Message("debug mod is OFF")
+    end
 end
 
+-- Called when the auto accept check button is clicked.
 local function AutoAcceptButton_OnClick()
     CGMOptions.settings.autoAccept = not CGMOptions.settings.autoAccept
+    CGM:Debug("auto accept is " .. (CGMOptions.settings.autoAccept and "ON" or "OFF"))
 end
 
+-- Called when any option is hovered over.
 local function Option_OnEnter(self)
     CGM:ShowGameTooltip(self, {self.helpString}, "ANCHOR_RIGHT")
 end
 
+-- Called when mouse leaves an option frame.
 local function Option_OnLeave()
     CGM:HideGameTooltip()
 end
 
 -- Initializes the options frame.
 function CGM:InitOptionsFrame()
+    CGM:Debug("initializing OptionsFrame")
     local options = {}
     CUI = LibStub("CloudUI-1.0")
     local fontInstance = CUI:GetFontNormal()
@@ -159,6 +173,7 @@ function CGM:InitOptionsFrame()
     guideDropdown:SetWidth(168)
     guideDropdown.helpString = "Select which guide to show."
     options[#options + 1] = guideDropdown
+    CGM.guideDropdown = guideDropdown
 
     -- Number of steps.
     local nbrStepsDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
@@ -192,13 +207,13 @@ function CGM:InitOptionsFrame()
     -- Auto accept default or not.
     local autoAcceptDescription = optionsFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
     autoAcceptDescription:SetPoint("TOPLEFT", modifierDescription, "BOTTOMLEFT", 0, -32)
-    autoAcceptDescription:SetText("Auto accept quests")
+    autoAcceptDescription:SetText("Auto accept/hand in quests")
     local autoAcceptButton = CUI:CreateCheckButton(optionsFrame, "CGMDebugCheckButton", {AutoAcceptButton_OnClick},
                                                    "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
     autoAcceptButton:SetSize(20, 20)
     autoAcceptButton:SetPoint("TOPLEFT", autoAcceptDescription, "BOTTOMLEFT", 2, -4)
     autoAcceptButton:SetChecked(CGMOptions.settings.autoAccept)
-    autoAcceptButton.helpString = "Enable/disable auto accepting quests in the current step."
+    autoAcceptButton.helpString = "Enable/disable auto accepting/handing in quests in the current step."
     options[#options + 1] = autoAcceptButton
 
     -- Show debug messages.

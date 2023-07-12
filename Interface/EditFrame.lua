@@ -30,6 +30,7 @@ end
 
 -- Initializes the edit frame.
 function CGM:InitEditFrame()
+    CGM:Debug("initializing EditFrame")
     -- Main frame.
     CUI = LibStub("CloudUI-1.0")
     editFrame = CreateFrame("Frame", "CGMEditFrame", UIParent)

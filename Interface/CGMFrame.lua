@@ -4,7 +4,6 @@ local _, CGM = ...
 local CUI
 local CGMFrame
 local slider
-local isScrollDisabled = false
 
 -- Called when user scrolls in the body frame.
 function CGMFrame_OnMouseWheel(_, delta)
@@ -66,6 +65,7 @@ end
 
 -- Initializes the main frame.
 local function InitCGMFrame()
+    CGM:Debug("initializing CGMFrame")
     -- Main frame.
     CUI = LibStub("CloudUI-1.0")
     CGMFrame = CreateFrame("Frame", "CGMFrame", UIParent)
@@ -100,8 +100,8 @@ local function InitCGMFrame()
     bodyFrame:SetPoint("TOPLEFT", titleFrame, "BOTTOMLEFT")
     bodyFrame:SetPoint("BOTTOMRIGHT")
     -- Slider.
-    slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
-        "Interface/Addons/ClassicGuideMaker/Media/DownButton", false)
+    slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture",
+                              "Interface/Addons/ClassicGuideMaker/Media/UpButton", "Interface/Addons/ClassicGuideMaker/Media/DownButton", false)
     slider:SetPoint("BOTTOMRIGHT", 0, 18)
     slider:SetPoint("TOPRIGHT", 0, -18)
     slider:HookScript("OnValueChanged", Slider_OnValueChanged)
@@ -119,6 +119,7 @@ local function InitCGMFrame()
     bodyFrame.resizeButton = resizeButton
     CGMFrame.bodyFrame = bodyFrame
     CGMFrame:SetPoint("CENTER")
+    CGM.CGMFrame = CGMFrame
     if CGMOptions.isCGMFrameHidden then
         CGMFrame:Hide()
     end
@@ -148,10 +149,12 @@ function CGM:ScrollToNextIncomplete(fromStep)
     end
     CGM:SetCurrentStep(index)
     -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
-    index = index - 1 > #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps and #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps or index - 1 -- Upper bound for the slider.
+    -- Upper bound for the slider.
+    index = index - 1 > #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps and #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps or index - 1
     local oldSliderValue = CGMSlider:GetValue()
     CGMSlider:SetValue(index)
-    if oldSliderValue == index then -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
+    -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
+    if oldSliderValue == index then
         CGM:UpdateStepFrames()
     end
 end
@@ -175,7 +178,6 @@ function CGM:UpdateSlider()
         slider.upButton:Disable()
         slider.downButton:Disable()
         slider:Disable()
-        isScrollDisabled = true
     else
         maxValue = #CGM.currentGuide - CGMOptions.settings.nbrSteps + 1
         local currentValue = slider:GetValue()
@@ -186,7 +188,6 @@ function CGM:UpdateSlider()
             slider.downButton:Enable()
         end
         slider:Enable()
-        isScrollDisabled = false
     end
     slider:SetMinMaxValues(1, maxValue)
 end

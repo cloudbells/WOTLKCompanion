@@ -45,13 +45,20 @@ local function OnUpdate(_, elapsed)
             hasEventFired = false
         end
         angle = angle - GetPlayerFacing()
-        local cell = floor(angle / PI2 * 108 + 0.5) % 108 -- floor(angle / PI2 * NUMBER_ARROWS + 0.5) % NUMBER_ARROWS
-        local column = cell % 9 -- local column = cell % NUMBER_COLUMNS
-        local row = floor(cell / 9) -- local row = floor(cell / NUMBER_COLUMNS)
-        local xStart = (column * 56) / 512 -- local xStart = (column * ARROW_WIDTH) / IMAGE_SIZE
-        local yStart = (row * 42) / 512 -- local yStart = (row * ARROW_HEIGHT) / IMAGE_SIZE
-        local xEnd = ((column + 1) * 56) / 512 -- local xEnd = ((column + 1) * ARROW_WIDTH) / IMAGE_SIZE
-        local yEnd = ((row + 1) * 42) / 512 -- local yEnd = ((row + 1) * ARROW_HEIGHT) / IMAGE_SIZE
+        -- floor(angle / PI2 * NUMBER_ARROWS + 0.5) % NUMBER_ARROWS
+        local cell = floor(angle / PI2 * 108 + 0.5) % 108
+        -- local column = cell % NUMBER_COLUMNS
+        local column = cell % 9
+        -- local row = floor(cell / NUMBER_COLUMNS)
+        local row = floor(cell / 9)
+        -- local xStart = (column * ARROW_WIDTH) / IMAGE_SIZE
+        local xStart = (column * 56) / 512
+        -- local yStart = (row * ARROW_HEIGHT) / IMAGE_SIZE
+        local yStart = (row * 42) / 512
+        -- local xEnd = ((column + 1) * ARROW_WIDTH) / IMAGE_SIZE
+        local xEnd = ((column + 1) * 56) / 512
+        -- local yEnd = ((row + 1) * ARROW_HEIGHT) / IMAGE_SIZE
+        local yEnd = ((row + 1) * 42) / 512
         arrowTexture:SetTexCoord(xStart, xEnd, yStart, yEnd)
         arrowText:SetText(floor(distance + 0.5) .. " yards")
     end
@@ -59,6 +66,7 @@ end
 
 -- Initializes the arrow.
 function CGM:InitArrow()
+    CGM:Debug("initializing Arrow")
     CUI = LibStub("CloudUI-1.0")
     -- Create arrow.
     arrow = CreateFrame("Frame", "CGMArrow", UIParent)

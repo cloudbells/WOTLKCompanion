@@ -117,15 +117,18 @@ function CUI:ApplyTemplate(frame, template)
     local frameName = frame:GetName()
     if template == CUI.templates.DisableableFrameTemplate then
         if frame.disableableFrameTemplate then
+            -- We've already applied this template.
             return false
-        end -- We've already applied this template.
+        end
         if not frame:HookScript("OnDisable", DisableableFrame_OnDisable) then
+            -- HookScript() returns false if the hook was unsuccessful.
             return false
-        end -- HookScript() returns false if the hook was unsuccessful.
+        end
         if not frame:HookScript("OnEnable", DisableableFrame_OnEnable) then
             return false
         end
-        frame.isDisabled = frame.IsEnabled and not frame:IsEnabled() or false -- Frame should be disableable regardless of if it's already enableable (buttons etc).
+        -- Frame should be disableable regardless of if it's already enableable (buttons etc).
+        frame.isDisabled = frame.IsEnabled and not frame:IsEnabled() or false
         frame.IsDisabled = IsDisabled
         frame.disableableFrameTemplate = true
     elseif template == CUI.templates.BackgroundFrameTemplate then

@@ -101,8 +101,6 @@ local function GetStepFrame()
     frame:HookScript("OnClick", StepFrame_OnClick)
     frame:HookScript("OnEnter", StepFrame_OnEnter)
     frame:HookScript("OnLeave", StepFrame_OnLeave)
-    -- frame.index = 1 -- temp, might be needed
-    -- frame.active = false
     frame.Lock = function(self)
         self.isUsed = true
     end
@@ -120,7 +118,7 @@ end
 -- Updates the step frames according to the slider's current value.
 function CGM:UpdateStepFrames(stepFrameIndex)
     if isLoaded and CGM.currentGuideName then
-        local currentValue = CGMSlider:GetValue()
+        local currentValue = CGM.CGMFrame.bodyFrame.slider:GetValue()
         local text
         local index
         local currentStep
@@ -146,7 +144,7 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                                     end
                                 end
                             end
-                        elseif IsOnQuest(questID) then
+                        elseif IsOnQuest(currentStep.questID) then
                             local objectives = GetQuestObjectives(currentStep.questID)
                             if objectives then
                                 for j = 1, #objectives do
@@ -159,7 +157,7 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                         text = #objText > 0 and objText or text
                     elseif type == CGM.Types.Item then
                         local itemText = ""
-                        for itemID, itemCount in pairs(currentStep.items) do
+                        for itemID, requiredItemCount in pairs(currentStep.items) do
                             local itemName = GetItemInfo(itemID)
                             if itemName then
                                 local itemCount = GetItemCount(itemID)
@@ -188,20 +186,21 @@ function CGM:ResizeStepFrames()
                 stepFrames[i]:Hide()
                 stepFrames[i] = nil
             end
-        elseif #stepFrames < CGMOptions.settings.nbrSteps then -- Get new frames if necessary.
+        elseif #stepFrames < CGMOptions.settings.nbrSteps then
+            -- Get new frames if necessary.
             for i = #stepFrames + 1, CGMOptions.settings.nbrSteps do
                 stepFrames[i] = GetStepFrame()
                 stepFrames[i]:SetID(i)
                 stepFrames[i]:Show()
             end
         end
-        local height = CGMFrame.bodyFrame:GetHeight()
+        local height = CGM.CGMFrame.bodyFrame:GetHeight()
         local nbrSteps = CGMOptions.settings.nbrSteps
         for i = 1, nbrSteps do
             local topOffset = (i - 1) * (height / nbrSteps)
             local bottomOffset = height - (i * (height / nbrSteps))
-            stepFrames[i]:SetPoint("TOPLEFT", CGMFrame.bodyFrame, "TOPLEFT", 0, -topOffset)
-            stepFrames[i]:SetPoint("BOTTOMRIGHT", CGMFrame.bodyFrame, "BOTTOMRIGHT", -17, bottomOffset)
+            stepFrames[i]:SetPoint("TOPLEFT", CGM.CGMFrame.bodyFrame, "TOPLEFT", 0, -topOffset)
+            stepFrames[i]:SetPoint("BOTTOMRIGHT", CGM.CGMFrame.bodyFrame, "BOTTOMRIGHT", -17, bottomOffset)
             stepFrames[i]:ResizeText(stepFrames[i]:GetWidth() - STEP_TEXT_MARGIN)
         end
     end
@@ -209,11 +208,13 @@ end
 
 -- Initializes the frames containing steps, getting frames from a frame pool.
 function CGM:InitStepFrames()
+    CGM:Debug("initializing StepFrames")
     CUI = LibStub("CloudUI-1.0")
     for i = 1, CGMOptions.settings.nbrSteps do
         stepFrames[i] = GetStepFrame()
         stepFrames[i]:SetID(i)
     end
     isLoaded = true
-    CGM:ResizeStepFrames() -- Needs to be called once on addon load.
+    -- Needs to be called once on addon load.
+    CGM:ResizeStepFrames()
 end

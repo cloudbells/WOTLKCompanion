@@ -9,7 +9,7 @@ local function ToggleMinimapButton()
     CGMOptions.minimapTable.show = not CGMOptions.minimapTable.show
     if not CGMOptions.minimapTable.show then
         minimapButton:Hide("ClassicGuideMaker")
-        CGM:Message("|cFFFFFF00ClassicGuideMaker:|r Minimap button hidden. Type /CGM minimap to show it again.")
+        CGM:Message("minimap button hidden - type /CGM minimap to show it again.")
     else
         minimapButton:Show("ClassicGuideMaker")
     end
@@ -121,7 +121,7 @@ function CGM:OnAddonLoaded(addonName)
         InitMinimapButton()
         InitSlash()
         CGM:Message("addon loaded!")
-        CGM:Debug("debugging is on, you can disable this in the options (CTRL-click the minimap button).")
+        CGM:Debug("debugging is on, you can disable this in the options")
         CGM:Debug("game version is " ..
                       (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or WOW_PROJECT_ID ==
                           WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))

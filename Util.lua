@@ -47,7 +47,7 @@ end
 -- Returns an enum with the given values.
 function CGM:Enum(t)
     if type(t) == "table" and #t > 0 then
-        for i = 1, #t do    
+        for i = 1, #t do
             if type(t[i]) == "string" then
                 t[t[i]] = i
             end

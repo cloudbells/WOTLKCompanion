@@ -1,4 +1,4 @@
-## Interface: 30400
+## Interface: 30401
 ## Title: ClassicGuideMaker
 ## Notes: A guide maker for Classic.
 ## Author: cloudbells
@@ -38,3 +38,4 @@ Init.lua
 # Load guides. Add the path to your custom guide below to load it.
 Guides/TestGuide.lua
 Guides/DM_Draft.lua
+Guides/SmallGuide.lua
