@@ -490,7 +490,7 @@ function CGM:SetGuide(guideName)
             CGM:ScrollToFirstIncomplete()
         end
         -- Map quest IDs to step indeces so we don't have to iterate all steps to find them.
-        -- Also register for any relevant events here.
+        -- Also register for any relevant step-related events here.
         for i = 1, #CGM.currentGuide do
             local type = CGM.currentGuide[i].type
             if type == CGM.Types.Buy then

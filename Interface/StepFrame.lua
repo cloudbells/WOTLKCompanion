@@ -43,6 +43,7 @@ end
 -- Called when the player clicks a step.
 local function StepFrame_OnClick(self, button)
     if self.index then
+        print(self.index)
         if button == "LeftButton" then
             CGM:SetCurrentStep(self.index)
             CGM:UpdateStepFrames()
@@ -125,6 +126,12 @@ function CGM:UpdateStepFrames(stepFrameIndex)
         local text
         local index
         local currentStep
+        if not stepFrameIndex and #CGM.currentGuide < #stepFrames then
+            for i = #CGM.currentGuide, #stepFrames do
+                stepFrames[i].index = nil
+                stepFrames[i]:ResetBackgroundColor()
+            end
+        end
         for i = stepFrameIndex or 1, stepFrameIndex or #stepFrames do
             index = currentValue + i - 1
             currentStep = CGM.currentGuide[index]
@@ -185,6 +192,7 @@ function CGM:ResizeStepFrames()
         -- Get rid of frames we aren't going to use.
         if #stepFrames > CGMOptions.settings.nbrSteps then
             for i = CGMOptions.settings.nbrSteps + 1, #stepFrames do
+                stepFrames[i].index = nil
                 stepFrames[i]:Unlock()
                 stepFrames[i]:Hide()
                 stepFrames[i] = nil
