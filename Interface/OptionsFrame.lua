@@ -188,7 +188,7 @@ function CGM:InitOptionsFrame()
     nbrStepsSlider.nbrStepsText = nbrStepsText
     nbrStepsSlider:SetValue(CGMOptions.settings.nbrSteps)
     nbrStepsSlider:SetHeight(20)
-    nbrStepsSlider.helpString = "Choose how many steps to show at once."
+    nbrStepsSlider.helpString = "How many steps to show at once."
     options[#options + 1] = nbrStepsSlider
 
     -- Auto accept modifier.

@@ -6,14 +6,29 @@ end
 
 -- Variables.
 local THUMB_PADDING = 2
+local DEFAULT_SIZE = 16
+local DEFAULT_LENGTH = 168
 
 -- Script handlers.
 
 -- Called when the slider's size changes.
 local function Slider_OnSizeChanged(self, width, height)
     if self.isHorizontal then
-        self:GetThumbTexture():SetSize(height - THUMB_PADDING, height - THUMB_PADDING)
+        if self.upButton then
+            self.upButton:SetSize(height, height)
+        end
+        if self.downButton then
+            self.downButton:SetSize(height, height)
+        end
+        self:GetThumbTexture():SetSize(height, height)
     else
+        if self.upButton then
+            self.upButton:SetSize(width, width)
+        end
+        if self.downButton then
+            self.downButton:SetSize(width, width)
+        end
+        -- I don't know why padding is needed here but not for horizontal sliders.
         self:GetThumbTexture():SetSize(width - THUMB_PADDING, width - THUMB_PADDING)
     end
 end
@@ -150,14 +165,27 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
         slider.CUILeftBorderTexture:SetPoint("TOPRIGHT", slider, "TOPLEFT", 0, 2)
         slider.CUIBackgroundTexture:SetPoint("TOPLEFT", slider, "TOPLEFT", 0, 1)
         slider.CUIBackgroundTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 0, -1)
+    else
+        -- slider.CUITopBorderTexture:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", -2, 0)
+        -- slider.CUITopBorderTexture:SetPoint("BOTTOMRIGHT", slider, "TOPRIGHT", 2, 0)
+        -- slider.CUIRightBorderTexture:SetPoint("BOTTOMLEFT", slider, "BOTTOMRIGHT", 1, -1)
+        -- slider.CUIRightBorderTexture:SetPoint("TOPLEFT", slider, "TOPRIGHT", 1, 1)
+        -- slider.CUIBottomBorderTexture:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", -2, 0)
+        -- slider.CUIBottomBorderTexture:SetPoint("TOPRIGHT", slider, "BOTTOMRIGHT", 2, 0)
+
+        -- slider.CUILeftBorderTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMLEFT", -1, -1)
+        -- slider.CUILeftBorderTexture:SetPoint("TOPRIGHT", slider, "TOPLEFT", -1, 1)
+
+        -- slider.CUIBackgroundTexture:SetPoint("TOPLEFT", slider, "TOPLEFT", -1, 0)
+        -- slider.CUIBackgroundTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 1, 0)
     end
     slider.isHorizontal = isHorizontal
     if isHorizontal then
         slider:SetOrientation("HORIZONTAL")
-        slider:SetSize(168, 16)
+        slider:SetSize(DEFAULT_LENGTH, DEFAULT_SIZE)
     else
         slider:SetOrientation("VERTICAL")
-        slider:SetSize(16, 168)
+        slider:SetSize(DEFAULT_SIZE, DEFAULT_LENGTH)
     end
     if minValue then
         assert(type(minValue) == "number", "CreateSlider: 'minValue' needs to be a number")
@@ -214,12 +242,16 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
         if not CUI:ApplyTemplate(upButton, CUI.templates.PushableFrameTemplate) then
             return
         end
-        upButton:SetSize(16, 16)
+        upButton:SetSize(DEFAULT_SIZE, DEFAULT_SIZE)
         local texture = upButton:CreateTexture(nil, "BACKGROUND")
         texture:SetTexture(upTexture)
         texture:SetAllPoints(upButton)
         upButton.texture = texture
-        upButton:SetPoint("BOTTOM", slider, "TOP", 0, 2)
+        if not isHorizontal then
+            upButton:SetPoint("BOTTOM", slider, "TOP", 0, 2)
+        else
+            upButton:SetPoint("BOTTOMRIGHT", slider, "BOTTOMLEFT", -1, 0)
+        end
         if not upButton:HookScript("OnDisable", Button_OnDisable) then
             return
         end
@@ -244,12 +276,16 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
         if not CUI:ApplyTemplate(downButton, CUI.templates.PushableFrameTemplate) then
             return
         end
-        downButton:SetSize(16, 16)
+        downButton:SetSize(DEFAULT_SIZE, DEFAULT_SIZE)
         local texture = downButton:CreateTexture(nil, "BACKGROUND")
         texture:SetTexture(downTexture)
         texture:SetAllPoints(downButton)
         downButton.texture = texture
-        downButton:SetPoint("TOP", slider, "BOTTOM", 0, -2)
+        if not isHorizontal then
+            downButton:SetPoint("TOP", slider, "BOTTOM", 0, -2)
+        else
+            downButton:SetPoint("BOTTOMLEFT", slider, "BOTTOMRIGHT", 1, 0)
+        end
         if not downButton:HookScript("OnDisable", Button_OnDisable) then
             return
         end
