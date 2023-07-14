@@ -95,7 +95,7 @@ end
 
 -- Sets the current step to the given index.
 function CGM:SetCurrentStep(index, shouldScroll)
-    if CGM.currentStepIndex ~= index and CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) then
+    if CGM:IsStepAvailable(index) and not CGM:IsStepCompleted(index) then
         CGM.currentStepIndex = index
         CGMOptions.savedStepIndex[CGM.currentGuideName] = index
         local step = CGM.currentGuide[index]

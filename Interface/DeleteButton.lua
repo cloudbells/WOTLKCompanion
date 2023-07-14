@@ -95,7 +95,6 @@ function CGM:ScanBag(bag)
         for slot = 1, GetContainerNumSlots(bag) do
             local itemGUID = Item:CreateFromBagAndSlot(bag, slot):GetItemGUID()
             if itemGUID and not DeleteQueue:Contains(itemGUID) then
-                print(itemGUID)
                 local slotInfo = GetContainerItemInfo(bag, slot)
                 local itemID = slotInfo.itemID
                 if itemID and itemsToDelete[itemID] then

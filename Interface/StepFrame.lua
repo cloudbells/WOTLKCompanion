@@ -42,12 +42,14 @@ end
 
 -- Called when the player clicks a step.
 local function StepFrame_OnClick(self, button)
-    if button == "LeftButton" then
-        CGM:SetCurrentStep(self.index)
-        CGM:UpdateStepFrames()
-    else
-        CGM:MarkStepCompleted(self.index, not CGM:IsStepCompleted(self.index), true)
-        CGM:UpdateStepFrames()
+    if self.index then
+        if button == "LeftButton" then
+            CGM:SetCurrentStep(self.index)
+            CGM:UpdateStepFrames()
+        else
+            CGM:MarkStepCompleted(self.index, not CGM:IsStepCompleted(self.index), true)
+            CGM:UpdateStepFrames()
+        end
     end
 end
 
@@ -117,6 +119,7 @@ end
 
 -- Updates the step frames according to the slider's current value.
 function CGM:UpdateStepFrames(stepFrameIndex)
+    -- CGM:Debug("updating StepFrames")
     if isLoaded and CGM.currentGuideName then
         local currentValue = CGM.CGMFrame.bodyFrame.slider:GetValue()
         local text

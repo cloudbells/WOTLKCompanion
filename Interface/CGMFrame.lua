@@ -140,6 +140,8 @@ end
 -- Finds the next step from the current one that is not yet completed.
 -- This will scroll from the given step index if given.
 function CGM:ScrollToNextIncomplete(fromStep)
+    CGM:Debug("scrolling to next incomplete" .. (fromStep and " from " .. fromStep or ""))
+    -- Find first available step starting from 1 (or fromStep).
     local index = 1
     for i = fromStep or CGM.currentStepIndex, #CGM.currentGuide do
         if not CGM:IsStepCompleted(i) and CGM:IsStepAvailable(i) then
@@ -148,11 +150,16 @@ function CGM:ScrollToNextIncomplete(fromStep)
         end
     end
     CGM:SetCurrentStep(index)
-    -- Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
+    -- Then scroll to it. Scroll to bottom if index is bigger than the number of steps, or to top if guide is done.
     -- Upper bound for the slider.
-    index = index - 1 > #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps and #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps or index - 1
-    local oldSliderValue = CGMSlider:GetValue()
-    CGMSlider:SetValue(index)
+    if index - 1 > #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps then
+        index = #CGM.currentGuide + 1 - CGMOptions.settings.nbrSteps
+    else
+        index = index - 1
+    end
+    index = index < 1 and 1 or index
+    local oldSliderValue = slider:GetValue()
+    slider:SetValue(index)
     -- If we're not scrolling, then UpdateStepFrames won't be called because we're not changing the value of the slider, so update manually.
     if oldSliderValue == index then
         CGM:UpdateStepFrames()
