@@ -104,6 +104,7 @@ function CGM:SetCurrentStep(index, shouldScroll)
         if shouldScroll then
             CGM.CGMFrame.bodyFrame.slider:SetValue(index - 1)
         end
+        CGM.CGMFrame:SetStepCounterText(index .. "/" .. #CGM.currentGuide)
         CGM:Debug("set step to " .. index)
     end
 end
@@ -483,6 +484,9 @@ function CGM:SetGuide(guideName)
         end
         CGM.CGMFrame:SetTitleText(CGM.currentGuideName)
         CGM:UpdateSlider()
+        -- Call this because some may have been disabled if previous guide had fewer steps than CGMOptions.settings.nbrSteps (meaning unused frames).
+        CGM:EnableAllStepFrames()
+        CGM:DisableUnusedStepFrames()
         if CGMOptions.savedStepIndex[guideName] then
             CGM:SetCurrentStep(CGMOptions.savedStepIndex[guideName], true)
             CGM:UpdateStepFrames()

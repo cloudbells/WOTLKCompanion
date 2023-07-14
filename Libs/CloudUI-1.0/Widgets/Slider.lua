@@ -153,7 +153,7 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
     if not CUI:ApplyTemplate(slider, CUI.templates.BorderedFrameTemplate) then
         return false
     end
-    -- Manually set positions of background and borders because sliders are weird.
+    -- Manually set positions of background and borders if it's vertical because sliders are weird.
     if not isHorizontal then
         slider.CUITopBorderTexture:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", -1, 1)
         slider.CUITopBorderTexture:SetPoint("BOTTOMRIGHT", slider, "TOPRIGHT", 1, 1)
@@ -165,19 +165,6 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
         slider.CUILeftBorderTexture:SetPoint("TOPRIGHT", slider, "TOPLEFT", 0, 2)
         slider.CUIBackgroundTexture:SetPoint("TOPLEFT", slider, "TOPLEFT", 0, 1)
         slider.CUIBackgroundTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 0, -1)
-    else
-        -- slider.CUITopBorderTexture:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", -2, 0)
-        -- slider.CUITopBorderTexture:SetPoint("BOTTOMRIGHT", slider, "TOPRIGHT", 2, 0)
-        -- slider.CUIRightBorderTexture:SetPoint("BOTTOMLEFT", slider, "BOTTOMRIGHT", 1, -1)
-        -- slider.CUIRightBorderTexture:SetPoint("TOPLEFT", slider, "TOPRIGHT", 1, 1)
-        -- slider.CUIBottomBorderTexture:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", -2, 0)
-        -- slider.CUIBottomBorderTexture:SetPoint("TOPRIGHT", slider, "BOTTOMRIGHT", 2, 0)
-
-        -- slider.CUILeftBorderTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMLEFT", -1, -1)
-        -- slider.CUILeftBorderTexture:SetPoint("TOPRIGHT", slider, "TOPLEFT", -1, 1)
-
-        -- slider.CUIBackgroundTexture:SetPoint("TOPLEFT", slider, "TOPLEFT", -1, 0)
-        -- slider.CUIBackgroundTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 1, 0)
     end
     slider.isHorizontal = isHorizontal
     if isHorizontal then

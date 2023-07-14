@@ -62,7 +62,7 @@ local function InitSlash()
         local split = {strsplit(" ", text:lower())}
         if split[1] == "minimap" then
             ToggleMinimapButton()
-        elseif split[1] == "" then
+        elseif split[1] == "options" then
             CGM:ToggleOptionsFrame()
         else
             CGM:Message("unknown command")
@@ -110,6 +110,7 @@ end
 -- Called on ADDON_LOADED.
 function CGM:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
+        CGM:Debug("debugging is on, you can disable this in /cgm options")
         eventFrame:UnregisterEvent("ADDON_LOADED")
         if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
             CGM:Message("This addon is for classic versions of the game only. It will not work properly with retail.")
@@ -121,7 +122,6 @@ function CGM:OnAddonLoaded(addonName)
         InitMinimapButton()
         InitSlash()
         CGM:Message("addon loaded!")
-        CGM:Debug("debugging is on, you can disable this in the options")
         CGM:Debug("game version is " ..
                       (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or WOW_PROJECT_ID ==
                           WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))

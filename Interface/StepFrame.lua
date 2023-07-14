@@ -43,7 +43,6 @@ end
 -- Called when the player clicks a step.
 local function StepFrame_OnClick(self, button)
     if self.index then
-        print(self.index)
         if button == "LeftButton" then
             CGM:SetCurrentStep(self.index)
             CGM:UpdateStepFrames()
@@ -126,12 +125,6 @@ function CGM:UpdateStepFrames(stepFrameIndex)
         local text
         local index
         local currentStep
-        if not stepFrameIndex and #CGM.currentGuide < #stepFrames then
-            for i = #CGM.currentGuide, #stepFrames do
-                stepFrames[i].index = nil
-                stepFrames[i]:ResetBackgroundColor()
-            end
-        end
         for i = stepFrameIndex or 1, stepFrameIndex or #stepFrames do
             index = currentValue + i - 1
             currentStep = CGM.currentGuide[index]
@@ -214,6 +207,29 @@ function CGM:ResizeStepFrames()
             stepFrames[i]:SetPoint("BOTTOMRIGHT", CGM.CGMFrame.bodyFrame, "BOTTOMRIGHT", -17, bottomOffset)
             stepFrames[i]:ResizeText(stepFrames[i]:GetWidth() - STEP_TEXT_MARGIN)
         end
+    end
+end
+
+-- Enables ALL step frames.
+function CGM:EnableAllStepFrames()
+    CGM:Debug("enabling all step frames")
+    if stepFrames then
+        for i = 1, #stepFrames do
+            stepFrames[i]:Enable()
+        end
+    end
+end
+
+-- Disables any unused step frames.
+function CGM:DisableUnusedStepFrames()
+    if stepFrames and #CGM.currentGuide < #stepFrames then
+        local debug = "disabling unused step frames:"
+        for i = #CGM.currentGuide + 1, #stepFrames do
+            debug = debug .. " " .. i
+            stepFrames[i]:ResetBackgroundColor()
+            stepFrames[i]:Disable()
+        end
+        CGM:Debug(debug)
     end
 end
 

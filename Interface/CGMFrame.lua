@@ -13,7 +13,12 @@ end
 
 -- Sets the title text.
 local function CGMFrame_SetTitleText(self, text)
-    self.titleFrame.text:SetText(text)
+    self.titleFrame.title:SetText(text)
+end
+
+-- Sets the step counter text.
+local function CGMFrame_SetStepCounterText(self, text)
+    self.titleFrame.stepCounter:SetText(text)
 end
 
 -- Called when the size of the frame changes.
@@ -80,6 +85,7 @@ local function InitCGMFrame()
     CGMFrame:HookScript("OnSizeChanged", CGMFrame_OnSizeChanged)
     CGMFrame:HookScript("OnMouseWheel", CGMFrame_OnMouseWheel)
     CGMFrame.SetTitleText = CGMFrame_SetTitleText
+    CGMFrame.SetStepCounterText = CGMFrame_SetStepCounterText
     -- Title frame.
     local titleFrame = CreateFrame("Frame", "CGMTitleFrame", CGMFrame)
     titleFrame:SetSize(1, 24)
@@ -87,11 +93,16 @@ local function InitCGMFrame()
     titleFrame:SetPoint("TOPRIGHT")
     local fontInstance = CUI:GetFontNormal()
     fontInstance:SetJustifyH("LEFT")
-    local text = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    text:SetWidth(200) -- temp
-    text:SetPoint("LEFT", 4, 0)
-    titleFrame.text = text
-    titleFrame.SetText = TitleFrame_SetText
+    -- Title text.
+    local title = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    title:SetWidth(200) -- temp
+    title:SetPoint("LEFT", 4, 0)
+    titleFrame.title = title
+    -- Step counter.
+    local stepCounter = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
+    stepCounter:SetPoint("RIGHT", -2, 0)
+    titleFrame.stepCounter = stepCounter
+    titleFrame.SetStepCount = TitleFrame_SetStepCount
     titleFrame:HookScript("OnMouseDown", TitleFrame_OnMouseDown)
     titleFrame:HookScript("OnMouseUp", TitleFrame_OnMouseUp)
     CGMFrame.titleFrame = titleFrame
