@@ -1,19 +1,20 @@
--- todo:
--- 1. when changing slider size, change thumb size to match
 local version, widget = 1, "SLIDER"
 local CUI = LibStub and LibStub("CloudUI-1.0")
 if not CUI or CUI:GetWidgetVersion(widget) >= version then
     return
 end
 
+-- Variables.
+local THUMB_PADDING = 2
+
 -- Script handlers.
 
 -- Called when the slider's size changes.
 local function Slider_OnSizeChanged(self, width, height)
     if self.isHorizontal then
-        self:GetThumbTexture():SetSize(height - 2, height - 2)
+        self:GetThumbTexture():SetSize(height - THUMB_PADDING, height - THUMB_PADDING)
     else
-        self:GetThumbTexture():SetSize(width - 2, width - 2)
+        self:GetThumbTexture():SetSize(width - THUMB_PADDING, width - THUMB_PADDING)
     end
 end
 
@@ -137,6 +138,19 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
     if not CUI:ApplyTemplate(slider, CUI.templates.BorderedFrameTemplate) then
         return false
     end
+    -- Manually set positions of background and borders because sliders are weird.
+    if not isHorizontal then
+        slider.CUITopBorderTexture:SetPoint("BOTTOMLEFT", slider, "TOPLEFT", -1, 1)
+        slider.CUITopBorderTexture:SetPoint("BOTTOMRIGHT", slider, "TOPRIGHT", 1, 1)
+        slider.CUIRightBorderTexture:SetPoint("BOTTOMLEFT", slider, "BOTTOMRIGHT", 0, -2)
+        slider.CUIRightBorderTexture:SetPoint("TOPLEFT", slider, "TOPRIGHT", 0, 2)
+        slider.CUIBottomBorderTexture:SetPoint("TOPLEFT", slider, "BOTTOMLEFT", -1, -1)
+        slider.CUIBottomBorderTexture:SetPoint("TOPRIGHT", slider, "BOTTOMRIGHT", 1, -1)
+        slider.CUILeftBorderTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMLEFT", 0, -2)
+        slider.CUILeftBorderTexture:SetPoint("TOPRIGHT", slider, "TOPLEFT", 0, 2)
+        slider.CUIBackgroundTexture:SetPoint("TOPLEFT", slider, "TOPLEFT", 0, 1)
+        slider.CUIBackgroundTexture:SetPoint("BOTTOMRIGHT", slider, "BOTTOMRIGHT", 0, -1)
+    end
     slider.isHorizontal = isHorizontal
     if isHorizontal then
         slider:SetOrientation("HORIZONTAL")
@@ -162,7 +176,7 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
     slider:SetValue(minValue)
     slider:SetValueStep(1)
     slider:SetThumbTexture(thumbTexture)
-    local size = isHorizontal and slider:GetHeight() - 2 or slider:GetWidth() - 2
+    local size = isHorizontal and slider:GetHeight() - THUMB_PADDING or slider:GetWidth() - THUMB_PADDING
     slider:GetThumbTexture():SetSize(size, size)
     slider.disableR = 0.3
     slider.disableG = 0.3
@@ -231,7 +245,7 @@ function CUI:CreateSlider(parentFrame, frameName, minValue, maxValue, obeyStep, 
             return
         end
         downButton:SetSize(16, 16)
-        texture = downButton:CreateTexture(nil, "BACKGROUND")
+        local texture = downButton:CreateTexture(nil, "BACKGROUND")
         texture:SetTexture(downTexture)
         texture:SetAllPoints(downButton)
         downButton.texture = texture
