@@ -22,7 +22,7 @@ end
 -- Prints the given message to chat as a message.
 function CGM:Message(message)
     if CGMOptions.settings.debug then
-        LogMessage(messageType.Debug, message)
+        LogMessage(messageType.Debug, "(message): " .. message)
     else
         LogMessage(messageType.Message, message)
     end

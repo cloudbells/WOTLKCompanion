@@ -75,12 +75,12 @@ function CGM:OnQuestComplete()
                     local itemLink = GetQuestItemLink("choice", i)
                     local itemID = CGM:ParseIDFromLink(itemLink)
                     if itemID == CGM.currentStep.rewardID then
-                        CGM:Message("picking quest reward: " .. itemLink)
+                        CGM:Message("picking quest reward: " .. itemLink .. ".")
                         GetQuestReward(i)
                         break
                     end
                 end
-                CGM:Message("no quest reward found with the specified item ID: " .. CGM.currentStep.rewardID)
+                CGM:Message("no quest reward found with the specified item ID: " .. CGM.currentStep.rewardID .. ".")
             end
         else
             GetQuestReward()

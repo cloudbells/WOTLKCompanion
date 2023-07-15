@@ -58,7 +58,7 @@ local function DebugButton_OnClick()
     if CGMOptions.settings.debug then
         CGM:Debug("debug mode is ON")
     else
-        CGM:Message("debug mod is OFF")
+        CGM:Message("debug mod is OFF.")
     end
 end
 

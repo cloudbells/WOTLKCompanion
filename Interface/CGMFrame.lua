@@ -71,6 +71,7 @@ end
 -- Initializes the main frame.
 local function InitCGMFrame()
     CGM:Debug("initializing CGMFrame")
+
     -- Main frame.
     CUI = LibStub("CloudUI-1.0")
     CGMFrame = CreateFrame("Frame", "CGMFrame", UIParent)
@@ -86,6 +87,7 @@ local function InitCGMFrame()
     CGMFrame:HookScript("OnMouseWheel", CGMFrame_OnMouseWheel)
     CGMFrame.SetTitleText = CGMFrame_SetTitleText
     CGMFrame.SetStepCounterText = CGMFrame_SetStepCounterText
+
     -- Title frame.
     local titleFrame = CreateFrame("Frame", "CGMTitleFrame", CGMFrame)
     titleFrame:SetSize(1, 24)
@@ -93,11 +95,13 @@ local function InitCGMFrame()
     titleFrame:SetPoint("TOPRIGHT")
     local fontInstance = CUI:GetFontNormal()
     fontInstance:SetJustifyH("LEFT")
+
     -- Title text.
     local title = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
     title:SetWidth(200) -- temp
     title:SetPoint("LEFT", 4, 0)
     titleFrame.title = title
+
     -- Step counter.
     local stepCounter = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
     stepCounter:SetPoint("RIGHT", -2, 0)
@@ -106,17 +110,20 @@ local function InitCGMFrame()
     titleFrame:HookScript("OnMouseDown", TitleFrame_OnMouseDown)
     titleFrame:HookScript("OnMouseUp", TitleFrame_OnMouseUp)
     CGMFrame.titleFrame = titleFrame
+
     -- Body frame.
     local bodyFrame = CreateFrame("Frame", "CGMBodyFrame", CGMFrame)
     bodyFrame:SetPoint("TOPLEFT", titleFrame, "BOTTOMLEFT")
     bodyFrame:SetPoint("BOTTOMRIGHT")
+
     -- Slider.
     slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture",
-                              "Interface/Addons/ClassicGuideMaker/Media/UpButton", "Interface/Addons/ClassicGuideMaker/Media/DownButton", false)
+                              "Interface/Addons/ClassicGuideMaker/Media/UpButton", "Interface/Addons/ClassicGuideMaker/Media/DownButton", false,
+                              {Slider_OnValueChanged})
     slider:SetPoint("BOTTOMRIGHT", 0, 18)
     slider:SetPoint("TOPRIGHT", 0, -18)
-    slider:HookScript("OnValueChanged", Slider_OnValueChanged)
     bodyFrame.slider = slider
+
     -- Resize button.
     local resizeButton = CreateFrame("Button", "CGMResizeButton", bodyFrame)
     resizeButton:SetFrameLevel(3)

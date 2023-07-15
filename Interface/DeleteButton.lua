@@ -34,7 +34,7 @@ end
 local function DeleteButton_OnClick()
     local item = DeleteQueue:Dequeue()
     if item then
-        CGM:Message("deleted " .. item.itemLink .. (item.itemCount > 1 and "x" .. item.itemCount or ""))
+        CGM:Message("deleted " .. item.itemLink .. (item.itemCount > 1 and "x" .. item.itemCount .. "." or "."))
         C_Container.PickupContainerItem(item.bag, item.slot)
         DeleteCursorItem()
     end

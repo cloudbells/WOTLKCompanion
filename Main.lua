@@ -13,12 +13,14 @@ local GetContainerNumSlots, GetContainerItemInfo, UseContainerItem = C_Container
 
 -- Processes all tags in the given guide and replaces them with the proper strings.
 local function ProcessTags(guide)
+    local tagsFound = false
     for i = 1, #guide do
         local step = guide[i]
         if step.text then
             for tag in step.text:gmatch("{(%w+)}") do
                 local tagLower = tag:lower()
                 if tagLower:find("questname") then
+                    tagsFound = true
                     if step.isMultiStep then
                         local n = tonumber(tag:match("%a+(%d+)"))
                         if n then
@@ -37,6 +39,7 @@ local function ProcessTags(guide)
                         end
                     end
                 elseif tagLower:find("itemname") then
+                    tagsFound = true
                     local n = tonumber(tag:match("%a+(%d+)"))
                     if n then
                         local itemID = step.items[n]
@@ -51,18 +54,22 @@ local function ProcessTags(guide)
                         end
                     end
                 elseif tagLower == "x" then
+                    tagsFound = true
                     if step.x then
                         step.text = step.text:gsub("{" .. tag .. "}", step.x)
                     end
                 elseif tagLower == "y" then
+                    tagsFound = true
                     if step.y then
                         step.text = step.text:gsub("{" .. tag .. "}", step.y)
                     end
                 elseif tagLower == "cost" then
+                    tagsFound = true
                     local cost = step.cost
                     step.text = step.text:gsub("{" .. tag .. "}",
                                                cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
                 elseif tagLower == "spells" then
+                    tagsFound = true
                     if step.spells then
                         local str = ""
                         for _, info in pairs(step.spells) do
@@ -75,6 +82,10 @@ local function ProcessTags(guide)
                 end
             end
         end
+    end
+    if tagsFound then
+        CGM:Message("found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
+                        "If you did not make this guide then disregard this message.")
     end
 end
 
@@ -401,7 +412,7 @@ function CGM:OnMerchantShow()
                     itemID = slotInfo.itemID
                 end
                 if itemID and itemsToSell[itemID] then
-                    CGM:Message("selling " .. slotInfo.hyperlink .. (slotInfo.stackCount > 1 and "x" .. slotInfo.stackCount or ""))
+                    CGM:Message("selling " .. slotInfo.hyperlink .. (slotInfo.stackCount > 1 and "x" .. slotInfo.stackCount .. "." or "."))
                     UseContainerItem(bag, slot)
                 end
             end
@@ -414,7 +425,7 @@ function CGM:OnMerchantShow()
             if CGM.currentStep.items[itemID] then
                 for j = 1, CGM.currentStep.items[itemID] do
                     local _, itemLink = GetItemInfo(itemID)
-                    CGM:Message("buying " .. (itemLink and itemLink or itemID))
+                    CGM:Message("buying " .. (itemLink and itemLink or itemID) .. ".")
                     BuyMerchantItem(i)
                 end
             end
@@ -449,9 +460,8 @@ function CGM:RegisterGuide(guide)
         -- Default to first registered.
         CGM.defaultGuide = CGM.defaultGuide or guide.name
         if CGM.Guides[guide.name] then
-            CGM:Message("guide with that name is already registered - name must be unique.")
+            CGM:Message("guide with name " .. guide.name .. " is already registered - name must be unique.")
         else
-            ProcessTags(guide)
             CGM.Guides[guide.name] = guide
         end
     else
@@ -464,6 +474,7 @@ end
 function CGM:SetGuide(guideName)
     if CGM.Guides[guideName] then
         CGM:Debug("setting guide to " .. guideName)
+        ProcessTags(CGM.Guides[guideName])
         CGMOptions.settings.currentGuide = guideName
         CGM.guideDropdown:SetText(guideName) -- This hurts.
         CGMOptions.completedSteps[guideName] = CGMOptions.completedSteps[guideName] or {}

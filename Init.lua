@@ -65,7 +65,7 @@ local function InitSlash()
         elseif split[1] == "options" then
             CGM:ToggleOptionsFrame()
         else
-            CGM:Message("unknown command")
+            CGM:Message("unknown command.")
         end
     end
 end
@@ -113,7 +113,7 @@ function CGM:OnAddonLoaded(addonName)
         CGM:Debug("debugging is on, you can disable this in /cgm options")
         eventFrame:UnregisterEvent("ADDON_LOADED")
         if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
-            CGM:Message("This addon is for classic versions of the game only. It will not work properly with retail.")
+            CGM:Message("this addon is for classic versions of the game only. It will not work with retail.")
             return
         end
         LoadVariables()
