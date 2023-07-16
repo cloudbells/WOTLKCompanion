@@ -148,4 +148,5 @@ function CGM:InitDeleteFrame()
     deleteButton.SetItem = DeleteButton_SetItem
     deleteButton.RemoveItem = DeleteButton_RemoveItem
     deleteButton:Hide()
+    return deleteButton
 end

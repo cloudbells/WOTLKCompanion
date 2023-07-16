@@ -35,7 +35,7 @@ function CGM:InitOptionsFrame()
     optionsFrame = CUI:CreateConfig(UIParent, "CGMOptionsFrame", "ClassicGuideMaker Options", "Interface/Addons/ClassicGuideMaker/Media/CloseButton", 1, 10,
                                     "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
                                     "Interface/Addons/ClassicGuideMaker/Media/DownButton")
-    optionsFrame:SetPoint("CENTER")
+
     local widgets = {}
 
     -- Guide dropdown.
@@ -51,22 +51,24 @@ function CGM:InitOptionsFrame()
     CGM.guideDropdown = guideDropdown
 
     -- Number of steps.
-    nbrStepsSlider = CUI:CreateSlider(optionsFrame.widgetFrame, "CGMNbrStepsSlider", 1, 5, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", nil,
-                                      nil, true, {NbrStepsSlider_OnValueChanged})
+    nbrStepsSlider = CUI:CreateSlider(optionsFrame.widgetFrame, "CGMNbrStepsSlider", 1, CGM.MAX_STEPS, true,
+                                      "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", nil, nil, true, {NbrStepsSlider_OnValueChanged})
     nbrStepsSlider:SetValue(CGMOptions.settings.nbrSteps)
     nbrStepsSlider:SetHeight(20)
     nbrStepsSlider.helpString = "How many steps to show at once."
     nbrStepsSlider.desc = "Number of steps - " .. CGMOptions.settings.nbrSteps
+    optionsFrame.nbrStepsSlider = nbrStepsSlider
     widgets[#widgets + 1] = nbrStepsSlider
 
     -- Auto accept modifier.
     local modifierDropdown = CUI:CreateDropdown(optionsFrame.widgetFrame, "CGMModifierDropdown", {CGM.SetModifier}, {1, 2, 3, 4},
-                                                {"SHIFT", "CTRL", "ALT", "None"})
+                                                {"SHIFT", "CTRL", "ALT", "NONE"})
     modifierDropdown:SetWidth(168)
     modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier)
     modifierDropdown.helpString =
         "When auto accept is ON, holding this key down will disable it temporarily.\nWhen auto accept is OFF, holding this key down will enable it temporarily."
     modifierDropdown.desc = "Auto accept modifier"
+    optionsFrame.modifierDropdown = modifierDropdown
     widgets[#widgets + 1] = modifierDropdown
 
     -- Auto accept default or not.
@@ -94,6 +96,7 @@ function CGM:InitOptionsFrame()
     optionsFrame:AddWidgets(widgets)
 
     isInitalized = true
+    return optionsFrame
 end
 
 -- Toggles the options frame.

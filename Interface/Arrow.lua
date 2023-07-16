@@ -94,6 +94,7 @@ function CGM:InitArrow()
     arrowText = arrow.distanceLbl
     hbd = LibStub("HereBeDragons-2.0")
     arrow:HookScript("OnUpdate", OnUpdate)
+    return arrow
 end
 
 -- Toggles the arrow.

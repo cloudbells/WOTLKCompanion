@@ -60,6 +60,7 @@ function CGM:InitEditFrame()
     closeButton.texture = texture
     closeButton:SetPoint("TOPRIGHT")
     closeButton:HookScript("OnClick", CloseButton_OnClick)
+    return editFrame
 end
 
 -- Toggles the options frame.

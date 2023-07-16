@@ -2,6 +2,7 @@ local ADDON_NAME, CGM = ...
 
 -- Variables.
 local eventFrame
+local CGMFrame
 local minimapButton = LibStub("LibDBIcon-1.0")
 
 -- Shows or hides the minimap button.
@@ -54,9 +55,15 @@ local function InitMinimapButton()
     minimapButton:Register("ClassicGuideMaker", LDB, CGMOptions.minimapTable)
 end
 
--- Poor man's switch.
-local function default()
-    CGM:Message("unknown command.")
+local function PrintHelp()
+    CGM:Message("/CGM [command]")
+    print("- |c0000FFFF[minimap]|r - toggles the minimap button on or off")
+    print("- |c0000FFFF[options]|r - opens and closes the options window")
+    print("- |c0000FFFF[steps]|r |c00AABBFF[nbrOfSteps]|r - change how many steps are showing at once (between 1 and 5 inclusive)")
+    print("- |c0000FFFF[modifier]|r |c00AABBFF[key]|r - set modifier for auto accept/turn in (Shift/Ctrl/Alt/none)")
+    print("- |c0000FFFF[debug]|r - toggle debug mode on or off")
+    print("- |c0000FFFF[help]|r - show this message :)")
+    print("- |c0000FFFF[secret]|r - type this if you dare")
 end
 
 -- Initializes slash commands.
@@ -64,15 +71,38 @@ local function InitSlash()
     SLASH_CGM1 = "/CGM"
     SLASH_CGM3 = "/ClassicGuideMaker"
     function SlashCmdList.CGM(text)
-        local split = {strsplit(" ", text:lower())}
-        if split[1] == "minimap" then
+        local command = {strsplit(" ", text:lower())}
+        if command[1] == "minimap" then
             ToggleMinimapButton()
-        elseif split[1] == "options" then
+        elseif command[1] == "options" then
             CGM:ToggleOptionsFrame()
-        elseif split[1] == "debug" then
+        elseif command[1] == "steps" then
+            command[2] = tonumber(command[2])
+            if command[2] then
+                if command[2] < 1 or command[2] > CGM.MAX_STEPS then
+                    CGM:Message("steps have to be between 1 and 5 inclusive")
+                else
+                    CGM:SetNbrSteps(CGMFrame.optionsFrame.nbrStepsSlider, command[2])
+                    CGMFrame.optionsFrame.nbrStepsSlider:SetValue(command[2])
+                end
+            else
+                CGM:Message("specify the number of steps, between 1 and 5 inclusive.")
+            end
+        elseif command[1] == "modifier" then
+            if command[2] == "shift" or command[2] == "ctrl" or command[2] == "alt" or command[2] == "none" then
+                CGM:SetModifier(CGM.Modifiers[command[2]:upper()])
+                CGMFrame.optionsFrame.modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier, true)
+            else
+                CGM:Message("specify a valid modifier (shift/ctrl/alt/none)")
+            end
+        elseif command[1] == "debug" then
             CGM:ToggleDebug()
+        elseif command[1] == "help" then
+            PrintHelp()
+        elseif command[1] == "secret" then
+            CGM:Message("hi")
         else
-            default()
+            CGM:Message("unknown command.")
         end
     end
 end
@@ -80,7 +110,7 @@ end
 -- Registers for events.
 local function Initialize()
     CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train"})
-    CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "None"})
+    CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "NONE"})
     CGM.Guides = {}
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())
@@ -102,6 +132,7 @@ local function LoadVariables()
     CGMOptions.savedStepIndex = CGMOptions.savedStepIndex or {}
     CGMOptions.isCGMFrameHidden = CGMOptions.isCGMFrameHidden or false
     CGMOptions.isArrowHidden = CGMOptions.isArrowHidden or false
+    CGM.MAX_STEPS = 5
 end
 
 -- Called when most game data is available.
@@ -115,17 +146,17 @@ function CGM:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
         LoadVariables()
         CGM:LoadSettings()
-        CGM:Debug("debugging is on, you can disable this in /cgm options")
+        CGM:Debug("debugging is on, you can disable this by typing \"/CGM debug\"")
         eventFrame:UnregisterEvent("ADDON_LOADED")
         if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
             CGM:Message("this addon is for classic versions of the game only. It will not work with retail.")
             return
         end
         -- Initialize stuff.
-        CGM:InitFrames()
+        CGMFrame = CGM:InitFrames()
         InitMinimapButton()
         InitSlash()
-        CGM:Message("addon loaded!")
+        CGM:Message("addon loaded! Type /CGM help for some commands.")
         CGM:Debug("game version is " ..
                       (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or WOW_PROJECT_ID ==
                           WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))

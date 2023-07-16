@@ -239,9 +239,10 @@ end
 -- Initializes all the frames.
 function CGM:InitFrames()
     InitCGMFrame()
-    CGM:InitOptionsFrame()
-    CGM:InitDeleteFrame()
+    CGMFrame.optionsFrame = CGM:InitOptionsFrame()
+    CGMFrame.deleteFrame = CGM:InitDeleteFrame()
     CGM:InitStepFrames()
-    CGM:InitEditFrame()
-    CGM:InitArrow()
+    CGMFrame.editFrame = CGM:InitEditFrame()
+    CGMFrame.arrow = CGM:InitArrow()
+    return CGMFrame
 end

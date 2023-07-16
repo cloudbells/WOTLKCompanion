@@ -155,7 +155,7 @@ function CUI:CreateConfig(parentFrame, frameName, titleText, closeButtonTexture,
     end
     local title = titleFrame:CreateFontString(nil, "BACKGROUND", CUI:GetFontBig():GetName())
     title:SetText(titleText)
-    title:SetPoint("TOPLEFT", 4, -4)
+    title:SetPoint("TOPLEFT", 4, -6)
 
     -- Close button.
     if closeButtonTexture then
@@ -199,7 +199,7 @@ function CUI:CreateConfig(parentFrame, frameName, titleText, closeButtonTexture,
     -- Child frame.
     scrollChild = CreateFrame("Frame", frameName, scrollParent)
     scrollParent:SetScrollChild(scrollChild)
-    scrollChild:SetSize(MAX_WIDTH, 1000)
+    scrollChild:SetSize(MAX_WIDTH, 1)
     scrollParent.widgetFrame = scrollChild
 
     -- Resize button.
