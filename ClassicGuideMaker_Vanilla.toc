@@ -14,6 +14,7 @@ Libs\LibDBIcon-1.0.lua
 Libs\CloudUI-1.0\CloudUI-1.0.xml
 
 # Load core files.
+Options.lua
 Events.lua
 Main.lua
 AutoAccept.lua

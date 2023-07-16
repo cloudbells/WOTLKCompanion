@@ -68,6 +68,11 @@ local function ResizeButton_OnMouseUp(self)
     CGMFrame:StopMovingOrSizing()
 end
 
+-- Called when the close button is clicked.
+local function CloseButton_OnClick()
+    CGM:ToggleCGMFrame()
+end
+
 -- Initializes the main frame.
 local function InitCGMFrame()
     CGM:Debug("initializing CGMFrame")
@@ -89,7 +94,7 @@ local function InitCGMFrame()
     CGMFrame.SetStepCounterText = CGMFrame_SetStepCounterText
 
     -- Title frame.
-    local titleFrame = CreateFrame("Frame", "CGMTitleFrame", CGMFrame)
+    local titleFrame = CreateFrame("Frame", "CGMFrameTitleFrame", CGMFrame)
     titleFrame:SetSize(1, 24)
     titleFrame:SetPoint("TOPLEFT")
     titleFrame:SetPoint("TOPRIGHT")
@@ -102,9 +107,23 @@ local function InitCGMFrame()
     title:SetPoint("LEFT", 4, 0)
     titleFrame.title = title
 
+    -- Close button.
+    local closeButton = CreateFrame("Button", "CGMFrameCloseButton", titleFrame)
+    CUI:ApplyTemplate(closeButton, CUI.templates.HighlightFrameTemplate)
+    CUI:ApplyTemplate(closeButton, CUI.templates.PushableFrameTemplate)
+    CUI:ApplyTemplate(closeButton, CUI.templates.BorderedFrameTemplate)
+    local size = titleFrame:GetHeight() - 1
+    closeButton:SetSize(size, size)
+    local texture = closeButton:CreateTexture(nil, "ARTWORK")
+    texture:SetTexture("Interface/Addons/ClassicGuideMaker/Media/CloseButton")
+    texture:SetAllPoints()
+    closeButton.texture = texture
+    closeButton:SetPoint("TOPRIGHT")
+    closeButton:HookScript("OnClick", CloseButton_OnClick)
+
     -- Step counter.
     local stepCounter = titleFrame:CreateFontString(nil, "BACKGROUND", fontInstance:GetName())
-    stepCounter:SetPoint("RIGHT", -2, 0)
+    stepCounter:SetPoint("RIGHT", -closeButton:GetWidth() - 4, 0)
     titleFrame.stepCounter = stepCounter
     titleFrame.SetStepCount = TitleFrame_SetStepCount
     titleFrame:HookScript("OnMouseDown", TitleFrame_OnMouseDown)

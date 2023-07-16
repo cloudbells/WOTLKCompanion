@@ -54,6 +54,11 @@ local function InitMinimapButton()
     minimapButton:Register("ClassicGuideMaker", LDB, CGMOptions.minimapTable)
 end
 
+-- Poor man's switch.
+local function default()
+    CGM:Message("unknown command.")
+end
+
 -- Initializes slash commands.
 local function InitSlash()
     SLASH_CGM1 = "/CGM"
@@ -64,8 +69,10 @@ local function InitSlash()
             ToggleMinimapButton()
         elseif split[1] == "options" then
             CGM:ToggleOptionsFrame()
+        elseif split[1] == "debug" then
+            CGM:ToggleDebug()
         else
-            CGM:Message("unknown command.")
+            default()
         end
     end
 end
@@ -95,10 +102,6 @@ local function LoadVariables()
     CGMOptions.savedStepIndex = CGMOptions.savedStepIndex or {}
     CGMOptions.isCGMFrameHidden = CGMOptions.isCGMFrameHidden or false
     CGMOptions.isArrowHidden = CGMOptions.isArrowHidden or false
-    CGMOptions.settings = CGMOptions.settings or {}
-    CGMOptions.settings.nbrSteps = CGMOptions.settings.nbrSteps or 4
-    CGMOptions.settings.debug = CGMOptions.settings.debug or false
-    CGMOptions.settings.modifier = CGMOptions.settings.modifier or CGM.Modifiers.SHIFT
 end
 
 -- Called when most game data is available.
@@ -110,13 +113,14 @@ end
 -- Called on ADDON_LOADED.
 function CGM:OnAddonLoaded(addonName)
     if addonName == ADDON_NAME then
+        LoadVariables()
+        CGM:LoadSettings()
         CGM:Debug("debugging is on, you can disable this in /cgm options")
         eventFrame:UnregisterEvent("ADDON_LOADED")
         if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
             CGM:Message("this addon is for classic versions of the game only. It will not work with retail.")
             return
         end
-        LoadVariables()
         -- Initialize stuff.
         CGM:InitFrames()
         InitMinimapButton()
