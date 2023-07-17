@@ -2,6 +2,12 @@ local _, CGM = ...
 
 -- Variables.
 local GetStepIndexFromQuestID = {}
+local ON_UPDATE_INTERVAL = 0.2
+local updateTime = 0
+local flightNode = 0
+local flightName = ""
+local flightStepIndex = 0
+local isFlightDialogOpen = false
 
 -- Localized globals.
 local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives, GetQuestInfo = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest,
@@ -209,6 +215,9 @@ function CGM:IsStepCompleted(index)
                 return false
             end
         end
+    elseif type == CGM.Types.Fly then
+        -- This will manually be marked completed when player has flown.
+        return false
     end
     -- If the player removes an item from bags, this should return false.
     if type ~= CGM.Types.Item or (type == CGM.Types.Item and IsQuestFlaggedCompleted(questID)) then
@@ -265,6 +274,33 @@ function CGM:IsStepAvailable(index)
     -- CGM:Debug(index .. " is available")
     -- No requirements for this step.
     return true
+end
+
+--[[
+    Returns true if we should auto accept quests.
+    Will be true if:
+    * Auto accept is on and modifier key is set to None (auto accept no matter what).
+    * Auto accept is NOT on and modifier key is set to SHIFT/CTRL/ALT and that key IS down (don't auto accept unless modifier key is down).
+    Will be false if:
+    * Auto accept is on and modifier key is set to SHIFT/CTRL/ALT and that key is down (auto accept except if modifier key is down).
+    * Auto accept is NOT on and modifier key is set to None (DON'T auto accept no matter what).
+--]]
+function CGM:ShouldAuto()
+    local mod = CGMOptions.settings.modifier
+    if CGMOptions.settings.autoAccept then
+        if mod == CGM.Modifiers.None then
+            return true
+        else
+            return not CGM:IsModifierDown()
+        end
+    else
+        -- Auto accept only if modifier key is not "None" and is down.
+        if mod == CGM.Modifiers.None then
+            return false
+        else
+            return CGM:IsModifierDown()
+        end
+    end
 end
 
 -- Called on ITEM_UPDATE. Checks if the item that was just added or removed was an item required by the current step.
@@ -402,43 +438,45 @@ end
 
 -- Called on MERCHANT_SHOW (whenever the player visits a vendor). Sells any items in the player's bags that are specified by the guide.
 function CGM:OnMerchantShow()
-    local itemsToSell = CGM.currentGuide.itemsToSell
-    if itemsToSell then
-        for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-            for slot = 1, GetContainerNumSlots(bag) do
-                local slotInfo = GetContainerItemInfo(bag, slot)
-                local itemID
-                if slotInfo then
-                    itemID = slotInfo.itemID
-                end
-                if itemID and itemsToSell[itemID] then
-                    CGM:Message("selling " .. slotInfo.hyperlink .. (slotInfo.stackCount > 1 and "x" .. slotInfo.stackCount .. "." or "."))
-                    UseContainerItem(bag, slot)
-                end
-            end
-        end
-    end
-    local npcID = CGM:UnitID("npc")
-    if npcID == CGM.currentStep.unitID and CGM.currentStep.type == CGM.Types.Buy then
-        for i = 1, GetMerchantNumItems() do
-            local itemID = GetMerchantItemID(i)
-            if CGM.currentStep.items[itemID] then
-                for j = 1, CGM.currentStep.items[itemID] do
-                    local _, itemLink = GetItemInfo(itemID)
-                    CGM:Message("buying " .. (itemLink and itemLink or itemID) .. ".")
-                    BuyMerchantItem(i)
+    if CGM:ShouldAuto() then
+        local itemsToSell = CGM.currentGuide.itemsToSell
+        if itemsToSell then
+            for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+                for slot = 1, GetContainerNumSlots(bag) do
+                    local slotInfo = GetContainerItemInfo(bag, slot)
+                    local itemID
+                    if slotInfo then
+                        itemID = slotInfo.itemID
+                    end
+                    if itemID and itemsToSell[itemID] then
+                        CGM:Message("selling " .. slotInfo.hyperlink .. (slotInfo.stackCount > 1 and "x" .. slotInfo.stackCount .. "." or "."))
+                        UseContainerItem(bag, slot)
+                    end
                 end
             end
         end
-        CGM:MarkStepCompleted(CGM.currentStepIndex, true)
-        CGM:ScrollToNextIncomplete()
+        local npcID = CGM:UnitID("npc")
+        if npcID == CGM.currentStep.unitID and CGM.currentStep.type == CGM.Types.Buy then
+            for i = 1, GetMerchantNumItems() do
+                local itemID = GetMerchantItemID(i)
+                if CGM.currentStep.items[itemID] then
+                    for j = 1, CGM.currentStep.items[itemID] do
+                        local _, itemLink = GetItemInfo(itemID)
+                        CGM:Message("buying " .. (itemLink and itemLink or itemID) .. ".")
+                        BuyMerchantItem(i)
+                    end
+                end
+            end
+            CGM:MarkStepCompleted(CGM.currentStepIndex, true)
+            CGM:ScrollToNextIncomplete()
+        end
     end
 end
 
 -- Called on TRAINER_SHOW (whenever the trainer window shows). Trains any spells specified in the current step, if any.
 function CGM:OnTrainerShow()
     local currentStep = CGM.currentStep
-    if currentStep.type == CGM.Types.Train and currentStep.spells then
+    if CGM:ShouldAuto() and currentStep.type == CGM.Types.Train and currentStep.spells then
         for i = 1, GetNumTrainerServices() do
             local name, rank = GetTrainerServiceInfo(i)
             rank = rank and tonumber(rank:match("(%d+)")) or rank
@@ -451,6 +489,87 @@ function CGM:OnTrainerShow()
         end
         CGM:IsStepCompleted(CGM.currentStepIndex)
     end
+end
+
+-- Called on QUEST_COMPLETE. Fires when the player is able to finally complete a quest (and choose a reward if there is any).
+function CGM:OnGossipShow()
+    CGM:AutoAcceptOnGossipShow()
+    if CGM:ShouldAuto() and CGM.currentStep.type == CGM.Types.Fly then
+        local options = C_GossipInfo.GetOptions()
+        if options and #options > 0 then
+            for i = 1, #options do
+                -- Not ideal Blizz.
+                if options[i].icon == 132057 then
+                    CGM:Debug("flight master detected, opening taxi dialog")
+                    C_GossipInfo.SelectOption(options[i].gossipOptionID)
+                end
+            end
+        end
+    end
+end
+
+-- Hooked into eventFrame.OnUpdate. Checks if we are able to fly or not.
+function CGM:OnUpdate(elapsed, forceRun)
+    updateTime = updateTime + elapsed
+    if forceRun or updateTime > ON_UPDATE_INTERVAL then
+        -- This means the player has manually changed step.
+        if flightStepIndex ~= CGM.currentStepIndex then
+            CGM:Debug("step indeces do not match, did step manually get changed?")
+            CGM.eventFrame:SetScript("OnUpdate", nil)
+            updateTime = 0
+            return
+        end
+        -- First check if we're on a taxi. If we are, we can return. Unhook OnUpdate just to be sure.
+        if UnitOnTaxi("player") then
+            CGM.eventFrame:SetScript("OnUpdate", nil)
+            CGM:Debug("flight to " .. flightName .. " successful, unhooking OnUpdate")
+            CGM:MarkStepCompleted(flightStepIndex, true)
+            CGM:ScrollToNextIncomplete()
+            flightNode = 0
+            flightName = ""
+            flightStepIndex = 0
+        elseif isFlightDialogOpen and flightNode > 0 then
+            TakeTaxiNode(flightNode)
+        end
+        updateTime = 0
+    end
+end
+
+-- Called on TAXIMAP_OPENED. Automatically flies to the node specified by the current step.
+function CGM:OnTaximapOpened()
+    if CGM:ShouldAuto() and CGM.currentStep.type == CGM.Types.Fly then
+        local step = CGM.currentStep
+        for i = 1, NumTaxiNodes() do
+            if step.nodeName:lower() == TaxiNodeName(i):lower() then
+                isFlightDialogOpen = true
+                flightNode = i
+                flightName = TaxiNodeName(i)
+                flightStepIndex = CGM.currentStepIndex
+                CGM:Debug("found taxi node, running OnUpdate")
+                -- Required in order to take a connecting flight. Only has to be called once.
+                TaxiNodeOnButtonEnter(_G["TaxiButton" .. flightNode])
+                -- Hide the tooltip that shows since we technically "hover" over the taxi button.
+                GameTooltip:Hide()
+                CGM:Message("attempting to fly to " .. flightName .. "...")
+                CGM.eventFrame:HookScript("OnUpdate", CGM.OnUpdate)
+                break
+            end
+        end
+    end
+end
+
+-- Called on TAXIMAP_CLOSED.
+function CGM:OnTaximapClosed()
+    isFlightDialogOpen = false
+    CGM:Debug("taximap dialog closed")
+    CGM.eventFrame:SetScript("OnUpdate", nil)
+    -- Call this one last time in case dialog closed before OnUpdate could check if we're on a taxi.
+    C_Timer.After(1, function()
+        -- Means we haven't detected flight yet but since we just stopped OnUpdate...
+        if flightStepIndex == CGM.currentStepIndex and flightNode > 0 then
+            CGM:OnUpdate(0, true)
+        end
+    end)
 end
 
 -- Register a new guide for the addon.
@@ -480,19 +599,13 @@ function CGM:SetGuide(guideName)
         CGMOptions.completedSteps[guideName] = CGMOptions.completedSteps[guideName] or {}
         CGM.currentGuideName = guideName
         CGM.currentGuide = CGM.Guides[guideName]
-        if CGM.currentGuide.itemsToSell then
-            CGM:RegisterWowEvent("MERCHANT_SHOW", CGM.OnMerchantShow)
-        else
-            CGM:UnregisterWowEvent("MERCHANT_SHOW")
-        end
-        if CGM.currentGuide.itemsToDelete then
-            CGM:RegisterWowEvent("BAG_UPDATE", CGM.OnBagUpdate)
-            for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
-                CGM:ScanBag(bag)
-            end
-        else
-            CGM:UnregisterWowEvent("BAG_UPDATE")
-        end
+        -- First unregister from all events, then re-register if guide contains the types later.
+        CGM:UnregisterWowEvent("MERCHANT_SHOW")
+        CGM:UnregisterWowEvent("TRAINER_SHOW")
+        CGM:UnregisterWowEvent("TAXIMAP_OPENED")
+        CGM:UnregisterWowEvent("TAXIMAP_CLOSED")
+        CGM:UnregisterWowEvent("MERCHANT_SHOW")
+        CGM:UnregisterWowEvent("BAG_UPDATE")
         CGM.CGMFrame:SetTitleText(CGM.currentGuideName)
         CGM:UpdateSlider()
         -- Call this because some may have been disabled if previous guide had fewer steps than CGMOptions.settings.nbrSteps (meaning unused frames).
@@ -504,14 +617,26 @@ function CGM:SetGuide(guideName)
         else
             CGM:ScrollToFirstIncomplete()
         end
-        -- Map quest IDs to step indeces so we don't have to iterate all steps to find them.
-        -- Also register for any relevant step-related events here.
+
+        -- Register for any relevant events and map quest IDs to step indeces so we don't have to iterate all steps to find them.
+        if CGM.currentGuide.itemsToSell then
+            CGM:RegisterWowEvent("MERCHANT_SHOW", CGM.OnMerchantShow)
+        end
+        if CGM.currentGuide.itemsToDelete then
+            CGM:RegisterWowEvent("BAG_UPDATE", CGM.OnBagUpdate)
+            for bag = BACKPACK_CONTAINER, NUM_BAG_SLOTS do
+                CGM:ScanBag(bag)
+            end
+        end
         for i = 1, #CGM.currentGuide do
             local type = CGM.currentGuide[i].type
             if type == CGM.Types.Buy then
                 CGM:RegisterWowEvent("MERCHANT_SHOW", CGM.OnMerchantShow)
             elseif type == CGM.Types.Train then
                 CGM:RegisterWowEvent("TRAINER_SHOW", CGM.OnTrainerShow)
+            elseif type == CGM.Types.Fly then
+                CGM:RegisterWowEvent("TAXIMAP_OPENED", CGM.OnTaximapOpened)
+                CGM:RegisterWowEvent("TAXIMAP_CLOSED", CGM.OnTaximapClosed)
             end
             local questID = CGM.currentGuide[i].questID or CGM.currentGuide[i].questIDs
             if questID then

@@ -202,4 +202,20 @@ CGM:RegisterGuide({
         ["x"] = 47.81,
         ["y"] = 39.69,
     },
+    [20] = {
+        ["type"] = CGM.Types.Fly,
+        ["nodeName"] = "Thorium Point, Searing Gorge", -- Has to be exact, including special characters and whitespace. Case doesn't matter.
+        ["text"] = "Fly to Thorium Point",
+        ["mapID"] = 1453,
+        ["x"] = 66.32,
+        ["y"] = 62.21,
+    },
+    [21] = {
+        ["type"] = CGM.Types.Fly,
+        ["nodeName"] = "Stormwind, Elwynn", -- Has to be exact, including special characters and whitespace. Case doesn't matter.
+        ["text"] = "Fly to Stormwind",
+        ["mapID"] = 1453,
+        ["x"] = 66.32,
+        ["y"] = 62.21,
+    },
 })

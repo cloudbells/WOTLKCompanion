@@ -115,6 +115,7 @@ function CUI:CreateConfig(parentFrame, frameName, titleText, closeButtonTexture,
     scrollParent:SetResizable(true)
     scrollParent:SetClampedToScreen(true)
     scrollParent:SetFrameStrata("HIGH")
+    scrollParent:SetPoint("CENTER")
     if not CUI:ApplyTemplate(scrollParent, CUI.templates.BorderedFrameTemplate) then
         return
     end

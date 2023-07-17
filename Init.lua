@@ -107,11 +107,14 @@ local function InitSlash()
     end
 end
 
+-- Initializes enums.
+local function InitEnums()
+    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train", "Fly"})
+    CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "NONE"})
+end
+
 -- Registers for events.
 local function Initialize()
-    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train"})
-    CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "NONE"})
-    CGM.Guides = {}
     GameTooltip:HookScript("OnTooltipSetItem", function()
         local itemLink = select(2, GameTooltip:GetItem())
         if itemLink then
@@ -119,7 +122,10 @@ local function Initialize()
         end
     end) -- temp
     eventFrame = CreateFrame("Frame")
+    CGM.eventFrame = eventFrame
     CGM:RegisterAllEvents(eventFrame)
+    InitEnums()
+    CGM.Guides = {}
 end
 
 -- Loads all saved variables.
