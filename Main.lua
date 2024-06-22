@@ -51,13 +51,12 @@ local function ProcessTags(guide)
                         local itemID = step.items[n]
                         if itemID then
                             local item = Item:CreateFromItemID(itemID)
-                            item:ContinueOnItemLoad(
-                                function()
-                                    local itemName = item:GetItemName()
-                                    if itemName then
-                                        step.text = step.text:gsub("{" .. tag .. "}", itemName)
-                                    end
-                                end)
+                            item:ContinueOnItemLoad(function()
+                                local itemName = item:GetItemName()
+                                if itemName then
+                                    step.text = step.text:gsub("{" .. tag .. "}", itemName)
+                                end
+                            end)
                         end
                     end
                 elseif tagLower == "x" then
@@ -73,9 +72,9 @@ local function ProcessTags(guide)
                 elseif tagLower == "cost" then
                     tagsFound = true
                     local cost = step.cost
-                    step.text = step.text:gsub(
-                                    "{" .. tag .. "}",
-                                    cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
+                    step.text = step.text:gsub("{" .. tag .. "}",
+                                               cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 ..
+                                                   "g")
                 elseif tagLower == "spells" then
                     tagsFound = true
                     if step.spells then
@@ -92,9 +91,8 @@ local function ProcessTags(guide)
         end
     end
     if tagsFound then
-        CGM:Message(
-            "found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
-                "If you did not make this guide then disregard this message.")
+        CGM:Message("found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
+                        "If you did not make this guide then disregard this message.")
     end
 end
 
@@ -567,13 +565,12 @@ function CGM:OnTaximapClosed()
     CGM:Debug("taximap dialog closed")
     CGM.eventFrame:SetScript("OnUpdate", nil)
     -- Call this one last time in case dialog closed before OnUpdate could check if we're on a taxi.
-    C_Timer.After(
-        1, function()
-            -- Means we haven't detected flight yet but since we just stopped OnUpdate...
-            if flightStepIndex == CGM.currentStepIndex and flightNode > 0 then
-                CGM:OnUpdate(0, true)
-            end
-        end)
+    C_Timer.After(1, function()
+        -- Means we haven't detected flight yet but since we just stopped OnUpdate...
+        if flightStepIndex == CGM.currentStepIndex and flightNode > 0 then
+            CGM:OnUpdate(0, true)
+        end
+    end)
 end
 
 -- Register a new guide for the addon.
@@ -589,9 +586,8 @@ function CGM:RegisterGuide(guide)
                 CGM.Guides[guide.name] = guide
             end
         else
-            CGM:Message(
-                guide[1] and "the guide has no name. To help you identify which guide it is, here is the first step description:\n" .. guide[1].text or
-                    "the guide has no name!")
+            CGM:Message(guide[1] and "the guide has no name. To help you identify which guide it is, here is the first step description:\n" ..
+                            guide[1].text or "the guide has no name!")
         end
     else
         CGM:Message("a guide table needs to be provided when registering a guide.")
@@ -660,13 +656,12 @@ function CGM:SetGuide(guideName)
                 end
             end
         end
-        setmetatable(
-            GetStepIndexFromQuestID, {
-                __call = function(self, questID)
-                    return self[questID]
-                end
+        setmetatable(GetStepIndexFromQuestID, {
+            __call = function(self, questID)
+                return self[questID]
+            end
 
-            })
+        })
         -- temp, remove this
         -- CGM:Translate(CGM.currentGuide, CGM.GuideFormats.ClassicLeveler, CGM.GuideFormats.ClassicGuideMaker)
     else

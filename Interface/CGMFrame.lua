@@ -136,10 +136,9 @@ local function InitCGMFrame()
     bodyFrame:SetPoint("BOTTOMRIGHT")
 
     -- Slider.
-    slider = CUI:CreateSlider(
-                 bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture",
-                 "Interface/Addons/ClassicGuideMaker/Media/UpButton", "Interface/Addons/ClassicGuideMaker/Media/DownButton", false,
-                 {Slider_OnValueChanged})
+    slider = CUI:CreateSlider(bodyFrame, "CGMSlider", 1, 1, true, "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture",
+                              "Interface/Addons/ClassicGuideMaker/Media/UpButton", "Interface/Addons/ClassicGuideMaker/Media/DownButton", false,
+                              {Slider_OnValueChanged})
     slider:SetPoint("BOTTOMRIGHT", 0, 18)
     slider:SetPoint("TOPRIGHT", 0, -18)
     bodyFrame.slider = slider

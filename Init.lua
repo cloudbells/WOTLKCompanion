@@ -19,41 +19,39 @@ end
 -- Initializes the minimap button.
 local function InitMinimapButton()
     -- Register for eventual data brokers.
-    local LDB = LibStub("LibDataBroker-1.1"):NewDataObject(
-                    "ClassicGuideMaker", {
-            type = "data source",
-            text = "ClassicGuideMaker",
-            icon = "Interface/Addons/ClassicGuideMaker/Media/MinimapButton",
-            OnClick = function(self, button)
-                if button == "LeftButton" then
-                    if IsShiftKeyDown() then
-                        CGM:ToggleArrow()
-                    elseif IsControlKeyDown() then
-                        CGM:ToggleOptionsFrame()
-                    elseif IsAltKeyDown() then
-                        CGM:ToggleEditFrame()
-                    else
-                        CGM:ToggleCGMFrame()
-                    end
-                elseif button == "RightButton" then
-                    ToggleMinimapButton()
+    local LDB = LibStub("LibDataBroker-1.1"):NewDataObject("ClassicGuideMaker", {
+        type = "data source",
+        text = "ClassicGuideMaker",
+        icon = "Interface/Addons/ClassicGuideMaker/Media/MinimapButton",
+        OnClick = function(self, button)
+            if button == "LeftButton" then
+                if IsShiftKeyDown() then
+                    CGM:ToggleArrow()
+                elseif IsControlKeyDown() then
+                    CGM:ToggleOptionsFrame()
+                elseif IsAltKeyDown() then
+                    CGM:ToggleEditFrame()
+                else
+                    CGM:ToggleCGMFrame()
                 end
-            end,
-            OnEnter = function(self)
-                CGM:ShowGameTooltip(
-                    self, {
-                        "Left click to toggle the main window.",
-                        "Shift-left click to toggle the arrow.",
-                        "Ctrl-left click to open options.",
-                        "Alt-left click to open the guide creation window.",
-                        "Right click to hide this minimap button."
-                    }, "ANCHOR_LEFT")
-            end,
-            OnLeave = function()
-                CGM:HideGameTooltip()
+            elseif button == "RightButton" then
+                ToggleMinimapButton()
             end
+        end,
+        OnEnter = function(self)
+            CGM:ShowGameTooltip(self, {
+                "Left click to toggle the main window.",
+                "Shift-left click to toggle the arrow.",
+                "Ctrl-left click to open options.",
+                "Alt-left click to open the guide creation window.",
+                "Right click to hide this minimap button."
+            }, "ANCHOR_LEFT")
+        end,
+        OnLeave = function()
+            CGM:HideGameTooltip()
+        end
 
-        })
+    })
     -- Create minimap icon.
     minimapButton:Register("ClassicGuideMaker", LDB, CGMOptions.minimapTable)
 end
@@ -95,8 +93,8 @@ local function InitSlash()
         elseif command[1] == "modifier" then
             if command[2] == "shift" or command[2] == "ctrl" or command[2] == "alt" or command[2] == "none" then
                 CGM:SetModifier(CGM.Modifiers[command[2]:upper()])
-                CGMFrame.optionsFrame.modifierDropdown:SetSelectedValue(
-                    CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier, true)
+                CGMFrame.optionsFrame.modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier,
+                                                                        true)
             else
                 CGM:Message("specify a valid modifier (shift/ctrl/alt/none)")
             end
@@ -133,13 +131,12 @@ end
 
 -- Registers for events.
 local function Initialize()
-    GameTooltip:HookScript(
-        "OnTooltipSetItem", function()
-            local itemLink = select(2, GameTooltip:GetItem())
-            if itemLink then
-                GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
-            end
-        end) -- temp
+    GameTooltip:HookScript("OnTooltipSetItem", function()
+        local itemLink = select(2, GameTooltip:GetItem())
+        if itemLink then
+            GameTooltip:AddLine("\nID " .. itemLink:match(":(%d+)"), 1, 1, 1, true)
+        end
+    end) -- temp
     eventFrame = CreateFrame("Frame")
     CGM.eventFrame = eventFrame
     CGM:RegisterAllEvents(eventFrame)
@@ -183,10 +180,9 @@ function CGM:OnAddonLoaded(addonName)
         InitDebugStuff()
         CGM:InitTranslator()
         CGM:Message("addon loaded! Type /CGM help for some commands.")
-        CGM:Debug(
-            "game version is " ..
-                (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or
-                    WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))
+        CGM:Debug("game version is " ..
+                      (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "Classic" or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and "TBC" or
+                          WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and "WOTLK"))
     end
 end
 

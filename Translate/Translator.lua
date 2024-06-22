@@ -20,10 +20,9 @@ end
 function CGM:InitTranslator()
     CGM:InitFromClassicLeveler()
     translateFrom = {[CGM.GuideFormats.ClassicLeveler] = CGM.From_ClassicLeveler}
-    setmetatable(
-        translateFrom, {
-            __call = function(self, fromGuide, fromFormat, toFormat)
-                return self[fromFormat](CGM, fromGuide, toFormat)
-            end
-        })
+    setmetatable(translateFrom, {
+        __call = function(self, fromGuide, fromFormat, toFormat)
+            return self[fromFormat](CGM, fromGuide, toFormat)
+        end
+    })
 end

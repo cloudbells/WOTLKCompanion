@@ -10,10 +10,9 @@ end
 -- Initializes this.
 function CGM:InitFromClassicLeveler()
     translateTo = {[CGM.GuideFormats.ClassicGuideMaker] = CGM.ClassicLeveler_ClassicGuideMaker}
-    setmetatable(
-        translateTo, {
-            __call = function(self, fromGuide, toFormat)
-                return self[toFormat](CGM, fromGuide)
-            end
-        })
+    setmetatable(translateTo, {
+        __call = function(self, fromGuide, toFormat)
+            return self[toFormat](CGM, fromGuide)
+        end
+    })
 end
