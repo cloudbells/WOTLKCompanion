@@ -1,3 +1,4 @@
+-- LuaFormatter off
 local _, CGM = ...
 
 -- if any of x, y, or mapID are provided, they must all be provided
@@ -219,3 +220,4 @@ CGM:RegisterGuide({
         ["y"] = 62.21
     }
 })
+-- LuaFormatter on
