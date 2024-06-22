@@ -51,12 +51,13 @@ local function ProcessTags(guide)
                         local itemID = step.items[n]
                         if itemID then
                             local item = Item:CreateFromItemID(itemID)
-                            item:ContinueOnItemLoad(function()
-                                local itemName = item:GetItemName()
-                                if itemName then
-                                    step.text = step.text:gsub("{" .. tag .. "}", itemName)
-                                end
-                            end)
+                            item:ContinueOnItemLoad(
+                                function()
+                                    local itemName = item:GetItemName()
+                                    if itemName then
+                                        step.text = step.text:gsub("{" .. tag .. "}", itemName)
+                                    end
+                                end)
                         end
                     end
                 elseif tagLower == "x" then
@@ -72,8 +73,9 @@ local function ProcessTags(guide)
                 elseif tagLower == "cost" then
                     tagsFound = true
                     local cost = step.cost
-                    step.text = step.text:gsub("{" .. tag .. "}",
-                                               cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
+                    step.text = step.text:gsub(
+                                    "{" .. tag .. "}",
+                                    cost < 100 and cost .. "c" or (cost >= 100 and cost < 10000 and cost / 100 .. "s") or cost / 10000 .. "g")
                 elseif tagLower == "spells" then
                     tagsFound = true
                     if step.spells then
@@ -90,8 +92,9 @@ local function ProcessTags(guide)
         end
     end
     if tagsFound then
-        CGM:Message("found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
-                        "If you did not make this guide then disregard this message.")
+        CGM:Message(
+            "found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
+                "If you did not make this guide then disregard this message.")
     end
 end
 
@@ -512,7 +515,7 @@ end
 function CGM:OnUpdate(elapsed, forceRun)
     updateTime = updateTime + elapsed
     if forceRun or updateTime > ON_UPDATE_INTERVAL then
-        -- This means the player has manually changed step.
+        -- This likely means the player has manually changed step.
         if flightStepIndex ~= CGM.currentStepIndex then
             CGM:Debug("step indeces do not match, did step manually get changed?")
             CGM.eventFrame:SetScript("OnUpdate", nil)
@@ -522,7 +525,7 @@ function CGM:OnUpdate(elapsed, forceRun)
         -- First check if we're on a taxi. If we are, we can return. Unhook OnUpdate just to be sure.
         if UnitOnTaxi("player") then
             CGM.eventFrame:SetScript("OnUpdate", nil)
-            CGM:Debug("flight to " .. flightName .. " successful, unhooking OnUpdate")
+            CGM:Debug("flight to " .. flightName .. " probably successful, unhooking OnUpdate")
             CGM:MarkStepCompleted(flightStepIndex, true)
             CGM:ScrollToNextIncomplete()
             flightNode = 0
@@ -564,28 +567,34 @@ function CGM:OnTaximapClosed()
     CGM:Debug("taximap dialog closed")
     CGM.eventFrame:SetScript("OnUpdate", nil)
     -- Call this one last time in case dialog closed before OnUpdate could check if we're on a taxi.
-    C_Timer.After(1, function()
-        -- Means we haven't detected flight yet but since we just stopped OnUpdate...
-        if flightStepIndex == CGM.currentStepIndex and flightNode > 0 then
-            CGM:OnUpdate(0, true)
-        end
-    end)
+    C_Timer.After(
+        1, function()
+            -- Means we haven't detected flight yet but since we just stopped OnUpdate...
+            if flightStepIndex == CGM.currentStepIndex and flightNode > 0 then
+                CGM:OnUpdate(0, true)
+            end
+        end)
 end
 
 -- Register a new guide for the addon.
 function CGM:RegisterGuide(guide)
     -- TODO: This function should check each step to make sure it has legal fields (i.e. there cant be any multistep Deliver steps etc)
-    if guide.name then
-        -- Default to first registered.
-        CGM.defaultGuide = CGM.defaultGuide or guide.name
-        if CGM.Guides[guide.name] then
-            CGM:Message("guide with name " .. guide.name .. " is already registered - name must be unique.")
+    if guide then
+        if guide.name then
+            -- Default to first registered.
+            CGM.defaultGuide = CGM.defaultGuide or guide.name
+            if CGM.Guides[guide.name] then
+                CGM:Message("guide with name " .. guide.name .. " is already registered - name must be unique.")
+            else
+                CGM.Guides[guide.name] = guide
+            end
         else
-            CGM.Guides[guide.name] = guide
+            CGM:Message(
+                guide[1] and "the guide has no name. To help you identify which guide it is, here is the first step description:\n" .. guide[1].text or
+                    "the guide has no name!")
         end
     else
-        CGM:Message(guide[1] and "the guide has no name. To help you identify which guide it is, here is the first step description:\n" .. guide[1].text or
-                        "the guide has no name!")
+        CGM:Message("a guide table needs to be provided when registering a guide.")
     end
 end
 
@@ -651,12 +660,17 @@ function CGM:SetGuide(guideName)
                 end
             end
         end
-        setmetatable(GetStepIndexFromQuestID, {
-            __call = function(self, questID)
-                return self[questID]
-            end,
-        })
+        setmetatable(
+            GetStepIndexFromQuestID, {
+                __call = function(self, questID)
+                    return self[questID]
+                end
+
+            })
+        -- temp, remove this
+        -- CGM:Translate(CGM.currentGuide, CGM.GuideFormats.ClassicLeveler, CGM.GuideFormats.ClassicGuideMaker)
     else
         CGM:Debug(guideName .. " hasn't been registered yet - can't set the guide")
     end
 end
+

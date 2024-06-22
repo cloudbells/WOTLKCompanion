@@ -106,7 +106,7 @@ function CGM:ScanBag(bag)
                         quality = slotInfo.quality,
                         itemLink = slotInfo.hyperlink,
                         itemID = itemID,
-                        itemGUID = itemGUID,
+                        itemGUID = itemGUID
                     }
                     DeleteQueue:Enqueue(item)
                 end

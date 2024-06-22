@@ -27,8 +27,10 @@ function CGM:ToggleDebug()
     CGMOptions.settings.debug = not CGMOptions.settings.debug
     if CGMOptions.settings.debug then
         CGM:Debug("debug mode is ON")
+        CGM.debugQuestFrameIDLbl:Show()
     else
         CGM:Message("debug mod is OFF.")
+        CGM.debugQuestFrameIDLbl:Hide()
     end
 end
 
@@ -39,3 +41,4 @@ function CGM:LoadSettings()
     CGMOptions.settings.debug = CGMOptions.settings.debug or false
     CGMOptions.settings.modifier = CGMOptions.settings.modifier or CGM.Modifiers.SHIFT
 end
+

@@ -1,7 +1,7 @@
 local _, CGM = ...
 
 -- Called on QUEST_ACCEPT_CONFIRM. Fires when an escort quest is started nearby.
-function CGM.OnQuestAcceptConfirm(_, questTitle)
+function CGM:OnQuestAcceptConfirm(_, questTitle)
     -- if C_QuestLog.GetQuestInfo(CGM.currentStep.questID) == questTitle then
     -- Auto accept always for safety. If you don't want the quest after, just abandon it.
     ConfirmAcceptQuest()
@@ -10,17 +10,12 @@ end
 
 -- Called on QUEST_DETAIL. Fires when you're able to accept or decline a quest from an NPC.
 function CGM:OnQuestDetail(...)
-    -- temp
-    if QuestFrame:IsVisible() then
-        if not QuestFrameDetailPanel.questIDLbl then
-            QuestFrameDetailPanel.questIDLbl = QuestFrameDetailPanel:CreateFontString("CGM_Temporary_FontString", "OVERLAY", "GameTooltipText")
-            QuestFrameDetailPanel.questIDLbl:SetPoint("TOP", 0, -50)
-        end
-        QuestFrameDetailPanel.questIDLbl:SetText("Quest ID: " .. GetQuestID())
-    end
-    -- end of temp
     if CGM:ShouldAuto() and CGM.currentStep.type == CGM.Types.Accept and CGM.currentStep.questID == GetQuestID() then
         AcceptQuest()
+    end
+    if CGMOptions.settings.debug then
+        CGM.debugQuestFrameIDLbl:SetText("Quest ID: " .. GetQuestID())
+        CGM.debugQuestFrameIDLbl:Show()
     end
 end
 
@@ -107,3 +102,4 @@ function CGM:OnQuestGreeting(...)
         end
     end
 end
+

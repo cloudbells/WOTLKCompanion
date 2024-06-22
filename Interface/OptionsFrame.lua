@@ -32,9 +32,10 @@ function CGM:InitOptionsFrame()
     CUI = LibStub("CloudUI-1.0")
 
     -- Main frame.
-    optionsFrame = CUI:CreateConfig(UIParent, "CGMOptionsFrame", "ClassicGuideMaker Options", "Interface/Addons/ClassicGuideMaker/Media/CloseButton", 1, 10,
-                                    "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
-                                    "Interface/Addons/ClassicGuideMaker/Media/DownButton")
+    optionsFrame = CUI:CreateConfig(
+                       UIParent, "CGMOptionsFrame", "ClassicGuideMaker Options", "Interface/Addons/ClassicGuideMaker/Media/CloseButton", 1, 10,
+                       "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", "Interface/Addons/ClassicGuideMaker/Media/UpButton",
+                       "Interface/Addons/ClassicGuideMaker/Media/DownButton")
 
     local widgets = {}
 
@@ -51,8 +52,9 @@ function CGM:InitOptionsFrame()
     CGM.guideDropdown = guideDropdown
 
     -- Number of steps.
-    nbrStepsSlider = CUI:CreateSlider(optionsFrame.widgetFrame, "CGMNbrStepsSlider", 1, CGM.MAX_STEPS, true,
-                                      "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", nil, nil, true, {NbrStepsSlider_OnValueChanged})
+    nbrStepsSlider = CUI:CreateSlider(
+                         optionsFrame.widgetFrame, "CGMNbrStepsSlider", 1, CGM.MAX_STEPS, true,
+                         "Interface/Addons/ClassicGuideMaker/Media/ThumbTexture", nil, nil, true, {NbrStepsSlider_OnValueChanged})
     nbrStepsSlider:SetValue(CGMOptions.settings.nbrSteps)
     nbrStepsSlider:SetHeight(20)
     nbrStepsSlider.helpString = "How many steps to show at once."
@@ -61,8 +63,8 @@ function CGM:InitOptionsFrame()
     widgets[#widgets + 1] = nbrStepsSlider
 
     -- Auto accept modifier.
-    local modifierDropdown = CUI:CreateDropdown(optionsFrame.widgetFrame, "CGMModifierDropdown", {CGM.SetModifier}, {1, 2, 3, 4},
-                                                {"SHIFT", "CTRL", "ALT", "NONE"})
+    local modifierDropdown = CUI:CreateDropdown(
+                                 optionsFrame.widgetFrame, "CGMModifierDropdown", {CGM.SetModifier}, {1, 2, 3, 4}, {"SHIFT", "CTRL", "ALT", "NONE"})
     modifierDropdown:SetWidth(168)
     modifierDropdown:SetSelectedValue(CGM.Modifiers[CGMOptions.settings.modifier], CGMOptions.settings.modifier)
     modifierDropdown.helpString =
@@ -72,8 +74,9 @@ function CGM:InitOptionsFrame()
     widgets[#widgets + 1] = modifierDropdown
 
     -- Auto accept default or not.
-    local autoAcceptButton = CUI:CreateCheckButton(optionsFrame.widgetFrame, "CGMDebugCheckButton", {CGM.ToggleAuto},
-                                                   "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
+    local autoAcceptButton = CUI:CreateCheckButton(
+                                 optionsFrame.widgetFrame, "CGMDebugCheckButton", {CGM.ToggleAuto},
+                                 "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
     autoAcceptButton:SetSize(20, 20)
     autoAcceptButton:SetChecked(CGMOptions.settings.autoAccept)
     autoAcceptButton.helpString = "Enable/disable auto accepting/handing in quests in the current step."
@@ -81,8 +84,8 @@ function CGM:InitOptionsFrame()
     widgets[#widgets + 1] = autoAcceptButton
 
     -- Show debug messages.
-    local debugButton = CUI:CreateCheckButton(optionsFrame.widgetFrame, "CGMDebugCheckButton", {CGM.ToggleDebug},
-                                              "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
+    local debugButton = CUI:CreateCheckButton(
+                            optionsFrame.widgetFrame, "CGMDebugCheckButton", {CGM.ToggleDebug}, "Interface/Addons/ClassicGuideMaker/Media/CheckMark")
     debugButton:SetSize(20, 20)
     debugButton:SetChecked(CGMOptions.settings.debug)
     debugButton.helpString = "Enable/disable debug messages."

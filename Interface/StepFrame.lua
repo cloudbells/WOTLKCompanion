@@ -164,8 +164,9 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                             local itemName = GetItemInfo(itemID)
                             if itemName then
                                 local itemCount = GetItemCount(itemID)
-                                itemText = itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" ..
-                                               requiredItemCount .. "\n"
+                                itemText =
+                                    itemText .. itemName .. ": " .. (itemCount > requiredItemCount and requiredItemCount or itemCount) .. "/" ..
+                                        requiredItemCount .. "\n"
                             end
                         end
                         text = #itemText > 0 and itemText or text
