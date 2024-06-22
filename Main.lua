@@ -124,6 +124,7 @@ function CGM:SetCurrentStep(index, shouldScroll)
         end
         CGM.CGMFrame:SetStepCounterText(index .. "/" .. #CGM.currentGuide)
         CGM:Debug("set step to " .. index)
+        CGM:AutoAcceptOnGossipShow()
     end
 end
 
