@@ -8,12 +8,13 @@ local flightNode = 0
 local flightName = ""
 local flightStepIndex = 0
 local isFlightDialogOpen = false
+local timer
 
 -- Localized globals.
 local IsQuestFlaggedCompleted, IsOnQuest, GetQuestObjectives, GetQuestInfo = C_QuestLog.IsQuestFlaggedCompleted, C_QuestLog.IsOnQuest,
                                                                              C_QuestLog.GetQuestObjectives, C_QuestLog.GetQuestInfo
 local UnitXP, UnitLevel = UnitXP, UnitLevel
-local GetItemCount, GetItemInfo = GetItemCount, GetItemInfo
+local GetItemCount, GetItemInfo = GetItemCount, C_Item.GetItemInfo
 local GetContainerNumSlots, GetContainerItemInfo, UseContainerItem = C_Container.GetContainerNumSlots, C_Container.GetContainerItemInfo,
                                                                      C_Container.UseContainerItem
 
@@ -93,6 +94,51 @@ local function ProcessTags(guide)
     if tagsFound then
         CGM:Message("found tags in " .. guide.name .. ". Tags are unreliable and thus deprecated - consider using the built-in guide maker. " ..
                         "If you did not make this guide then disregard this message.")
+    end
+end
+
+-- Attemps to buy items specified by the current step.
+local function BuyFromMerchant()
+    local currentStep = CGM.currentStep
+
+    if currentStep.cost and GetMoney() < currentStep.cost then
+        CGM:Message("Cannot buy specified item(s), not enough money")
+        return
+    end
+
+    -- Assume player can afford it.
+    local currentStep = CGM.currentStep
+    for i = 1, GetMerchantNumItems() do
+        local itemID = GetMerchantItemID(i)
+        if currentStep.items[itemID] then
+            -- [itemID] = quantity
+            for _, quantity in pairs(currentStep.items) do
+                local _, itemLink = GetItemInfo(itemID)
+                CGM:Message("buying " .. (itemLink and itemLink or itemID) .. (quantity and "x" .. quantity) .. ".")
+                if currentStep.exploit then
+                    local _, _, itemPrice, itemQuantity = GetMerchantItemInfo(i)
+                    -- If the price per quantityToBuy is <= 0.5, the game simply gives it to you for free.
+                    local quantityToBuy = 0.5 / (itemPrice / itemQuantity)
+                    if quantityToBuy < 1 then
+                        CGM:Message("Could not exploit-buy, not buying")
+                        return
+                    end
+                    local bought = 0
+                    -- This delay seems to be the sweetspot.
+                    timer = C_Timer.NewTicker(0.11, function()
+                        if bought >= quantity then
+                            CGM:Fire("BUY_DONE")
+                            return
+                        end
+                        BuyMerchantItem(i, quantityToBuy)
+                        bought = bought + quantityToBuy
+                    end)
+                else
+                    BuyMerchantItem(i, quantity)
+                    CGM:Fire("BUY_DONE")
+                end
+            end
+        end
     end
 end
 
@@ -220,6 +266,9 @@ function CGM:IsStepCompleted(index)
     elseif type == CGM.Types.Fly then
         -- This will manually be marked completed when player has flown.
         return false
+    elseif type == CGM.Types.Inn then
+        -- This will manually be marked completed
+        return false
     end
     -- If the player removes an item from bags, this should return false.
     if type ~= CGM.Types.Item or (type == CGM.Types.Item and IsQuestFlaggedCompleted(questID)) then
@@ -305,6 +354,16 @@ function CGM:ShouldAuto()
     end
 end
 
+-- Called when buying is done.
+function CGM:OnBuyDone()
+    if timer and not timer:IsCancelled() then
+        timer:Cancel()
+    end
+    -- @TODO: this should only mark it complete if it actually buys everything
+    CGM:MarkStepCompleted(CGM.currentStepIndex, true)
+    CGM:ScrollToNextIncomplete()
+end
+
 -- Called on ITEM_UPDATE. Checks if the item that was just added or removed was an item required by the current step.
 function CGM:OnItemUpdate()
     if CGM.currentStep.type == CGM.Types.Item and CGM:IsStepCompleted(CGM.currentStepIndex) then
@@ -327,6 +386,14 @@ function CGM:OnItemUpdate()
     end
 end
 
+-- Called when a bag's inventory is changed.
+function CGM:OnBagUpdate(bag)
+    if bag >= BACKPACK_CONTAINER then
+        CGM:ScanBag(bag)
+        CGM:Fire("ITEM_UPDATE")
+    end
+end
+
 -- Called on QUEST_ACCEPTED (when the player has accepted a quest).
 function CGM:OnQuestAccepted(_, questID)
     CGM:Debug("quest accepted: " .. GetQuestInfo(questID) .. " (id: " .. questID .. ")")
@@ -338,12 +405,13 @@ function CGM:OnQuestAccepted(_, questID)
     else
         if CGM:IsStepAvailable(CGM.currentStepIndex) then
             CGM:UpdateStepFrames()
+
         else
             -- If the current step gets locked because the player picked up another quest, should scroll to next.
             CGM:ScrollToNextIncomplete()
+
         end
     end
-    CGM:UpdateStepFrames()
 end
 
 -- Called on QUEST_TURNED_IN (when the player has handed in a quest).
@@ -394,8 +462,10 @@ function CGM:OnQuestRemoved(questID)
         if not CGM:IsStepAvailable(CGM.currentStepIndex) then
             -- Calls UpdateStepFrames.
             CGM:ScrollToNextIncomplete()
+
         else
             CGM:UpdateStepFrames()
+
         end
     end
 end
@@ -409,9 +479,11 @@ function CGM:OnUnitQuestLogChanged(unit)
         if currentStep.type == CGM.Types.Do then
             if CGM:IsStepCompleted(CGM.currentStepIndex) then
                 CGM:ScrollToNextIncomplete() -- Calls UpdateStepFrames.
+
             else
                 -- Updates the objective text on the step frame. Gets called for a second time here if picking up a quest while on "Do" step, but that's fine.
                 CGM:UpdateStepFrames()
+
             end
         end
     end
@@ -426,13 +498,13 @@ function CGM:OnPlayerXPUpdate()
         end
     else
         CGM:UpdateStepFrames()
+
     end
 end
 
 -- Called on COORDINATES_REACHED (when the player has reached the current step coordinates).
 function CGM:OnCoordinatesReached()
-    local currentStep = CGM.currentStep
-    if currentStep.type == CGM.Types.Coordinate then
+    if CGM.currentStep.type == CGM.Types.Coordinate then
         CGM:MarkStepCompleted(CGM.currentStepIndex, true)
         CGM:ScrollToNextIncomplete()
     end
@@ -459,37 +531,39 @@ function CGM:OnMerchantShow()
         end
         local npcID = CGM:UnitID("npc")
         if npcID == CGM.currentStep.unitID and CGM.currentStep.type == CGM.Types.Buy then
-            for i = 1, GetMerchantNumItems() do
-                local itemID = GetMerchantItemID(i)
-                if CGM.currentStep.items[itemID] then
-                    for j = 1, CGM.currentStep.items[itemID] do
-                        local _, itemLink = GetItemInfo(itemID)
-                        CGM:Message("buying " .. (itemLink and itemLink or itemID) .. ".")
-                        BuyMerchantItem(i)
-                    end
-                end
-            end
-            CGM:MarkStepCompleted(CGM.currentStepIndex, true)
-            CGM:ScrollToNextIncomplete()
+            BuyFromMerchant()
         end
     end
+end
+
+-- Called on MERCHANT_UPDATE (whenever an item is sold or purchased).
+function CGM:OnMerchantUpdate()
+    -- @TODO: this should check if we sold and if we can now afford the item
+    -- local currentStep = CGM.currentStep
+    -- if currentStep.type == CGM.Types.Buy then
+    -- BuyFromMerchant()
+    -- end
 end
 
 -- Called on TRAINER_SHOW (whenever the trainer window shows). Trains any spells specified in the current step, if any.
 function CGM:OnTrainerShow()
     local currentStep = CGM.currentStep
     if CGM:ShouldAuto() and currentStep.type == CGM.Types.Train and currentStep.spells then
-        for i = 1, GetNumTrainerServices() do
-            local name, rank = GetTrainerServiceInfo(i)
-            rank = rank and tonumber(rank:match("(%d+)")) or rank
-            for _, info in pairs(currentStep.spells) do
-                if info.name == name and info.rank == rank then
+        for _, info in pairs(currentStep.spells) do
+            for i = 1, GetNumTrainerServices() do
+                local name, rank = GetTrainerServiceInfo(i)
+                rank = rank and tonumber(rank:match("(%d+)")) or rank
+                if info.name == name and (info.rank == rank or rank == nil or rank == "") then
+                    CGM:Message("Training " .. name)
                     BuyTrainerService(i)
                     break
                 end
             end
         end
-        CGM:IsStepCompleted(CGM.currentStepIndex)
+        -- There is a delay between game returning true for spells being known.
+        C_Timer.After(0.5, function()
+            CGM:IsStepCompleted(CGM.currentStepIndex)
+        end)
     end
 end
 
@@ -502,8 +576,34 @@ function CGM:OnGossipShow()
             for i = 1, #options do
                 -- Not ideal Blizz.
                 if options[i].icon == 132057 then
-                    CGM:Debug("flight master detected, opening taxi dialog")
+                    CGM:Debug("flight master detected, opening dialog")
                     C_GossipInfo.SelectOption(options[i].gossipOptionID)
+                end
+            end
+        end
+    elseif CGM:ShouldAuto() and CGM.currentStep.type == CGM.Types.Train then
+        local options = C_GossipInfo.GetOptions()
+        if options and #options > 0 then
+            for i = 1, #options do
+                if options[i].icon == 132058 then
+                    CGM:Debug("trainer detected, opening dialog")
+                    C_GossipInfo.SelectOption(options[i].gossipOptionID)
+                end
+            end
+        end
+    elseif CGM:ShouldAuto() and CGM.currentStep.type == CGM.Types.Inn then
+        local options = C_GossipInfo.GetOptions()
+        if options and #options > 0 then
+            for i = 1, #options do
+                if options[i].icon == 132052 then
+                    CGM:Debug("innkeeper detected, opening dialog")
+                    C_GossipInfo.SelectOption(options[i].gossipOptionID)
+                    CGM:Message("Setting HS")
+                    C_Timer.After(0.25, function()
+                        C_PlayerInteractionManager.ConfirmationInteraction(Enum.PlayerInteractionType.Binder)
+                        C_PlayerInteractionManager.ClearInteraction(Enum.PlayerInteractionType.Binder)
+                        CGM:MarkStepCompleted(CGM.currentStepIndex, true)
+                    end)
                 end
             end
         end
@@ -607,6 +707,7 @@ function CGM:SetGuide(guideName)
         CGM.currentGuide = CGM.Guides[guideName]
         -- First unregister from all events, then re-register if guide contains the types later.
         CGM:UnregisterWowEvent("MERCHANT_SHOW")
+        CGM:UnregisterWowEvent("MERCHANT_UPDATE")
         CGM:UnregisterWowEvent("TRAINER_SHOW")
         CGM:UnregisterWowEvent("TAXIMAP_OPENED")
         CGM:UnregisterWowEvent("TAXIMAP_CLOSED")
@@ -638,11 +739,14 @@ function CGM:SetGuide(guideName)
             local type = CGM.currentGuide[i].type
             if type == CGM.Types.Buy then
                 CGM:RegisterWowEvent("MERCHANT_SHOW", CGM.OnMerchantShow)
+                CGM:RegisterWowEvent("MERCHANT_UPDATE", CGM.OnMerchantUpdate)
             elseif type == CGM.Types.Train then
                 CGM:RegisterWowEvent("TRAINER_SHOW", CGM.OnTrainerShow)
             elseif type == CGM.Types.Fly then
                 CGM:RegisterWowEvent("TAXIMAP_OPENED", CGM.OnTaximapOpened)
                 CGM:RegisterWowEvent("TAXIMAP_CLOSED", CGM.OnTaximapClosed)
+            elseif type == CGM.Types.Item then
+                CGM:RegisterWowEvent("BAG_UPDATE", CGM.OnBagUpdate)
             end
             local questID = CGM.currentGuide[i].questID or CGM.currentGuide[i].questIDs
             if questID then

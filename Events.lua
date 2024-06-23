@@ -16,7 +16,7 @@ function CGM:RegisterAllEvents(_eventFrame)
     if not hasRegistered then
         eventFrame = _eventFrame
         eventFrame:SetScript("OnEvent", CGM.OnEvent)
-        events = {CGM_COORDINATES_REACHED = CGM.OnCoordinatesReached, ITEM_UPDATE = CGM.OnItemUpdate}
+        events = {CGM_COORDINATES_REACHED = CGM.OnCoordinatesReached, ITEM_UPDATE = CGM.OnItemUpdate, BUY_DONE = CGM.OnBuyDone}
         wowEvents = {
             ADDON_LOADED = CGM.OnAddonLoaded,
             PLAYER_ENTERING_WORLD = CGM.OnPlayerEnteringWorld,

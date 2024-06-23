@@ -218,6 +218,33 @@ CGM:RegisterGuide({
         ["mapID"] = 1453,
         ["x"] = 66.32,
         ["y"] = 62.21
+    },
+    [22] = {
+        ["type"] = CGM.Types.Buy,
+        ["cost"] = 20, -- Total cost (Automatic buying will be skipped if player money < this)
+        ["items"] = {
+            [2512] = 2 -- Rough Arrow
+        },
+        ["mapID"] = 1453,
+        ["x"] = 66.32,
+        ["y"] = 62.21
+    },
+    [23] = {
+        ["type"] = CGM.Types.Train,
+        ["cost"] = 200,
+        ["spells"] = {
+            [1978] = {
+                ["name"] = "Serpent Sting",
+                ["rank"] = 1
+            },
+            [13163] = {
+                ["name"] = "Aspect of the Monkey",
+                ["rank"] = 1
+            },
+        },
+        ["mapID"] = 1453,
+        ["x"] = 66.32,
+        ["y"] = 62.21
     }
 })
 -- LuaFormatter on

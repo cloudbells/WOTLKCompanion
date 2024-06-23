@@ -112,7 +112,7 @@ end
 
 -- Initializes enums.
 local function InitEnums()
-    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train", "Fly"})
+    CGM.Types = CGM:Enum({"Accept", "Do", "Item", "Deliver", "Bank", "MailGet", "Buy", "Grind", "Coordinate", "Train", "Fly", "Inn"})
     CGM.Modifiers = CGM:Enum({"SHIFT", "CTRL", "ALT", "NONE"})
     CGM.GuideFormats = CGM:Enum({"ClassicGuideMaker", "ClassicLeveler", "RestedXP"}) -- temp, update with new
 end
@@ -160,6 +160,7 @@ end
 function CGM:OnPlayerEnteringWorld()
     eventFrame:UnregisterEvent("PLAYER_ENTERING_WORLD")
     CGM:SetGuide(CGMOptions.settings.currentGuide or CGM.defaultGuide)
+    CGM:ResizeStepFrames()
 end
 
 -- Called on ADDON_LOADED.

@@ -8,7 +8,7 @@ local isLoaded = false
 
 -- Localized globals.
 local IsOnQuest, GetQuestObjectives = C_QuestLog.IsOnQuest, C_QuestLog.GetQuestObjectives
-local GetItemInfo, GetItemCount = GetItemInfo, GetItemCount
+local GetItemInfo, GetItemCount = C_Item.GetItemInfo, GetItemCount
 
 -- Constants.
 local STEP_TEXT_MARGIN = 48
@@ -19,7 +19,7 @@ local function StepFrame_ResizeText(self, width)
 end
 
 -- Updates this current step.
-local function StepFrame_UpdateStep(self, index, text, isAvailable, isCompleted, isActive)
+local function StepFrame_UpdateStep(self, index, text, isAvailable, isCompleted, isActive, itemLink)
     self.text:SetText(text)
     self.index = index
     self.stepNbr:SetText(index)
@@ -32,6 +32,10 @@ local function StepFrame_UpdateStep(self, index, text, isAvailable, isCompleted,
     else
         self:ResetBackgroundColor()
     end
+    if itemLink then
+        self.itemButton:SetAttribute("item", itemLink)
+    end
+    self.itemButton:SetLink(itemLink, true, true)
 end
 
 -- Clears the step.
@@ -97,10 +101,18 @@ local function GetStepFrame()
     topBorder:SetPoint("BOTTOMLEFT", frame, "TOPLEFT", -1, 0)
     topBorder:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", 1, 0)
     frame.topBorder = topBorder
+    -- Item button.
+    local itemButton = CUI:CreateLinkButton(frame, "CGMStepFrameItemButton" .. #framePool + 1, "SecureActionButtonTemplate", {})
+    itemButton:SetAttribute("type1", "item")
+    itemButton:SetPoint("RIGHT", frame, "RIGHT", -(frame:GetHeight() - itemButton:GetHeight()) / 2, 0)
+    itemButton:Hide() -- temp, uncomment
+    frame.itemButton = itemButton
+    -- Functions.
     frame.ResizeText = StepFrame_ResizeText
     frame.UpdateStep = StepFrame_UpdateStep
     frame.Clear = StepFrame_Clear
     frame:HookScript("OnClick", StepFrame_OnClick)
+    frame.shouldChangeText = true
     frame:HookScript("OnEnter", StepFrame_OnEnter)
     frame:HookScript("OnLeave", StepFrame_OnLeave)
     frame.Lock = function(self)
@@ -126,39 +138,50 @@ function CGM:UpdateStepFrames(stepFrameIndex)
         local index
         local currentStep
         for i = stepFrameIndex or 1, stepFrameIndex or #stepFrames do
+            local itemLink = nil
             index = currentValue + i - 1
             currentStep = CGM.currentGuide[index]
             if currentStep then
                 text = currentStep.text
                 local type = currentStep.type
                 if CGM.currentStepIndex == index and not CGM:IsStepCompleted(index) then
-                    if type == CGM.Types.Do and stepFrames[i].shouldChangeText then
-                        local objText = ""
-                        if currentStep.isMultiStep then
-                            for j = 1, #currentStep.questIDs do
-                                if IsOnQuest(currentStep.questIDs[j]) then
-                                    local objectives = GetQuestObjectives(currentStep.questIDs[j])
-                                    if objectives then
-                                        for k = 1, #objectives do
-                                            if objectives[k].text then
-                                                objText = objText .. objectives[k].text .. "\n"
+                    if type == CGM.Types.Do then
+                        if currentStep.items then
+                            -- @TODO: for now just grab first item, need to support multiple items
+                            for itemID in pairs(currentStep.items) do
+                                local _, link = GetItemInfo(itemID)
+                                itemLink = link
+                                -- break
+                            end
+                        end
+                        if stepFrames[i].shouldChangeText then
+                            local objText = ""
+                            if currentStep.isMultiStep then
+                                for j = 1, #currentStep.questIDs do
+                                    if IsOnQuest(currentStep.questIDs[j]) then
+                                        local objectives = GetQuestObjectives(currentStep.questIDs[j])
+                                        if objectives then
+                                            for k = 1, #objectives do
+                                                if objectives[k].text then
+                                                    objText = objText .. objectives[k].text .. "\n"
+                                                end
                                             end
                                         end
                                     end
                                 end
-                            end
-                        elseif IsOnQuest(currentStep.questID) then
-                            local objectives = GetQuestObjectives(currentStep.questID)
-                            if objectives then
-                                for j = 1, #objectives do
-                                    if objectives[j].text then
-                                        objText = objText .. objectives[j].text .. "\n"
+                            elseif IsOnQuest(currentStep.questID) then
+                                local objectives = GetQuestObjectives(currentStep.questID)
+                                if objectives then
+                                    for j = 1, #objectives do
+                                        if objectives[j].text then
+                                            objText = objText .. objectives[j].text .. "\n"
+                                        end
                                     end
                                 end
                             end
+                            text = #objText > 0 and objText or text
                         end
-                        text = #objText > 0 and objText or text
-                    elseif type == CGM.Types.Item then
+                    elseif type == CGM.Types.Item and stepFrames[i].shouldChangeText then
                         local itemText = ""
                         for itemID, requiredItemCount in pairs(currentStep.items) do
                             local itemName = GetItemInfo(itemID)
@@ -172,7 +195,7 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                         text = #itemText > 0 and itemText or text
                     end
                 end
-                stepFrames[i]:UpdateStep(index, text, CGM:IsStepAvailable(index), CGM:IsStepCompleted(index), index == CGM.currentStepIndex)
+                stepFrames[i]:UpdateStep(index, text, CGM:IsStepAvailable(index), CGM:IsStepCompleted(index), index == CGM.currentStepIndex, itemLink)
             else
                 stepFrames[i]:Clear()
             end
@@ -207,6 +230,8 @@ function CGM:ResizeStepFrames()
             stepFrames[i]:SetPoint("TOPLEFT", CGM.CGMFrame.bodyFrame, "TOPLEFT", 0, -topOffset)
             stepFrames[i]:SetPoint("BOTTOMRIGHT", CGM.CGMFrame.bodyFrame, "BOTTOMRIGHT", -17, bottomOffset)
             stepFrames[i]:ResizeText(stepFrames[i]:GetWidth() - STEP_TEXT_MARGIN)
+            stepFrames[i].itemButton:SetPoint("RIGHT", stepFrames[i], "RIGHT",
+                                              -(stepFrames[i]:GetHeight() - stepFrames[i].itemButton:GetHeight()) / 2, 0)
         end
     end
 end

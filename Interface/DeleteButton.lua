@@ -122,20 +122,12 @@ function CGM:ScanBag(bag)
     end
 end
 
--- Called when a bag's inventory is changed. Deletes any items in the given bag if it's specified by the guide.
-function CGM:OnBagUpdate(bag)
-    if bag >= BACKPACK_CONTAINER then
-        CGM:ScanBag(bag)
-        CGM:Fire("ITEM_UPDATE")
-    end
-end
-
 -- Initializes the delete frame.
 function CGM:InitDeleteFrame()
     CGM:Debug("initializing DeleteFrame")
     CUI = LibStub("CloudUI-1.0")
     -- Create main button.
-    deleteButton = CUI:CreateLinkButton(CGM.CGMFrame, "CGMDeleteButton", {DeleteButton_OnClick})
+    deleteButton = CUI:CreateLinkButton(CGM.CGMFrame, "CGMDeleteButton", nil, {DeleteButton_OnClick})
     deleteButton:SetSize(32, 32)
     deleteButton:SetPoint("TOPLEFT", CGM.CGMFrame, "BOTTOMLEFT", 0, -4)
     local texture = deleteButton:CreateTexture(nil, "OVERLAY")
