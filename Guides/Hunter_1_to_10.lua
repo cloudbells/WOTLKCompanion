@@ -14,6 +14,7 @@ local Fly = CGM.Types.Fly
 local Inn = CGM.Types.Inn
 
 -- @TODO: incorporate logout skips
+-- @TODO: make sure to get optimal fel cones
 CGM:RegisterGuide({
     ["name"] = "Hunter 1-10",
     ["itemsToSell"] = {
@@ -854,6 +855,14 @@ CGM:RegisterGuide({
         ["mapID"] = 1438,
         ["x"] = 68.8,
         ["y"] = 53.4
+    },
+    [91] = {
+        ["type"] = Do,
+        ["questID"] = 489,
+        ["text"] = "Pick up the last Fel Cone",
+        ["mapID"] = 1438,
+        ["x"] = 64.3,
+        ["y"] = 53.8
     },
 })
 -- LuaFormatter on
