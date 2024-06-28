@@ -147,11 +147,13 @@ function CGM:UpdateStepFrames(stepFrameIndex)
                 if CGM.currentStepIndex == index and not CGM:IsStepCompleted(index) then
                     if type == CGM.Types.Do then
                         if currentStep.items then
-                            -- @TODO: for now just grab first item, need to support multiple items
                             for itemID in pairs(currentStep.items) do
-                                local _, link = GetItemInfo(itemID)
-                                itemLink = link
-                                -- break
+                                -- @TODO: for now just grab first item, need to support multiple items somehow
+                                if (GetItemCount(itemID) > 0) then
+                                    local _, link = GetItemInfo(itemID)
+                                    itemLink = link
+                                    break
+                                end
                             end
                         end
                         if stepFrames[i].shouldChangeText then

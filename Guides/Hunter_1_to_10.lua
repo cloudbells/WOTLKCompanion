@@ -13,10 +13,15 @@ local Train = CGM.Types.Train
 local Fly = CGM.Types.Fly
 local Inn = CGM.Types.Inn
 
+-- @TODO: incorporate logout skips
 CGM:RegisterGuide({
     ["name"] = "Hunter 1-10",
     ["itemsToSell"] = {
-        [961] = true
+        [961] = true,
+        [5606] = true,
+        [5457] = true,
+        [5472] = true,
+        [5482] = true
     },
     [1] = {
         ["type"] = Accept,
@@ -442,6 +447,7 @@ CGM:RegisterGuide({
         ["x"] = 60.4,
         ["y"] = 56.2
     },
+    -- @TODO: set this to overarching objective
     [49] = {
         ["type"] = Accept,
         ["questID"] = 997,
@@ -473,13 +479,6 @@ CGM:RegisterGuide({
         ["y"] = 56.8
     },
     [52] = {
-        ["type"] = Coordinate,
-        ["text"] = "Vendor if needed",
-        ["mapID"] = 1438,
-        ["x"] = 55.3,
-        ["y"] = 57.2
-    },
-    [53] = {
         ["type"] = Accept,
         ["questID"] = 2438,
         ["text"] = "Accept The Emerald Dreamcatcher",
@@ -487,7 +486,7 @@ CGM:RegisterGuide({
         ["x"] = 55.6,
         ["y"] = 56.9
     },
-    [54] = {
+    [53] = {
         ["type"] = Accept,
         ["questID"] = 932,
         ["text"] = "Accept Twisted Hatred",
@@ -495,13 +494,26 @@ CGM:RegisterGuide({
         ["x"] = 55.6,
         ["y"] = 56.9
     },
-    [55] = {
+    [54] = {
         ["type"] = Accept,
         ["questID"] = 487,
         ["text"] = "Accept The Road to Darnassus if she's here",
         ["mapID"] = 1438,
-        ["x"] = 55.2,
-        ["y"] = 58.5
+        ["x"] = 55.8,
+        ["y"] = 58.3
+    },
+    [55] = {
+        ["type"] = Buy,
+        ["text"] = "Buy 400 arrows and vendor",
+        ["mapID"] = 1438,
+        ["x"] = 55.9,
+        ["y"] = 59.2,
+        ["items"] = {
+            [2512] = 400 -- Rough Arrow
+        },
+        ["cost"] = 0,
+        ["unitID"] = 3610,
+        ["exploit"] = true
     },
     [56] = {
         ["type"] = Deliver,
@@ -513,6 +525,13 @@ CGM:RegisterGuide({
         ["rewardID"] = 159
     },
     [57] = {
+        ["type"] = Inn,
+        ["text"] = "Set HS in Dolanaar",
+        ["mapID"] = 1438,
+        ["x"] = 55.6,
+        ["y"] = 59.8,
+    },
+    [58] = {
         ["type"] = Train,
         ["cost"] = 200,
         ["spells"] = {
@@ -531,27 +550,7 @@ CGM:RegisterGuide({
         ["y"] = 59.5,
         ["requiresLevel"] = 6
     },
-    [58] = {
-        ["type"] = Buy,
-        ["text"] = "Buy 400 arrows",
-        ["mapID"] = 1438,
-        ["x"] = 55.9,
-        ["y"] = 59.2,
-        ["items"] = {
-            [2512] = 400 -- Rough Arrow
-        },
-        ["cost"] = 0,
-        ["unitID"] = 3610,
-        ["exploit"] = true
-    },
     [59] = {
-        ["type"] = Inn,
-        ["text"] = "Set HS in Dolanaar",
-        ["mapID"] = 1438,
-        ["x"] = 55.6,
-        ["y"] = 59.8,
-    },
-    [60] = {
         ["type"] = Deliver,
         ["questID"] = 928,
         ["text"] = "Deliver Crown of the Earth pt2",
@@ -559,13 +558,302 @@ CGM:RegisterGuide({
         ["x"] = 56.1,
         ["y"] = 61.7
     },
-    [61] = {
+    [60] = {
         ["type"] = Accept,
         ["questID"] = 929,
         ["text"] = "Accept Crown of the Earth pt3",
         ["mapID"] = 1438,
         ["x"] = 56.1,
         ["y"] = 61.7
-    }
+    },
+    [61] = {
+        ["type"] = Train,
+        ["cost"] = 100,
+        ["spells"] = {
+            [2550] = {
+                ["name"] = "Apprentice Cook",
+                ["rank"] = 1
+            }
+        },
+        ["text"] = "Train Cooking",
+        ["mapID"] = 1438,
+        ["x"] = 57.1,
+        ["y"] = 61.3
+    },
+    -- @TODO: this should be overarching
+    [62] = {
+        ["type"] = Accept,
+        ["questID"] = 4161,
+        ["text"] = "Accept Recipe of the Kaldorei",
+        ["mapID"] = 1438,
+        ["x"] = 57.1,
+        ["y"] = 61.3
+    },
+    [63] = {
+        ["type"] = Deliver,
+        ["questID"] = 997,
+        ["text"] = "Deliver Denalan's Earth",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [64] = {
+        ["type"] = Accept,
+        ["questID"] = 918,
+        ["text"] = "Accept Timberling Seeds",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [65] = {
+        ["type"] = Accept,
+        ["questID"] = 919,
+        ["text"] = "Accept Timberling Sprouts",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [66] = {
+        ["type"] = Do,
+        ["isMultiStep"] = true,
+        ["questIDs"] = {
+            918,
+            919
+        },
+        ["text"] = "Do Timberling Seeds + Timberling Sprouts",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [67] = {
+        ["type"] = Deliver,
+        ["questID"] = 918,
+        ["text"] = "Deliver Timberling Seeds",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [68] = {
+        ["type"] = Accept,
+        ["questID"] = 922,
+        ["text"] = "Accept Rellian Greenspyre",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5
+    },
+    [69] = {
+        ["type"] = Deliver,
+        ["questID"] = 919,
+        ["text"] = "Deliver Timberling Sprouts",
+        ["mapID"] = 1438,
+        ["x"] = 60.9,
+        ["y"] = 68.5,
+        ["rewardID"] = 5606
+    },
+    [70] = {
+        ["type"] = Coordinate,
+        ["text"] = "Walk up this ramp towards Starbreeze Village",
+        ["mapID"] = 1438,
+        ["x"] = 62.2,
+        ["y"] = 65.5
+    },
+    -- @TODO: rare here if on a fresh server
+    [71] = {
+        ["type"] = Do,
+        ["questID"] = 2438,
+        ["text"] = "Loot the Emerald Dreamcatcher",
+        ["mapID"] = 1438,
+        ["x"] = 68.0,
+        ["y"] = 59.6
+    },
+    [72] = {
+        ["type"] = Deliver,
+        ["questID"] = 475,
+        ["text"] = "Deliver A Troubling Breeze",
+        ["mapID"] = 1438,
+        ["x"] = 66.3,
+        ["y"] = 58.5
+    },
+    [73] = {
+        ["type"] = Accept,
+        ["questID"] = 476,
+        ["text"] = "Accept Gnarlpine Corruption",
+        ["mapID"] = 1438,
+        ["x"] = 66.3,
+        ["y"] = 58.5
+    },
+    [74] = {
+        ["type"] = Do,
+        ["questID"] = 929,
+        ["items"] = {
+            [5619] = 1
+        },
+        ["text"] = "Fill the phial",
+        ["mapID"] = 1438,
+        ["x"] = 63.4,
+        ["y"] = 58.1
+    },
+    -- @TODO: overarching should merge into the one below, there are no overlapping objectives anymore
+    -- @TODO: should multi-do with spider legs quest
+    [75] = {
+        ["type"] = Do,
+        ["isMultiStep"] = true,
+        ["questIDs"] = {
+            488,
+            4161
+        },
+        ["text"] = "Finish Zenn's Bidding + Recipe of the Kaldorei",
+        ["mapID"] = 1438,
+        ["x"] = 62.6,
+        ["y"] = 59.4
+    },
+    [76] = {
+        ["type"] = Deliver,
+        ["questID"] = 488,
+        ["text"] = "Deliver Zenn's Bidding",
+        ["mapID"] = 1438,
+        ["x"] = 60.4,
+        ["y"] = 56.3
+    },
+    [77] = {
+        ["type"] = Accept,
+        ["questID"] = 489,
+        ["text"] = "Accept Seek Redemption!",
+        ["mapID"] = 1438,
+        ["x"] = 56.1,
+        ["y"] = 57.7
+    },
+    [78] = {
+        ["type"] = Deliver,
+        ["questID"] = 476,
+        ["text"] = "Deliver Gnarlpine Corruption",
+        ["mapID"] = 1438,
+        ["x"] = 56.0,
+        ["y"] = 57.3
+    },
+    [79] = {
+        ["type"] = Accept,
+        ["questID"] = 483,
+        ["text"] = "Accept The Relics of Wakening",
+        ["mapID"] = 1438,
+        ["x"] = 56.0,
+        ["y"] = 57.3
+    },
+    [80] = {
+        ["type"] = Buy,
+        ["text"] = "Buy a bag and vendor",
+        ["mapID"] = 1438,
+        ["x"] = 55.5,
+        ["y"] = 57.1,
+        ["items"] = {
+            [4496] = 1 -- Small Brown Pouch
+        },
+        ["cost"] = 500,
+        ["unitID"] = 3608
+    },
+    [81] = {
+        ["type"] = Deliver,
+        ["questID"] = 2438,
+        ["text"] = "Deliver The Emerald Dreamcatcher",
+        ["mapID"] = 1438,
+        ["x"] = 55.6,
+        ["y"] = 56.9
+    },
+    [82] = {
+        ["type"] = Accept,
+        ["questID"] = 2459,
+        ["text"] = "Accept Ferocitas the Dream Eater",
+        ["mapID"] = 1438,
+        ["x"] = 55.6,
+        ["y"] = 56.9
+    },
+    [83] = {
+        ["type"] = Accept,
+        ["questID"] = 487,
+        ["text"] = "Accept The Road to Darnassus if she's here",
+        ["mapID"] = 1438,
+        ["x"] = 55.8,
+        ["y"] = 58.3
+    },
+    [84] = {
+        ["type"] = Deliver,
+        ["questID"] = 929,
+        ["text"] = "Deliver Crown of the Earth pt3",
+        ["mapID"] = 1438,
+        ["x"] = 56.1,
+        ["y"] = 61.7
+    },
+    [85] = {
+        ["type"] = Accept,
+        ["questID"] = 933,
+        ["text"] = "Accept Crown of the Earth pt4",
+        ["mapID"] = 1438,
+        ["x"] = 56.1,
+        ["y"] = 61.7
+    },
+    [86] = {
+        ["type"] = Deliver,
+        ["questID"] = 4161,
+        ["text"] = "Deliver Recipe of the Kaldorei",
+        ["mapID"] = 1438,
+        ["x"] = 57.1,
+        ["y"] = 61.3
+    },
+    [87] = {
+        ["type"] = Train,
+        ["cost"] = 600,
+        ["spells"] = {
+            [3127] = {
+                ["name"] = "Parry",
+                ["rank"] = 1
+            },
+            [5116] = {
+                ["name"] = "Concussive Shot",
+                ["rank"] = 1
+            },
+            [14260] = {
+                ["name"] = "Raptor Strike",
+                ["rank"] = 2
+            }
+        },
+        ["text"] = "Train Parry, Concussive Shot, and Raptor Strike",
+        ["mapID"] = 1438,
+        ["x"] = 56.7,
+        ["y"] = 59.5,
+        ["requiresLevel"] = 8
+    },
+    [88] = {
+        ["type"] = Item,
+        ["questID"] = 489,
+        ["items"] = {
+            [3418] = 1 -- Fel Cone
+        },
+        ["text"] = "Pick up this Fel Cone",
+        ["mapID"] = 1438,
+        ["x"] = 58.8,
+        ["y"] = 55.5
+    },
+    [89] = {
+        ["type"] = Item,
+        ["questID"] = 489,
+        ["items"] = {
+            [3418] = 2 -- Fel Cone
+        },
+        ["text"] = "Pick up this Fel Cone",
+        ["mapID"] = 1438,
+        ["x"] = 59.0,
+        ["y"] = 56.1
+    },
+    [90] = {
+        ["type"] = Do,
+        ["questID"] = 2459,
+        ["items"] = {
+            [8049] = 1 -- Gnarlpine Necklace
+        },
+        ["text"] = "Kill Ferocitas and 7 Shamans, loot the necklace",
+        ["mapID"] = 1438,
+        ["x"] = 68.8,
+        ["y"] = 53.4
+    },
 })
 -- LuaFormatter on
